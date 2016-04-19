@@ -1,6 +1,6 @@
 %	$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $	
 \documentclass[html]{article}
-@i /msu/home/m1gsa00/miscProjects/math/miscLatexPkg.tex
+
 \begin{document}
 
 \title{``C'' Program Calling stochSim()
@@ -140,9 +140,7 @@ julliard.c.
 
 @d defines and includes
 @{
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <string>
 #define julNLAGS 1
 #define julNLEADS 5
 #define julNEQS 5
