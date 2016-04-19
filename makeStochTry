@@ -3,41 +3,27 @@
 LINK = gfortran
 #FC = ifort
 FC = gfortran
-SPAMADIR = /msu/home/m1gsa00/git/sparseAMAParser/sparseAMA
+SPAMADIR = ../sparseAMA
 FFLAGS = -c -g -I$(SPAMADIR)/src/main/include
 #CC = icc
 CC = gcc
 #CFLAGS = -c -g -I$(SPAMADIR)/src/main/include
 LAPACKLIBS=  -L/opt/atlas/lib/ -lcblas -lf77blas -latlas -llapack
-#NEWSPARSKITLOC = /msu/res2/m1gsa00/proj3/dataHome/sparse/SPARSKIT2
-#NEWSPARSKITLOC = /msu/res2/m1gsa00/aim/SPARSKIT2
-#NEWSPARSKITLOC = /msu/res2/m1gsa00/proj3/garyFiles/tryonSparseAim/sparseAim/libskit.a
-NEWSPARSKITLOC = /msu/res1/Software/SPARSKIT2
 SYSTEM= -DUNIX
-#FILTER = /mq/home/m1gsa00/aim/sparse/nuweb_filter.pl
-FILTER= /msu/res2/m1gsa00/proj3/garyFiles/big/cFiles/nuwebTree/nuweb_filter.pl
 FRBUSDIR=$(HOME)/aim/frbus
 CFLAGS = -O4  -DUNIX -DCLOCK  -I$(SPAMADIR)/src/main/include
-#SPARSELIB = -L$(NEWSPARSKITLOC) -lskit \
-#		  -L/mq/home/m1gsa00/matlab/ranlib_c-93/src -lran 
-#SPARSELIB = -L$(NEWSPARSKITLOC) -lskit \
-#		  /msu/res2/m1gsa00/aim/cpStochSims/ranlib.o
-SPARSELIB =   /msu/res2/m1gsa00/aim/cpStochSims/ranlib.o
+SPARSELIB =   ./ranlib.o
 
 
 
 debCFLAGS = -g  -pg -DUNIX -DCLOCK  -I$(SPAMADIR)/src/main/include
 
 fastCFLAGS =  -O4 -DUNIX -DCLOCK   -I$(SPAMADIR)/src/main/include
-#fastSPARSELIB = -L$(NEWSPARSKITLOC) -lskit \
-#			  -L/mq/home/m1gsa00/matlab/ranlib_c-93/src -lran 
-#fastSPARSELIB = -L$(NEWSPARSKITLOC) -lskit \
-#		  /msu/res2/m1gsa00/aim/cpStochSims/ranlib.o
-fastSPARSELIB = 	  /msu/res2/m1gsa00/aim/cpStochSims/ranlib.o
+fastSPARSELIB = 	  ./ranlib.o
 
 LINTFLAGS = -b -c  -h 
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(HOME)/aim/sparse -lsparseAim
-LINKFLAGS =  -v  -lc -ldl -lm -L/msu/home/m1gsa00/git/sparseAMAParser/sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-amd64-Linux-g++-shared/lib/amd64-Linux-g++/shared -lsparseAMA-1.0-SNAPSHOT
+LINKFLAGS =  -v  -lc -ldl -lm -L../sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-amd64-Linux-g++-shared/lib/amd64-Linux-g++/shared -lsparseAMA-1.0-SNAPSHOT
 
 
 #LAPACKLIB  = /mq/home/m1gsa00/aim/summer98/aimCCode/lapack_os5.a \
@@ -149,72 +135,6 @@ debStochRun:	debStochRun.o debStackC.o  debMyNewt.o dtime.o\
 
 
 
-
-
-#this shouldn't be necessary for insure, but 
-#in our experience, the program was confused(especially for coverage comp)
-# by linenumber directives 
-#that referred to the .w files.
-
-insstochProto.o:			 stochProto.c
-		$(FILTER) < stochProto.c > nlstochProto.c 
-		insure -g -o insstochProto.o -c nlstochProto.c 
-insstochRun.o:			 stochRun.c
-		$(FILTER) < stochRun.c > nlstochRun.c 
-		insure -g -o insstochRun.o -c nlstochRun.c 
-insstackC.o:			 stackC.c
-		$(FILTER) < stackC.c > nlStackC.c 
-		insure -g -o insstackC.o -c nlStackC.c 
-insjulliard.o:			 julliard.c
-		$(FILTER) < julliard.c > nljulliard.c 
-		insure -g -o insjulliard.o -c nljulliard.c 
-insmyNewt.o:			 myNewt.c
-		$(FILTER) < myNewt.c > nlmyNewt.c 
-		insure -g -I$(SPAMADIR)/src/main/include -o insmyNewt.o -c nlmyNewt.c 
-inssparseAim.o:			 $(HOME)/aim/sparse/sparseAim.c
-		$(FILTER) < $(HOME)/aim/sparse/sparseAim.c > nlsparseAim.c 
-		insure -g -I$(SPAMADIR)/src/main/include -o inssparseAim.o -c nlsparseAim.c 
-
-
-
-insurestochRun:	insstochRun.o insstackC.o  insjulliard.o insmyNewt.o\
-				 ma50ad.o inssparseAim.o insstochProto.o
-		ins_ld  -g -o insurestochRun \
-		insstochRun.o \
-		insmyNewt.o insstackC.o insjulliard.o ma50ad.o insstochProto.o\
-		$(SPARSELIB) inssparseAim.o $(LINKFLAGS) $(LAPACKLIB) 
-
-		
-
-raystochProto.o:			 stochProto.c
-		$(FILTER) < stochProto.c > nlstochProto.c 
-		$(CC) -g -o raystochProto.o -c nlstochProto.c 
-raystochRun.o:			 stochRun.c
-		$(FILTER) < stochRun.c > nlstochRun.c 
-		$(CC) -g -o raystochRun.o -c nlstochRun.c 
-raystackC.o:			 stackC.c
-		$(FILTER) < stackC.c > nlStackC.c 
-		$(CC) -g -o raystackC.o -c nlStackC.c 
-rayjulliard.o:			 julliard.c
-		$(FILTER) < julliard.c > nljulliard.c 
-		$(CC) -g -o rayjulliard.o -c nljulliard.c 
-raymyNewt.o:			 myNewt.c
-		$(FILTER) < myNewt.c > nlmyNewt.c 
-		$(CC) -g -I$(SPAMADIR)/src/main/include -o raymyNewt.o -c nlmyNewt.c 
-raysparseAim.o:			 $(SPAMADIR)/src/main/sparseAim.c
-		$(FILTER) < $(SPAMADIR)/src/main/sparseAim.c > nlsparseAim.c 
-		$(CC) -g -I$(SPAMADIR) -o raysparseAim.o -c nlsparseAim.c 
-
-
-
-
-raystochRun:	raystochRun.o raystackC.o  rayjulliard.o raymyNewt.o\
-				 ma50ad.o raysparseAim.o raystochProto.o
-		$(LINK)  -g -o raystochRun \
-		raystochRun.o \
-		raymyNewt.o raystackC.o rayjulliard.o ma50ad.o raystochProto.o\
-		$(SPARSELIB) raysparseAim.o $(LINKFLAGS) $(LAPACKLIB) 
-
 		
 
 
@@ -226,20 +146,3 @@ canadaRun:	canadaRun.o stackC.o  canada.o myNewt.o\
 		$(SPARSELIB)  $(LINKFLAGS) $(LAPACKLIB) 
 
 
-
-inscanadaRun.o:			 canadaRun.c
-		$(FILTER) < canadaRun.c > nlcanadaRun.c 
-		insure -g -o inscanadaRun.o -c nlcanadaRun.c 
-
-
-inscanada.o:			 canada.c
-		$(FILTER) < canada.c > nlcanada.c 
-		insure -g -o inscanada.o -c nlcanada.c 
-
-
-insurecanadaRun:	inscanadaRun.o insstackC.o  inscanada.o insmyNewt.o\
-				 ma50ad.o  inssparseAim.o insstochProto.o
-		ins_ld  -g -o insurecanadaRun \
-		inscanadaRun.o \
-		insmyNewt.o insstackC.o inscanada.o ma50ad.o insstochProto.o\
-		$(SPARSELIB) inssparseAim.o  $(LINKFLAGS) $(LAPACKLIB) 

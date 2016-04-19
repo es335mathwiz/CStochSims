@@ -166,7 +166,7 @@ The driver program uses these to allocate  space for the computations.
 @d defines and includes
 @{
 #define MAXELEMENTS 20000
-#define PATHLENGTH 10
+#define PATHLENGTH 25
 #define REPLICATIONS 5000
 
 
@@ -381,10 +381,15 @@ double val;
    case 'a':
 	 pl=atoi(argv[2]);
      printf("got %d for t0\n",pl);
-     if(pl>SHOCKS)
+     if(pl>DATA)
 	 {
-       *t0=SHOCKS;
-       printf("initial t0 to maximum=%d\n",SHOCKS);
+       *t0=DATA;
+       printf("setting initial t0 to maximum number of data elements=%d\n",*t0);
+       } else { *t0 = pl;}
+     if(pl<julNLAGS)
+	 {
+       *t0=julNLAGS+1;
+       printf("setting initial t0 to one more than number of lags=%d\n",*t0);
        } else { *t0 = pl;}
 	 argc--;argv++;
 	 break;
@@ -424,6 +429,13 @@ double val;
 @d process command line
 @{
 vbl=0;/*hack so that if shock irrelevant variable if no other variables shocked*/
+*pathLength=1;
+*replications=1;
+*t0=julNLAGS+1;
+stochasticPathLength=1;
+printf("default values:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,stochasticPathLength);
+
+
 while(argc>1&&argv[1][0] == '-')
 {
 printf("processing command line args\n");
@@ -440,6 +452,8 @@ printf("processing command line args\n");
 argc--;argv++;
  }
      outFile=fopen(flnm,"w");
+
+printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,stochasticPathLength);
 
 @}
 
@@ -614,7 +628,7 @@ asymptoticLinearization AMqMatrix
 @{
 int  dtime(double * userSystemTime);
 *totalTime=dtime(userSystemTime);
-printf("after compile time determined storage allocations\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
+printf("Hello World!!  after compile time determined storage allocations\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
      *totalTime,*userSystemTime,*(userSystemTime+1));
 
 @}
