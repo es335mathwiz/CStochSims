@@ -71,7 +71,7 @@ stochSim[t0Index_Integer,tfIndex_Integer,
         replications_Integer,
 		model_List,horizon_Integer,expType_Symbol]:=
 With[{mlags=lags[model]},
-With[{laggedDataValues=xData[model][[t0Index-Range[-mlags,-1]]]},
+With[{laggedDataValues=xData[model][[t0Index+Range[-mlags,-1]]]},
 With[{shockSeqList=
 generateDraws[t0Index,tfIndex,replications,Length[shocks[model]]],
 iterFunc=(generatePathX[{model,horizon,expType,laggedDataValues},#])&},

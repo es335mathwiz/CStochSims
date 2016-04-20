@@ -1,0 +1,123 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{hyperref}
+\usepackage{moreverb}
+\usepackage{graphicx}
+\input{newCmds}
+\title{Computing Stochastic Simulations on a Cluster}
+\author{Gary S Anderson and James Trevino}
+\begin{document}
+\maketitle
+\section{Algorithm Overview}
+\label{sec:algorithm-overview}
+
+Reconcile the generation of the Mathematica packages with the .w file. At the moment, C code generated along side .m via nuweb, but not the package in stackStochSim repository.
+
+We are given a fixed set of $\nShks$ ``historical shocks''
+\begin{gather*}
+  \Upsilon =
+  \begin{bmatrix}
+    \epsilon_1&\cdots&\epsilon_{\nShks}
+  \end{bmatrix}
+\end{gather*}
+and $\nXs$ ``historical data'' observations
+\begin{gather*}
+  X =
+  \begin{bmatrix}
+    x_1&\cdots&x_{T_x}
+  \end{bmatrix}.
+\end{gather*}
+We will need to implement and describe how to accomodate FRBUS style ``baseline paths.''
+\section{Example Models}
+\label{sec:example-models}
+
+There is a Mathematica implementation of the stack algorithm
+ and stochastic simulations in the statckStochSims repository.  
+
+
+
+\subsection{Small Juillard}
+\label{sec:small-juillard}
+There are two example .mth files: \mmaFile{tryStack.mth} and \mmaFile{tryStoch.mth} that apply the code to a 5 equation model described in an old paper by
+Michel Juillard.\footnote{I don't have the reference yet.} The examples should
+be simplified and reconciled to use same inputs.  Also the inputs may need
+to move to FRBUS xml format.
+
+(Should change this section to use Splice so that data is consistent.)
+
+For example running
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, t]
+\end{verbatim}
+\includegraphics[width=5.0in]{../../stackStochSims/models/juillardExample/resT.pdf}
+
+computes a time t expectation solution which in this particular run uses
+shock 9.
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
+\end{verbatim}
+
+\includegraphics[width=5.0in]{../../stackStochSims/models/juillardExample/resTMinusOne.pdf}
+
+computes a time t-1 expectation solution which in this particular run uses
+shock 3
+
+
+\newpage
+\section{Outstanding Questions}
+\begin{description}
+\item[Debugging Old C/Mathematica Code] 
+\item[XML FRBUS model equation generation] 
+\item[Example Models] \ 
+  \begin{description}
+  \item[RBC] 
+  \item[Small Juillard] 
+  \item[Canada] 
+  \item[FRBUS] 
+  \end{description}
+\item[Honoring the ZLB] 
+\item[Addressing ``Large Roots Problem''] 
+\item[Parallel  (MPI?)] 
+\item[Asymptotic Behavior -- Growth Path] 
+\item[Reconcile Nonlinear FRBUS and March 3 memo Benefits of LinVer] 
+\item[OMNI Rule?] 
+\end{description}
+
+
+
+
+\newpage
+\appendix
+
+\section{Appendix}
+\label{sec:app}
+
+\subsection{Juillard Model}
+\label{sec:juillard-model-}
+
+\subsubsection{tryStack.mth}
+\label{sec:trystack.mth}
+
+
+\listinginput{1}{../../stackStochSims/tryStack.mth}
+
+\subsubsection{tryStoch.mth}
+\label{sec:trystack.mth}
+
+
+\listinginput{1}{../../stackStochSims/tryStoch.mth}
+
+\subsubsection{xData}
+\label{sec:xdata}
+
+\includegraphics[width=5.0in,height=8.5in]{../../stackStochSims/models/juillardExample/xdata.pdf}
+
+\subsubsection{shks}
+\label{sec:xdata}
+
+\includegraphics[width=5.0in,height=8.5in]{../../stackStochSims/models/juillardExample/shks.pdf}
+
+\end{document}
