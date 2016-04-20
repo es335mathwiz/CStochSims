@@ -1,0 +1,30 @@
+
+\subsection{Small Juillard}
+\label{sec:small-juillard}
+There are two example .mth files: \mmaFile{tryStack.mth} and \mmaFile{tryStoch.mth} that apply the code to a 5 equation model described in an old paper by
+Michel Juillard.\footnote{I don't have the reference yet.} The examples should
+be simplified and reconciled to use same inputs.  Also the inputs may need
+to move to FRBUS xml format.
+
+
+
+For example running
+%<*tRes=stochSim[2, 2, 1, testModel, 1, t];*>
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, t]
+\end{verbatim}
+computes a time t expectation solution which in this particular run uses
+shock <*tRes[[1,2]]*>
+\begin{gather*}<*shk[[tRes[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+.
+\begin{gather*}<*tRes[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
+
+%<*tm1Res=stochSim[2, 2, 1, testModel, 1, tMinusOne];*>
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectation solution which in this particular run uses
+shock <*tm1Res[[1,2]]*>
+\begin{gather*}<*shk[[tm1Res[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+
+\begin{gather*}<*tm1Res[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}

@@ -10,8 +10,17 @@
 \author{Gary S Anderson and James Trevino}
 \begin{document}
 \maketitle
+
+
 \section{Algorithm Overview}
 \label{sec:algorithm-overview}
+\begin{abstract}
+This paper describes how to compute stochastic simulations on a cluster of linux machines.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
 
 Reconcile the generation of the Mathematica packages with the .w file. At the moment, C code generated along side .m via nuweb, but not the package in stackStochSim repository.
 
@@ -30,42 +39,30 @@ and $\nXs$ ``historical data'' observations
   \end{bmatrix}.
 \end{gather*}
 We will need to implement and describe how to accomodate FRBUS style ``baseline paths.''
+
+\subsection{Honoring the Zero Lower Bound on Interest Rates}
+\label{sec:honoring-zero-lower}
+
+\subsection{Addressing the "Too Many Large Roots" Problem}
+\label{sec:addressing-too-many}
+
+\subsection{Using the Cluster:  Parallel Programming Considerations}
+\label{sec:using-clust-parall}
+
+\subsection{Characterizing Asymptotic Behavior:  Accomodating Growth}
+\label{sec:char-asympt-behav}
+
+\subsection{Comparison to Linver}
+\label{sec:comparison-linver}
+
+
+
 \section{Example Models}
 \label{sec:example-models}
 
 There is a Mathematica implementation of the stack algorithm
  and stochastic simulations in the statckStochSims repository.  
-
-
-
-\subsection{Small Juillard}
-\label{sec:small-juillard}
-There are two example .mth files: \mmaFile{tryStack.mth} and \mmaFile{tryStoch.mth} that apply the code to a 5 equation model described in an old paper by
-Michel Juillard.\footnote{I don't have the reference yet.} The examples should
-be simplified and reconciled to use same inputs.  Also the inputs may need
-to move to FRBUS xml format.
-
-(Should change this section to use Splice so that data is consistent.)
-
-For example running
-\begin{verbatim}
-stochSim[2, 2, 1, testModel, 1, t]
-\end{verbatim}
-\includegraphics[width=5.0in]{../../stackStochSims/models/juillardExample/resT.pdf}
-
-computes a time t expectation solution which in this particular run uses
-shock 9.
-
-\begin{verbatim}
-stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
-\end{verbatim}
-
-\includegraphics[width=5.0in]{../../stackStochSims/models/juillardExample/resTMinusOne.pdf}
-
-computes a time t-1 expectation solution which in this particular run uses
-shock 3
-
-
+\input{./smallJuillardMmaExample}
 \newpage
 \section{Outstanding Questions}
 \begin{description}
