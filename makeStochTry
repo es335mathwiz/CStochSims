@@ -108,9 +108,9 @@ lint:	$(LINTFILE)
 printall:	
 
 stochRun:	stochRun.o stackC.o  myNewt.o dtime.o\
-			ma50ad.o stochProto.o julliard.o ranlib.o
+			ma50ad.o stochProto.o juillard.o ranlib.o
 		$(LINK) -o stochRun -O4 stochRun.o myNewt.o dtime.o\
-		stackC.o julliard.o ma50ad.o stochProto.o\
+		stackC.o juillard.o ma50ad.o stochProto.o\
 		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)
 
 
@@ -126,12 +126,12 @@ debStochRun.o:		stochRun.c
 		$(CC) $(debCFLAGS) -o debStochRun.o -c stochRun.c  
 debStochProto.o:		stochProto.c
 		$(CC) $(debCFLAGS) -o debStochProto.o -c stochProto.c  
-debJulliard.o:		julliard.c
-		$(CC) $(debCFLAGS) -o debJulliard.o -c julliard.c  
+debJuillard.o:		juillard.c
+		$(CC) $(debCFLAGS) -o debJuillard.o -c juillard.c  
 debStochRun:	debStochRun.o debStackC.o  debMyNewt.o dtime.o\
-			ma50ad.o debStochProto.o debJulliard.o ranlib.o
+			ma50ad.o debStochProto.o debJuillard.o ranlib.o
 		$(LINK) -o debStochRun -O4 debStochRun.o debMyNewt.o dtime.o\
-		debStackC.o debJulliard.o ma50ad.o debStochProto.o\
+		debStackC.o debJuillard.o ma50ad.o debStochProto.o\
 		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)
 
 
