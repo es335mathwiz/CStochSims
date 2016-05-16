@@ -2486,6 +2486,8 @@ int *BMatrixRows2);
 
 
 extern double  dnrm2_();
+#include <string.h>
+
 void lnsrch(int  n,int np,int reps,
 double xold[], double * fold, double g[], double p[], 
 		 double * params,double * shockVec,double * f,double stpmax, int *check,
@@ -2506,7 +2508,6 @@ cfree(aOne);cfree(aZero);cfree(aTwo);cfree(fvec);cfree(fvecj);cfree(fveci);
 
 @d lnsrch declarations
 @{
-#include <string.h>
 	int i;
 	double a,alam,alam2,alamin,b,disc,f2,fold2,rhs1,rhs2,slope,sum,temp,
 		test,tmplam;
