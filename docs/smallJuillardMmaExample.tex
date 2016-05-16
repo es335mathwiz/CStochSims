@@ -9,36 +9,454 @@ to move to FRBUS xml format.
 
 
 For example running
-%Null
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock {23}
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}\begin{array}{ccccc}
+ -0.0242615 & 0.0774756 & -0.0922097 & -0.171166 & -0.121133 \\
+\end{array}
+  \end{bmatrix}
+\end{gather*}
+
+\begin{gather*}
+  \begin{bmatrix}\begin{array}{ccccc}
+ -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
+ -0.0242615 & -0.323406 & -0.33979 & -0.626224 & 0.515161 \\
+\end{array}
+\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 1 produces:
+{\small
+\begin{gather*}\begin{array}{c}
+ 0 \\
+ -0.400792 \\
+ -0.262844 \\
+ -0.641487 \\
+ 0.560887 \\
+ 0 \\
+ -0.0653212 \\
+ 0.1506 \\
+ -0.0902463 \\
+ 0.105717 \\
+\end{array}
+\end{gather*}
+}
+
+
+
+
+producing $x_t$
+\begin{gather*}\begin{array}{c}
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ -0.0242615 \\
+ -0.323406 \\
+ -0.33979 \\
+ -0.626224 \\
+ 0.515161 \\
+ 0 \\
+ -0.0653212 \\
+ 0.1506 \\
+ -0.0902463 \\
+ 0.105717 \\
+\end{array}
+\end{gather*}
+
+
+
+Computing t expectations 
+
+
 \begin{verbatim}
 stochSim[2, 2, 1, testModel, 1, t]
 \end{verbatim}
-computes a time t expectation solution which in this particular run uses
-shock {14}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock {4}
 \begin{gather*}\begin{array}{ccccc}
- -0.135773 & 0.00968129 & 0.219991 & -0.00656889 & 0.0680888 \\
+ 0.0795359 & -0.0172917 & -0.139301 & -0.0795452 & -0.000764437 \\
 \end{array}
 \end{gather*}
 .
 \begin{gather*}\begin{array}{ccccc}
  -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
- -0.135773 & -0.50341 & -0.21941 & -0.930387 & 0.586411 \\
+ 0.0795359 & -0.541297 & -0.524262 & -0.887124 & 0.816313 \\
 \end{array}
 \end{gather*}
 
-%Null
+
+
+
+
+
+
+Running 
 \begin{verbatim}
-stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
+(aimType2Terror[shock,testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
 \end{verbatim}
-computes a time t-1 expectation solution which in this particular run uses
-shock {3}
-\begin{gather*}\begin{array}{ccccc}
- 0.0794213 & 0.029234 & -0.0737597 & -0.0811142 & 0.150862 \\
+for horizon length 1 produces:
+
+
+
+
+
+{\small
+\begin{gather*}\begin{array}{c}
+ 0.0795359 \\
+ -0.541297 \\
+ -0.524262 \\
+ -0.887124 \\
+ 0.816313 \\
+ 0 \\
+ -0.363679 \\
+ -0.211384 \\
+ -0.550115 \\
+ 0.540922 \\
+\end{array}
+\end{gather*}
+}
+
+Computing convergent solutions requires a longer pathlength than 1.
+
+{\small
+\begin{gather*}\left(
+\begin{array}{cc}
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ 0.0795359 & 0.0795359 \\
+ -0.609851 & -0.541297 \\
+ -0.593483 & -0.524262 \\
+ -1.02495 & -0.887124 \\
+ 0.884149 & 0.816313 \\
+ 0 & 0 \\
+ -0.529387 & -0.363679 \\
+ -0.357171 & -0.211384 \\
+ -0.861942 & -0.550115 \\
+ 0.72622 & 0.540922 \\
+\end{array}
+\right)
+\end{gather*}
+}
+
+
+
+
+
+
+For example running 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 20, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 20 and one replication draw 
+which in this particular run uses
+shock {2}
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}\begin{array}{ccccc}
+ 0.0108933 & 0.0524847 & -0.0957718 & 0.0757908 & -0.108245 \\
+\end{array}
+  \end{bmatrix}
+\end{gather*}
+
+\begin{gather*}
+  \begin{bmatrix}\begin{array}{ccccc}
+ -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
+ 0.0108933 & -0.657437 & -0.560213 & -1.15246 & 0.744063 \\
+\end{array}
+\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 20 produces:
+{\small
+\begin{gather*}\begin{array}{c}
+ 0 \\
+ -0.70982 \\
+ -0.57482 \\
+ -1.26284 \\
+ 0.866624 \\
+ 0 \\
+ -0.812597 \\
+ -0.608628 \\
+ -1.39681 \\
+ 1.04098 \\
+\end{array}
+\end{gather*}
+}
+
+
+
+
+producing $x_t$
+\begin{gather*}\begin{array}{c}
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ 0.0108933 \\
+ -0.657437 \\
+ -0.560213 \\
+ -1.15246 \\
+ 0.744063 \\
+ 0 \\
+ -0.812597 \\
+ -0.608628 \\
+ -1.39681 \\
+ 1.04098 \\
 \end{array}
 \end{gather*}
 
+
+
+Computing t expectations 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 20, t]
+\end{verbatim}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock {29}
+\begin{gather*}\begin{array}{ccccc}
+ 0.162466 & -0.0130103 & -0.130607 & -0.00796134 & 0.143759 \\
+\end{array}
+\end{gather*}
+.
 \begin{gather*}\begin{array}{ccccc}
  -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
- 0.0794213 & -0.371396 & -0.220332 & -0.525215 & 0.670087 \\
+ 0.162466 & -0.757136 & -0.626508 & -1.21833 & 1.06104 \\
 \end{array}
 \end{gather*}
+
+
+
+
+
+
+
+Running 
+\begin{verbatim}
+(aimType2Terror[shock,testModel,20,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 20 produces:
+
+
+
+
+
+{\small
+\begin{gather*}\begin{array}{c}
+ 0.162466 \\
+ -0.757136 \\
+ -0.626508 \\
+ -1.21833 \\
+ 1.06104 \\
+ 0 \\
+ -0.895729 \\
+ -0.736494 \\
+ -1.60798 \\
+ 1.0792 \\
+\end{array}
+\end{gather*}
+}
+
+
+
+Solutions of pathlength 25 26 produce the same solution for $x_t$.
+
+
+
+For example running 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 25, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 25 and one replication draw 
+which in this particular run uses
+shock {12}
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}\begin{array}{ccccc}
+ -0.129699 & 0.00569999 & -0.0247515 & 0.15878 & 0.0776014 \\
+\end{array}
+  \end{bmatrix}
+\end{gather*}
+
+\begin{gather*}
+  \begin{bmatrix}\begin{array}{ccccc}
+ -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
+ -0.129699 & -0.704146 & -0.45934 & -1.1226 & 0.831055 \\
+\end{array}
+\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 25 produces:
+{\small
+\begin{gather*}\begin{array}{c}
+ 0 \\
+ -0.70982 \\
+ -0.57482 \\
+ -1.26284 \\
+ 0.866624 \\
+ 0 \\
+ -0.812597 \\
+ -0.608628 \\
+ -1.39681 \\
+ 1.04098 \\
+\end{array}
+\end{gather*}
+}
+
+
+
+
+
+producing $x_t$
+\begin{gather*}\begin{array}{c}
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ -0.6 \\
+ -0.3 \\
+ -0.129699 \\
+ -0.704146 \\
+ -0.45934 \\
+ -1.1226 \\
+ 0.831055 \\
+ 0 \\
+ -0.812597 \\
+ -0.608628 \\
+ -1.39681 \\
+ 1.04098 \\
+\end{array}
+\end{gather*}
+
+
+
+For pathlenghts 25 and 26 we get:
+{\small
+\begin{gather*}\left(
+\begin{array}{cc}
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ 0 & 0 \\
+ -0.70982 & -0.70982 \\
+ -0.57482 & -0.57482 \\
+ -1.26284 & -1.26284 \\
+ 0.866624 & 0.866624 \\
+ 0 & 0 \\
+ -0.812597 & -0.812597 \\
+ -0.608628 & -0.608628 \\
+ -1.39681 & -1.39681 \\
+ 1.04098 & 1.04098 \\
+\end{array}
+\right)
+\end{gather*}
+}
+
+
+
+
+Computing t expectations 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 25, t]
+\end{verbatim}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock {12}
+\begin{gather*}\begin{array}{ccccc}
+ -0.129699 & 0.00569999 & -0.0247515 & 0.15878 & 0.0776014 \\
+\end{array}
+\end{gather*}
+.
+\begin{gather*}\begin{array}{ccccc}
+ -0.3 & -0.6 & -0.3 & -0.6 & -0.3 \\
+ -0.129699 & -0.715433 & -0.470737 & -1.1453 & 0.842223 \\
+\end{array}
+\end{gather*}
+
+
+
+
+
+
+
+Running 
+\begin{verbatim}
+(aimType2Terror[shock,testModel,25,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 25 produces:
+
+
+
+
+
+{\small
+\begin{gather*}\begin{array}{c}
+ -0.129699 \\
+ -0.715433 \\
+ -0.470737 \\
+ -1.1453 \\
+ 0.842223 \\
+ 0 \\
+ -0.83988 \\
+ -0.590985 \\
+ -1.40646 \\
+ 1.11318 \\
+\end{array}
+\end{gather*}
+}
+
+
+
+For pathlenghts 25 and 26 we get:
+{\small
+\begin{gather*}\left(
+\begin{array}{cc}
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ -0.6 & -0.6 \\
+ -0.3 & -0.3 \\
+ -0.129699 & -0.129699 \\
+ -0.715433 & -0.715433 \\
+ -0.470737 & -0.470737 \\
+ -1.1453 & -1.1453 \\
+ 0.842223 & 0.842223 \\
+ 0 & 0 \\
+ -0.83988 & -0.83988 \\
+ -0.590985 & -0.590985 \\
+ -1.40646 & -1.40646 \\
+ 1.11318 & 1.11318 \\
+\end{array}
+\right)
+\end{gather*}
+}

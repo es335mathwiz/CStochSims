@@ -9,22 +9,232 @@ to move to FRBUS xml format.
 
 
 For example running
-%<*tRes=stochSim[2, 2, 1, testModel, 1, t];*>
-\begin{verbatim}
-stochSim[2, 2, 1, testModel, 1, t]
-\end{verbatim}
-computes a time t expectation solution which in this particular run uses
-shock <*tRes[[1,2]]*>
-\begin{gather*}<*shk[[tRes[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
-.
-\begin{gather*}<*tRes[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
 
-%<*tm1Res=stochSim[2, 2, 1, testModel, 1, tMinusOne];*>
+
 \begin{verbatim}
 stochSim[2, 2, 1, testModel, 1, tMinusOne] // Chop // TableForm
 \end{verbatim}
-computes a time t-1 expectation solution which in this particular run uses
-shock <*tm1Res[[1,2]]*>
-\begin{gather*}<*shk[[tm1Res[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock <*tm1Res01[[1,2]]*>
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}<*shk[[tm1Res01[[1,2]]]]//Chop//TableForm//TeXForm*>  \end{bmatrix}
+\end{gather*}
 
-\begin{gather*}<*tm1Res[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
+\begin{gather*}
+  \begin{bmatrix}<*tm1Res01[[1,1]]//Chop//TableForm//TeXForm*>\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 1 produces:
+{\small
+\begin{gather*}<*tm1Iter01[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+
+
+
+producing $x_t$
+\begin{gather*}<*tm1Xt01//Chop//TableForm//TeXForm*>\end{gather*}
+
+
+
+Computing t expectations 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 1, t]
+\end{verbatim}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock <*tRes01[[1,2]]*>
+\begin{gather*}<*shk[[tRes01[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+.
+\begin{gather*}<*tRes01[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
+
+
+
+
+
+
+
+Running 
+\begin{verbatim}
+(aimType2Terror[shock,testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 1 produces:
+
+
+
+
+
+{\small
+\begin{gather*}<*tIter01[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+Computing convergent solutions requires a longer pathlength than 1.
+
+{\small
+\begin{gather*}<*Transpose[{tIter02[[-1,Range[15]]],tIter01[[-1,Range[15]]]}]//Chop//TeXForm*>\end{gather*}
+}
+
+
+
+
+
+
+For example running 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 20, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 20 and one replication draw 
+which in this particular run uses
+shock <*tm1Res20[[1,2]]*>
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}<*shk[[tm1Res20[[1,2]]]]//Chop//TableForm//TeXForm*>  \end{bmatrix}
+\end{gather*}
+
+\begin{gather*}
+  \begin{bmatrix}<*tm1Res20[[1,1]]//Chop//TableForm//TeXForm*>\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 20 produces:
+{\small
+\begin{gather*}<*tm1Iter20[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+
+
+
+producing $x_t$
+\begin{gather*}<*tm1Xt20//Chop//TableForm//TeXForm*>\end{gather*}
+
+
+
+Computing t expectations 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 20, t]
+\end{verbatim}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock <*tRes20[[1,2]]*>
+\begin{gather*}<*shk[[tRes20[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+.
+\begin{gather*}<*tRes20[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
+
+
+
+
+
+
+
+Running 
+\begin{verbatim}
+(aimType2Terror[shock,testModel,20,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 20 produces:
+
+
+
+
+
+{\small
+\begin{gather*}<*tIter20[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+
+
+Solutions of pathlength 25 26 produce the same solution for $x_t$.
+
+
+
+For example running 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 25, tMinusOne] // Chop // TableForm
+\end{verbatim}
+computes a time t-1 expectations solution using data point $t_0=t_f=2$, using a pathLength of 25 and one replication draw 
+which in this particular run uses
+shock <*tm1Res25[[1,2]]*>
+\begin{gather*}\epsilon_0=
+  \begin{bmatrix}<*shk[[tm1Res25[[1,2]]]]//Chop//TableForm//TeXForm*>  \end{bmatrix}
+\end{gather*}
+
+\begin{gather*}
+  \begin{bmatrix}<*tm1Res25[[1,1]]//Chop//TableForm//TeXForm*>\end{bmatrix}\end{gather*}
+
+Running 
+\begin{verbatim}
+(aimType2[testModel,1,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 25 produces:
+{\small
+\begin{gather*}<*tm1Iter25[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+
+
+
+
+producing $x_t$
+\begin{gather*}<*tm1Xt25//Chop//TableForm//TeXForm*>\end{gather*}
+
+
+
+For pathlenghts 25 and 26 we get:
+{\small
+\begin{gather*}<*Transpose[{tm1Iter25[[-1,Range[15]]],tm1Iter26[[-1,Range[15]]]}]//Chop//TeXForm*>\end{gather*}
+}
+
+
+
+
+Computing t expectations 
+
+
+\begin{verbatim}
+stochSim[2, 2, 1, testModel, 25, t]
+\end{verbatim}
+computes a time t expectations solution  using data point $t_0=t_f=2$, using a pathLength of 1 and one replication draw 
+which in this particular run uses
+shock <*tRes25[[1,2]]*>
+\begin{gather*}<*shk[[tRes25[[1,2]]]]// Chop // TableForm//TeXForm*>\end{gather*}
+.
+\begin{gather*}<*tRes25[[1,1]]// Chop // TableForm//TeXForm*>\end{gather*}
+
+
+
+
+
+
+
+Running 
+\begin{verbatim}
+(aimType2Terror[shock,testModel,25,{-0.3, -0.6, -0.3, -0.6, -0.3}]//Chop)
+\end{verbatim}
+for horizon length 25 produces:
+
+
+
+
+
+{\small
+\begin{gather*}<*tIter25[[-1,5+Range[10]]]// Chop // TableForm//TeXForm*>\end{gather*}
+}
+
+
+
+For pathlenghts 25 and 26 we get:
+{\small
+\begin{gather*}<*Transpose[{tIter25[[-1,Range[15]]],tIter26[[-1,Range[15]]]}]//Chop//TeXForm*>\end{gather*}
+}

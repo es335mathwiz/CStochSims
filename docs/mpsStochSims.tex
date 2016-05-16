@@ -1,26 +1,526 @@
 \documentclass[12pt]{article}
-
+\RequirePackage[log]{snapshot}
+\usepackage{rotating}
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{program}
 \usepackage[margin=1.0in]{geometry}
-\usepackage{hyperref}
 \usepackage{moreverb}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \input{newCmds}
-\title{Computing Stochastic Simulations on a Cluster}
+\title{Computing Stochastic Simulations on a Cluster ({Fast, Robust and Accurate Perfect Foresight Stochastic Simulations: Models with Growth})}
 \author{Gary S Anderson and James Trevino}
 \begin{document}
 \maketitle
 
 
-\section{Algorithm Overview}
-\label{sec:algorithm-overview}
-\begin{abstract}
+
+
+  \begin{abstract}
 This paper describes how to compute stochastic simulations on a cluster of linux machines.
-\end{abstract}
+
+Linearizing non linear models about their steady state makes it possible
+to use the Anderson-Moore Algorithm(AMA) to investigate their saddle point 
+properties and to efficiently compute their solutions.
+Using AMA to check the long run dynamics 
+of non linear  models 
+avoids many of the burdensome computations associated with 
+alternative methods for verifying the saddle point property.
+In addition,
+ for models that have the saddle point property, AMA provides a set of 
+terminal conditions for solving the non linear model
+that work better than the traditional approach of 
+setting the end of the trajectory to the steady state values.
+Furthermore, the 
+asymptotic linear constraints can also generate initial conditions
+for the solution path
+that are better than initializing the solution path to the steady
+state values.
+Using the improved asymptotic constraints typically halves the computational
+burden associated with solving the nonlinear problem.
+  \end{abstract}
 
 \newpage
 \tableofcontents
-\newpage
+
+
+\section{A Non-Linear Extension of the Anderson-Moore Algorithm(AMA)}
+
+\subsection{  General Model Specification}
+          Consider the model
+            
+
+\begin{gather}
+          h(x_{t-\tau}  , x_{t-\tau+1}     ,..., x_{t+\theta-1}     , x_{t+\theta}   ) = 0  \label{eq:system}\\
+          t = 0,\ldots, \infty\notag
+\end{gather}
+Where $x \in \Re^L~and~ h:\Re^{L(\tau+1+\theta)} \rightarrow \Re^L$.
+We want to determine the solutions to Equation  \ref{eq:system} 
+with initial conditions
+          \begin{gather}
+          x_i  = \bar{x}_i~ for~ i = - \tau,...,-1 \label{eq:sysInit}\\
+\intertext{satisfying}
+          \lim_{t \rightarrow \infty}   x_{t}  = x^\ast.\label{eq:sysLim}
+\end{gather}
+
+This paper shows how to adapt the 
+methods of \cite{ANDER:AIM2} to determine the existence, and local
+uniqueness of the solution to Equation \ref{eq:system}.
+
+
+See also\cite{brayton11:_two_pract_algor}
+
+\subsection{Asymptotic Linearization}
+If $h$ were linear, we could immediately apply the methods of
+\cite{ANDER:AIM2} to determine the existence and uniqueness of a perfect 
+foresight solution and to
+compute the solution.
+  Since $h$ is non-linear, we will compute approximate solutions to system
+system \ref{eq:system} by  using the nonlinear $h$ constraints in 
+Equation \ref{eq:system}
+  for the
+initial part of the trajectory, and using a system
+of linear constraints which reflect the asymptotic properties of the system
+ for the remainder of the trajectory.
+
+This technique can be thought of as a generalization of the approach
+used by Fair-Taylor\cite{TAYLOR:CAPT}.
+This paper describes a procedure which,
+unlike the Fair-Taylor approach,
+allows the solution to lie in the {\em stable subspace} 
+of a linear
+system characterizing the asymptotic properties of the
+nonlinear system.
+
+
+The steady state value $x^\ast$ satisfies
+\begin{gather}
+          h(x^\ast,...,x^\ast) = 0              \label{eq:fixpt}
+\end{gather}
+Near the steady state, the linear first-order Taylor expansion of h about $x^\ast$ provides a good approximation to the function h.
+%xxxxxxxxx
+% \begin{gather}
+% h(x_{t-\tau}  ,...,x_{t+\theta})\approx
+% \sum_{i=-\tau}^{\theta} \left . H_i \right  |_{x^\ast}
+%  (x_{t+i} - x^\ast   ) \label{eq:asympt}
+% \end{gather}
+The technique presented in \cite{ANDER:AIM2} can determine the existence
+and uniqueness of perfect foresight solutions near the steady state of
+linear models. 
+The asymptotic analysis of the linear model
+determines convergence properties before burdensome calculations
+of the nonlinear solutions.
+
+That stability analysis produces a matrix, $Q$, which restricts values of the
+endogenous variables to the stable subspace of the linearized system.
+For trajectories which approach  a steady state,    one can  ultimately
+ replace the non-linear system with the constraints codified in the matrix $Q$.
+
+ \begin{gather}
+Q
+\left [
+\begin{array}{c}
+x_{T-\tau}-x^\ast\\
+\vdots\\
+x_{T}-x^\ast\\
+\vdots\\
+x_{T+\theta}-x^\ast\\
+\end{array}
+\right ]
+=0
+\label{eq:q}
+ \end{gather}
+Consequently, for solutions which converge to the steady state, 
+ we can, in principal, compute solutions
+to whatever accuracy required by increasing the magnitude of T.
+
+
+\subsection{Relationship to Traditional Approach Using Fixed Points }
+The more traditional Fair-Taylor approach also
+increases T to increase accuracy, but it imposes Equation \ref{eq:ft}
+\begin{gather}
+I
+\left [
+\begin{array}{c}
+x_{T+1}-x^\ast\\
+\vdots\\
+x_{T+\theta}-x^\ast\\
+\end{array}
+\right ]
+=0\label{eq:ft}
+\end{gather}
+ instead  of equation \ref{eq:q}. 
+Since Equation \ref{eq:q} more accurately characterizes the dynamics of the
+nonlinear system near the steady state the approach described in this paper
+converges more quickly.
+
+It will be convenient to normalize the Q matrix so that there is the negative
+of the identity matrix in the rightmost block. 
+\cite{ANDER:AIM2} shows that such a normalization exists
+for models which have uniquely
+convergent saddle points paths from arbitrary initial conditions. 
+
+\begin{gather}
+Q^N=
+\begin{bmatrix}
+    -B_1&I\\-B_2&&I\\ \vdots&&&\ddots \\ -B_{\theta-1}&&&&I \\-B_\theta&&&&&I
+\end{bmatrix}
+\end{gather}
+
+Thus, the traditional approach of setting the end of the trajectory to 
+the steady state would be equivalent to zeroing out the left half of the
+normalized Q matrix.
+
+Using AMA to Restrict the end of the trajectory to the
+asymptotic stable linear subspace provides a better approximation of the
+asymptotic behavior of the non linear function.
+This improvement in the approximation is reflected in the length of
+the trajectory needed to achieve a given level of accuracy for the
+values at the beginning of the trajectory.
+In order to achieve a specific number of
+significant digits in the computation of the points near the beginning
+of the trajectory, setting the end of the trajectory  equal to a
+specific constant would force us to  compute a longer solution path than
+adopting our approach of
+restricting the solution to the asymptotic linear space.
+
+See also\cite{brayton11:_two_pract_algor}
+
+
+\section{Components of the Algorithm for Computing the Convergent Path}
+One can apply Newton's Algorithm to compute  the solution to the
+non linear system Equations \ref{eq:system}-\ref{eq:sysLim}.
+With
+\begin{gather}
+y_t = \label{eq:withMho}
+\begin{bmatrix}
+x_{t-\tau}\\ x_{t-\tau+1}\\ \vdots \\ x_{t+\theta -1} \\x_{t+\theta}
+\end{bmatrix}\\
+z(T) = \begin{bmatrix}
+x_{-\tau}\\ x_{-\tau+1}\\ \vdots \\ x_{T+\theta -1} \\x_{T+\theta}
+\end{bmatrix}\\
+\intertext{Equations \ref{eq:system}-\ref{eq:sysLim} become}
+\aleph(z(T),\mho)=
+\begin{bmatrix}
+  \begin{bmatrix}
+x_{-\tau}-\bar{x}_{-\tau}\\
+\vdots\\
+x_{-1}-\bar{x}_{-1}
+  \end{bmatrix}\\
+  h(y_1)\\h(y_2)\\ \vdots\\ h(y_{T-1}) \\ h(y_T)\\
+ \mho  \begin{bmatrix}
+x_{T+1-\tau}-x^\ast\\
+\vdots\\
+x_{T+\theta}-x^\ast
+  \end{bmatrix}
+\end{bmatrix}
+\end{gather}
+
+Where
+\begin{gather*}
+  \mho=
+  \begin{cases}
+    Q&\text{Asymptotic Linearization}\\
+    \begin{bmatrix}
+      0&I
+    \end{bmatrix}&\text{Traditional Fixed Point Constraint}
+  \end{cases}
+\end{gather*}
+
+Figures \ref{fig:pseudoA} and  \ref{fig:pseudoB} present pseudo code
+describing the algorithms for analyzing the steady state and
+computing the convergent path.
+
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+  \begin{programbox}
+\BEGIN
+\IF \neg |succeedsQ|(|xStar|:=|computeFixedPoint|(|h|,|xGuessFP|))\\
+\THEN |fail|\COMMENT{unable to compute fixed point}
+\ELSE |H|:=|linearize|(|h|,|xStar|)\\
+\IF \neg |hasSaddlePointPropertyQ|(|Q|:=|andersonMoore(H)|)\\
+\THEN |fail|\COMMENT{no saddle point property at this fixed point}
+\ELSE
+\IF \neg |hasConvergedQ|(|xPath|:=\\|convergentPath|(|xHistory|,|h|,|Q|,|T|_{MIN},|T|_{MAX}))\\
+\THEN |fail|\COMMENT{path has yet to converge}
+\ELSE |success|(|xPath|)\\
+\FI
+\FI
+\FI
+\END
+\end{programbox}
+    \caption{ Nonlinear Extension of Anderson-Moore Algorithm: Initial Setup}
+    \label{fig:pseudoA}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+  \begin{programbox}
+\BEGIN
+|T|:=|T|_{MIN}\\
+|xPathOld|:=|solveNonLinearSystem|(|xHistory|,|h|,|Q|,|T|_{MIN},|xGuessPath|)\\
+|T|:=|T|+ \Delta |T|\\
+|xPathNew|:=|solveNonLinearSystem|(|xHistory|,|h|,|Q|,|T|)\\
+\WHILE (|xPathOld| \neq |xPathNew|) \wedge (|T| \leq |T|_{MAX})\DO
+|xPathOld|:=|xPathNew|\\
+|T|:=|T|+ \Delta |T|\\
+|xPathNew|:=|solveNonLinearSystem|(|xHistory|,|h|,|Q|,|T|)\OD
+\END
+\end{programbox}
+
+    \caption{ Nonlinear Extension of Anderson-Moore Algorithm: convergentPath}
+
+    \label{fig:pseudoB}
+  \end{center}
+\end{figure}
+\subsection{Improved Model Diagnostics}
+
+It is possible to choose the parameters of the model and initial conditions
+so that the 
+number of time periods to convergence  is arbitrarily large.
+Thus, for some parameter settings,
+procedures  which depends on failure to converge will have trouble
+determining the appropriateness of the asymptotic stability conditions.
+The asymptotic linearization approach provides this information  near the
+beginning of computation
+before undertaking many costly computations leading to uncertain results.
+
+\subsubsection{Computational Results}
+The approach of this paper focuses computational
+resources on computing saddle point paths for models
+which have saddle point paths.
+The analysis of the previous section indicates that the money demand
+model will have convergent perfect foresight paths to the 
+$s=0$ fixed point for $0 < \lambda < 1$ and to the $s=\frac{\lambda-1}{\lambda}$
+for $ 1 < \lambda < 3$. There is no need to attempt solutions for models
+with values of $\lambda$ outside this range.
+
+%\input{preBou}
+
+
+
+\subsection{Improved Initial Path Guess}
+\label{sec:initGuess}
+
+The Newton iteration requires an initial guess, $z^0(T)$.
+Define
+\begin{gather}
+z^\ast(T^0,\mho) \ni \aleph(z^\ast(T^0,\mho),\mho)=0\label{eq:horizSoln}
+\end{gather}
+
+The $z^\ast(T^0,\mho)$ represent solutions to Equation \ref{eq:withMho}
+using $T^0$ non linear time periods before applying asymptotic constraint
+$\mho$.
+Using iterative techniques to get a solution for  
+$z^\ast(T,\mho), T> T^0$ will require an initial guess $z^0(T)$
+
+\subsubsection{Steady State Bootstrap}
+
+The traditional approach 
+augments the shorter solution trajectory $z^0(T^0)$ with the fixed point values.
+
+\begin{gather*}
+  z^0(T)= 
+  \begin{bmatrix}
+z^\ast(T^0,
+\begin{bmatrix}
+  0&I
+\end{bmatrix}
+)\\
+    x^\ast_{T^0+1}\\
+    x^\ast_{T^0+2}\\
+\vdots\\
+    x^\ast_{T+\theta-1}\\
+    x^\ast_{T+\theta}
+  \end{bmatrix}
+\end{gather*}
+
+
+
+
+
+\subsubsection{ AMA Bootstrap}
+
+Alternatively, one could
+augment the shorter solution trajectory $z^0(T^0)$ with 
+values consistent with the asymptotic behavior of the non linear
+system near the fixed point.
+\begin{gather*}
+  z^0(T)= 
+  \begin{bmatrix}
+z^\ast(T^0,Q)\\
+\hat{x}_{T^0+1}\\
+\hat{x}_{T^0+2}\\
+\vdots \\
+\hat{x}_{T+\theta-1}\\
+    \hat{x}_{T+\theta}
+  \end{bmatrix}\\
+\intertext{ with}
+\hat{x}_{t}= x^\ast + 
+B_1 
+    \begin{bmatrix}
+    (\hat{x}_{t-\tau}-x^\ast)\\
+\vdots\\
+    (\hat{x}_{t-1}-x^\ast)
+    \end{bmatrix}  \forall t > T_0
+\end{gather*}
+
+Where $B_1$ comes from the first few rows of $Q^N$ of equation \ref{eq:qn} on
+page \pageref{eq:qn}.
+
+Appendix \ref{sec:exampleAimBoot} presents equations describing the AMA
+bootstrap applied to the Money Demand Model.
+
+\subsubsection{Computational Results}
+
+Using $B_1$ reduces the number of Newton steps required to compute a
+path of given horizon length
+whether or not using Q for the asymptotic constraint.
+Figure \ref{fig:newtQMon}  and \ref{fig:newtQBou} show the number of 
+newton steps needed to 
+move from the initial guess to the solution for each horizon length.
+The line labeled ``FP Initialization'' shows the number of steps required
+when setting the entire initial path guess to the fixed point values.
+The line labeled ``Q Initialization'' shows the number of steps required
+when setting the initial path guess to the result of applying
+the $B_1$ matrix to the initial conditions given in equation \ref{eq:sysInit}.
+The line labeled ``FP Extension'' shows the number of steps required
+when applying the Steady State Bootstrap to the  solution from  a horizon
+on period shorter.
+The line labeled ``Q Extension'' shows the number of steps required
+when applying the AMA Bootstrap to the  solution from  a horizon
+one period shorter. 
+The ``Q Extension'' and ``Q Initialization''
+lines show the number of Newton steps required to solve
+equation \ref{eq:horizSoln} with $\mho=Q$.
+The ``FP Extension'' and ``FP Initialization''
+lines show the number of Newton steps required to solve
+equation \ref{eq:horizSoln} with $\mho=\begin{bmatrix}0 &I\end{bmatrix}$.
+These results are  typical
+for applying the two initial path guess strategies to the two models.
+
+The AMA Bootstrap minimizes the number of Newton steps for finding the 
+$z^\ast(T,\mho)$ for both models. 
+Figure \ref{fig:newtQMon} presents computational results for the Money Demand
+Model.
+For example,
+Figure \ref{fig:newtQMon} indicates
+that at a horizon of 5 periods, initializing the path to the steady state
+lead to 13 newton steps.
+Initializing the path to the solution
+obtained by applying the asymptotic linearization to the initial conditions
+alone lead to 7 Newton steps. Extending the 4 period solution by adding one
+period of fixed point values leads to 5 Newton steps. Using AMA to augment
+the 4 period solution leads to 3 Newton Steps.
+
+Figure \ref{fig:newtQBou} presents computational results for the 
+Boucekkine Model.
+Figure \ref{fig:newtQBou} indicates
+that at a horizon of 7 periods, initializing the path to the steady state
+lead to 5 newton steps.
+Initializing the path to the solution
+obtained by applying the asymptotic linearization to the initial conditions
+alone lead to 4 Newton steps. Extending the 6 period solution by adding one
+period of fixed point values leads to 3 Newton steps. Using AMA to augment
+the 6 period solution leads to 3 Newton Steps.
+Extending the path using the Fixed Point Bootstrap or the AMA Bootstrap
+lead to the same number of Newton steps.
+The next section will show that the AMA Bootstrap dominates since
+the ``FP'' algorithms require more iterations to converge 
+to the same accuracy than the ``Q'' algorithms.
+
+
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+\fbox{
+%%    \epsfig{file=monNewtSteps.ps}
+%    cp ../../cFortran/nlaim/current/monNewtSteps.ps monNewtSteps.ps
+%%    \epsfig{file=../../cFortran/nlaim/current/monNewtSteps.ps}
+}    \caption{Newton Steps as Function of Horizon Length for Various Initial Guesses for Money Demand Model}
+  \label{fig:newtQMon}
+  \fbox{
+%    \epsfig{file=bouNewtSteps.ps}
+%    cp ../../cFortran/nlaim/current/bouNewtSteps.ps bouNewtSteps.ps
+%%    \epsfig{file=../../cFortran/nlaim/current/bouNewtSteps.ps}
+}    \caption{Newton Steps as Function of Horizon Length for Various Initial Guesses for Boucekkine Model}
+  \label{fig:newtQBou}
+  \end{center}
+\end{figure}
+
+
+
+\subsection{Shorter Computation Horizon for Given Computation Error}
+\label{sec:shorter}
+
+When solving models with the saddle point property
+near the steady state,
+the two approaches compute equivalent paths.
+However, using Q
+improves the tradeoff between computation horizon and solution accuracy.
+For a given level of precision,
+the asymptotic linearization approach obtains the solution
+ with a shorter computation horizon.
+At any given computation horizon, the asymptotic linearization approach
+computes a more accurate solution.
+
+
+This paper defines  numerical 
+convergence for the algorithms
+using a measure of relative error.
+The algorithms terminate when
+\begin{gather*}
+  \| D^T (x - \hat{x})\| \le m \| D^T  \hat{x} \|
+\end{gather*}
+where 
+%\input{../../cFortran/nlaim/current/wtsInfo}
+% cp ../../cFortran/nlaim/current/wtsInfo.tex wtsInfo.tex}
+%\input{wtsInfo}
+\begin{gather*}
+  \| \epsilon \| = \sqrt{ (\epsilon^T \epsilon)}\\
+x-\hat{x} = S_{1k} z^k(T) - S_{2k} z^{k-1}(T)\\
+\text{ with 
+$ S_{1k} = 
+  \begin{bmatrix}
+    I_{nL}&0
+  \end{bmatrix}
+$ and 
+$\  S_{2k} = 
+  \begin{bmatrix}
+    I_{nL}&0
+  \end{bmatrix}
+$}\\
+\text{  chosen to select comparable parts of the state vector. }
+\end{gather*}
+If $m= 10^{-k}$ then larger components of $D x$ have k significant digits\cite{NAG}. 
+The numerical calculation for this paper set $k \approx 8$.
+
+
+
+
+
+\section{Further Extensions to the Algorithm}
+\label{sec:algorithm-overview}
+
+\begin{description}
+\item[qMat] 
+\item[fp] 
+\item[drvFunc] 
+\item[func] 
+\item[xData] 
+\item[shocks] 
+\item[eqns] 
+\item[leads] 
+\item[lags] 
+\end{description}
+
+
 
 Reconcile the generation of the Mathematica packages with the .w file. At the moment, C code generated along side .m via nuweb, but not the package in stackStochSim repository.
 
@@ -43,17 +543,131 @@ We will need to implement and describe how to accomodate FRBUS style ``baseline 
 \subsection{Honoring the Zero Lower Bound on Interest Rates}
 \label{sec:honoring-zero-lower}
 
-\subsection{Addressing the "Too Many Large Roots" Problem}
+\subsection{Characterizing Asymptotic Behavior:  Accomodating Growth}
+\label{sec:char-asympt-behav}
+
+\begin{description}
+\item[section homepage] \ 
+  \begin{itemize}
+  \item \href{/mq/home/develop/frbus/models/develop/linver/aareadme}{linver generation }
+    \begin{itemize}
+    \item linver more variables because about 150 added to make version with only one lead one lag
+    \item growth comes from price level, productivity, population but still 15 unit roots.  Flint identified source of all but  5 some vars just identities for first differences
+    \item some mods to frbus to make the model more reasonable economics linver ``not exactly'' the same model perhaps it is better while generally consiste nt
+    \item eliminated variables that switch signs used gross specification instead of net for example inventories and defecits
+    \item Flint says linver memo can be found in rsma electronic library
+    \item simplified rffe equation nonlinearities like thresholds
+    \item all trending variables are converted to logs but after dynare linerization and before producing linver
+    \end{itemize}
+
+\item \href{/mq/home/develop/frbus/models/develop/linver/mcapwp/linver_mcapwp_eviews_mod.txt}{dynare linver}
+  \item \href{http://www.rsma.frb.gov/cgi-bin/mq/maqswin/varinfo_by_attribute.pl}{vars in stdver aim\_translation\_rule group}
+  \item \href{http://www.rsma.frb.gov/cgi-bin/mq/maqswin/stoch_sim_eviews.pl}{stochastic simulations generation page}
+  \item \href{https://www.rsma.frb.gov/twiki/bin/view/RSMAQS/ExtendedExtension}{extended extension}
+  \end{itemize}
+\item[info in frb.xml] \ 
+  \begin{itemize}
+  \item 
+\begin{verbatim}
+  <variable>
+    <name>hgx</name>
+    <equation_type>Identity</equation_type>
+    <sector>Aggregate Output Identities</sector>
+    <definition>Trend growth rate of XG, cw 2009$ (annual rate)</definition>
+    <description>Some of the components of potential output are modeled as
+stochastic trends with stochastic drift terms.  Because both log level
+shocks and growth rate shocks occur in this framework, the trend rate
+of growth of such a component differs from the growth rate of its
+trend level.  The trend rate of growth of nonfarm business output plus
+oil imports is calculated using the distinct trend rates of growth,
+rather than on the growth rate of trends, of multifactor productivity
+(HMFPT) and those factor inputs that have trend growth rates (HLEPT,
+HQLWW).  The imposed coefficients are the same as those in the
+production function for the level of XGPOT.  The trend growth rate of
+adjusted business sector output (HGX) is smoother than the growth rate of the
+level of potential adjusted business sector output (400*del(log(XGX))).
+</description>
+
+\end{verbatim}
+  \item 
+\begin{verbatim}
+  <variable>
+    <name>lef</name>
+    <equation_type>Identity</equation_type>
+    <sector>Labor Market</sector>
+    <definition>Federal civilian employment ex. gov. enterprise</definition>
+    <description>The ratio of federal employment to constant-dollar federal
+government expenditures on employee compensation (EGFL) depends on the
+exogeous proportionality factor ULEF and an adjustment for trend
+productivity.  Because the national accounts assume that there is no
+productivity growth in the government sector, the dummy variable
+DGLPRD is set to 0 over history.  In long-run simulations, however,
+DGLPRD is set to 1.0 to ensure that the government shares of
+employment and GDP are stationary.  The equation is written in first
+differences so that the productivity adjustment enters as a growth
+rate rather than as a level.  The appropriate value of the latter
+would be difficult to estimate.
+
+</description>
+
+\end{verbatim}
+  \item 
+\begin{verbatim}
+
+The dummmy variable DMPSTB is sometimes set equal to one when the
+model is used to run stochastic simulations.  This makes HLEPT equal
+to the growth rate of population, a simplification that improves the
+long-run stability of the model.
+
+\end{verbatim}
+  \item 
+\begin{verbatim}
+    <description>The target inventory-sales ratio is estimated along with the
+equation for the stock of inventories (KI) using the Kalman filter.
+To ensure that long-run simulations are characterized by balanced
+growth, exogenous variable DGLPRD can be set to 1.0 to make the target
+inventory-sales ratio constant.
+
+\end{verbatim}
+  \end{itemize}
+\end{description}
+
+
+\subsection{Optimal Control}
+\label{sec:optimalcontrol}
+
+\subsection{EViews Modes and Switches}
+
+\label{sec:eviews}
+\begin{itemize}
+\item templates for dates and database inputs
+\item inputs fame databases, plus models, eviews switches
+\item tim's perl scripts and the input to the scripts.  what changes? how often? what's fixed?
+\item outputs csv files?  plug into current reporting code
+\item output percentiles, conditional probabilities of return to ZLB
+\item James working out range of ``inputs'' and ``switches'' 
+\item  versus essential
+\item stochastic sim with inertial taylor rule would prove very useful
+\end{itemize}
+
+
+\subsection{Addressing the ``Too Many Large Roots'' Problem}
 \label{sec:addressing-too-many}
+
+\subsection{Validation}
+\label{sec:validation}
+
+Validation within the section for DSGE models.
+
+Validation of FRBUS may require a wider engagement over a longer time horizon. 
+Shoot for beginning late April early May.  JP, Hess, David R, Flint.
+
+Depths of recessions and the types of useful shocks:  Bob, David R
 
 \subsection{Using the Cluster:  Parallel Programming Considerations}
 \label{sec:using-clust-parall}
 
-\subsection{Characterizing Asymptotic Behavior:  Accomodating Growth}
-\label{sec:char-asympt-behav}
 
-\subsection{Comparison to Linver}
-\label{sec:comparison-linver}
 
 
 
@@ -64,6 +678,189 @@ There is a Mathematica implementation of the stack algorithm
  and stochastic simulations in the statckStochSims repository.  
 \input{./smallJuillardMmaExample}
 \newpage
+
+\subsection{RBC}
+\label{sec:rbc}
+
+
+  See for example\cite{Maliar2005}
+
+\begin{gather*}
+   \max\left \{  u(c_t^t) + E_t \sum_{\tau=t}^\infty \beta \delta^{\tau+1-t}u(c_{\tau+1}^t)\right \}\\
+c_\tau^t + k_\tau^{t+1}=(1-d)k_\tau^{t-1} + \theta_\tau f(k_\tau^{t-1})\\
+f(k_\tau^{t-1})= k_\tau^\alpha
+ \end{gather*}
+
+ \begin{gather*}
+   paramSubs={
+alpha->36/100,
+delta->95/100,
+rho->95/100,
+sigma->1/100
+} ;
+ \end{gather*}
+
+
+\subsection{A Money Demand Model}
+          Consider the three equation non-linear system
+\begin{gather}
+          \ln \frac{m_t}{p_t} = \alpha  + \beta  \ln(\rho+ (\frac{p_{t+1}-p_t}{p_t})) \label{eq:mdem}\\
+          m_{t}  - m_{t-1}    = \gamma (m_{t-1}    - \mu)+ \delta s_t\label{eq:msup}\\
+s_t=\lambda s_{t-1}(1- s_{t-1})\label{eq:nlin}
+\end{gather}
+Where $L=3,\tau=1,\theta=1$, and $0 \leq \lambda, ~\alpha  < 0~,~\beta< 0~,~\rho> 0,~\gamma <0~,$ and  $\mu > 0  $ exogenously  given. 
+
+This example augments a simple forward looking money demand function(Equation \ref{eq:mdem}) and
+a money supply rule(Equation \ref{eq:msup}) with an easy to manipulate and much
+studied  nonlinear function, the quadratic map(Equation \ref{eq:nlin}).
+Including the quadratic map
+ provides a convenient way to study the impact of model parameters on
+asymptotic behavior.
+The parameter $\lambda$ in the 
+quadratic map provides  a simple nonlinear function that can generate
+fixed points, limit cycles, and chaotic invariant sets, but
+this paper will study values of $\lambda$ associated with fixed points.
+
+
+%\subsection{The Money Demand Model: Dynamics Near the Fixed Points}
+The points $m^\ast=\mu-\frac{- \delta s^\ast}{\gamma}~
+p^\ast=m^\ast\exp^{-(\alpha+\beta\ln(\rho))},$  where 
+$ s^\ast = 0\text{ or }s^\ast=\frac{\lambda-1}{\lambda}$, are
+fixed points for the system.
+We can linearize the system and
+ investigate the dynamics of the system near either steady state.
+
+ We want to investigate
+the model with 
+initial conditions
+
+\begin{gather*}
+          m_0   = \bar{m}_0
+\end{gather*}
+\begin{gather*}
+          p_0   = \bar{p}_0
+\end{gather*}
+\begin{gather*}
+          s_0   = \bar{s}_0
+\end{gather*}
+and terminal conditions
+\begin{gather*}
+          \lim_{t\rightarrow\infty}
+\left [\begin{array}{c}m_t\\ p_t\\ s_t \end{array} \right ]=
+\left [\begin{array}{c}m^\ast\\ p^\ast\\ s^\ast \end{array} \right ]
+\end{gather*}
+
+
+
+
+Applying the methods of \cite{ANDER:AIM2} near the fixed point, the state space transition matrix is
+\begin{gather*}
+A=\left [
+\begin{array}{ccc}
+               (1+ \gamma )  &       0&-\delta \lambda (2 s^\ast - 1)\\
+   \frac{\rho / \beta}{m^\ast /p^\ast}&\frac{\beta - \rho}{\beta}&0\\
+0&0&-\lambda (2s^\ast -1)\\
+\end{array}
+\right ]
+\end{gather*}
+Which has three non zero eigenvalues, $(1+\gamma)$, $\lambda (1 - 2 s^\ast)$, and  $\frac{\beta - \rho}{\beta}$.
+
+ The first two eigenvalues are smaller than one in magnitude provided:
+%xxxxxxxx
+%  \begin{gather*}
+% -2 < \gamma < 0 \\
+% \intertext{ and }
+%      s^\ast =
+% \begin{cases}
+% 0 \text{ and } |\lambda| < 1 \\
+% \frac{\lambda - 1}{\lambda} \text{ and } 1<\lambda < 3
+% \end{cases}
+%  \end{gather*}
+ The last eigenvalue has magnitude bigger than one since $\frac{\rho}{\beta}<0$.
+The Q matrix of constraints imposing the saddle point property
+ consists of two auxiliary initial conditions and one unstable left eigenvector
+if  $0<\lambda<1 \text{ or } 1 < \lambda < 3$ 
+\begin{gather*}
+Q=
+\left [
+\begin{array}{cccccc}
+                 -(1+ \gamma )&  0 &0&1  &     0&-\delta\\
+0&0&\lambda ( 2 s^\ast -1)&0&0&1\\
+0&0&0&-\frac{(-\beta + \beta \lambda + \rho - 2 \beta \lambda s^\ast)}
+{(\beta \delta \lambda(1 - s^\ast))}&
+-\frac{m^\ast(\beta \gamma+\rho)(-\beta + \beta \lambda + \rho - 2 \beta \lambda s^\ast)}
+{\rho p^\ast (\beta \delta \lambda(1 - s^\ast))}&
+1
+%                   0    & 0&0  &\frac{-\rho / \beta}{m^\ast / p^\ast} &\left ( \frac{(\beta -\rho)}{\beta}+(1+\gamma)\right )&\frac{-\delta\frac{\rho / \beta}{m^\ast/p^\ast}}{(\frac{\beta - \rho}{\beta}+\delta)}\\
+\end{array}
+\right ]
+\end{gather*}
+
+\begin{gather*}\label{eq:qn}
+Q^N=
+\begin{bmatrix}
+1 + \gamma & 0&\delta  \lambda  - 2 \delta  \lambda  s^\ast&-1&0&0\\
+  {{\left( 1 + \gamma  \right)  \rho  p^\ast}\over 
+    {\left( \beta  \gamma  + \rho  \right)  m^\ast}}&0&
+  {{\delta  \lambda  \rho  \left( -\beta  + \rho  \right)  p^\ast 
+      \left( -1 + 2 s^\ast \right) }\over 
+    {\left( \beta  \gamma  + \rho  \right)  m^\ast 
+      \left( \beta  - \beta  \lambda  - \rho  + 2 \beta  \lambda  s^\ast \right)
+      }}&0&-1&0\\
+0&0&\lambda  - 2 \lambda  s^\ast&0&0&-1 
+\end{bmatrix} =
+\begin{bmatrix}
+  B_1&-I
+\end{bmatrix}
+\end{gather*}
+
+\subsection{Boucekkine's Non Linear Example}
+Boucekkine's\cite{BOUCEKKINE:95} presents the following
+example nonlinear model. For $t>0$
+
+
+  \begin{gather*}
+z_t - 5 y_{1,t}^{0.15} x_{1,t}^{0.75} =0\\
+0.15 \frac{y_{1,t+1}}{y_{1,t}} + 5 x_{1,t}^a - 0.25 = 0\\
+y_{2,t+1} - 3 \frac{y_{2,t}^{1.65}}{x_{1,t-1}} w_{t-3}=0\\
+x_{2,t} - 0.75 \frac{y_{1,t-1}}{y_{2,t}} + 1.25 = 0\\
+y_{1,t+1}^b - c \frac{x_{2,t-1}}{y_{2,t+1}} y_{1,t}=0\\
+w_{t} = 1
+  \end{gather*}
+
+
+
+%\input{bouceTable}
+
+
+
+%\input{boucExampleNarr}
+
+Appendix \ref{transMat} provides additional detail describing the
+transition matrix and the auxiliary initial conditions.
+
+%\input{transMat}
+
+\subsection{Smets-Wouter}
+\label{sec:edo}
+
+\subsection{EDO}
+\label{sec:edo}
+
+\subsection{Canada}
+\label{sec:canada}
+
+
+\subsection{FRBUS (stdver)}
+\label{sec:frbus-stdver}
+
+\subsection{FRBUS (linver)}
+\label{sec:frbus-linver}
+
+\subsection{stdver  linver Comparison}
+\label{sec:comparison-linver}
+
+
 \section{Outstanding Questions}
 \begin{description}
 \item[Debugging Old C/Mathematica Code] 
@@ -81,16 +878,132 @@ There is a Mathematica implementation of the stack algorithm
 \item[Asymptotic Behavior -- Growth Path] 
 \item[Reconcile Nonlinear FRBUS and March 3 memo Benefits of LinVer] 
 \item[OMNI Rule?] 
+\item[Dynare versus XML input] 
+\item[check contents] \ 
+  \begin{itemize}
+  \item 
+\begin{verbatim}
+~/git/safePaperProduction/parallelFRBUS/docs/parallelize.tex
+\end{verbatim}
+  \item presentation of Alt Sims DSGE suite seminar (notability)
+  \item frb-us overview oct 2015 presentation (notability)
+  \item /msu/res2/m1gsa00/aim/frbus/ssComp.mtex
+  \item /msu/res2/m1gsa00/aim/nlaimExperiments/
+\end{itemize}
 \end{description}
 
 
 
 
+
+\section{Conclusions}
+Linearizing non linear models about their steady state makes it possible
+to use the Anderson-Moore Algorithm(AMA) to investigate their saddle point 
+properties and to efficiently compute their solutions.
+Using AMA to check the long run dynamics 
+of non linear  models 
+avoids many of the burdensome computations associated with 
+alternative methods for verifying the saddle point property.
+In addition,
+ for models that have the saddle point property, AMA provides a set of 
+terminal conditions for solving the non linear model
+that work better than the traditional approach of 
+setting the end of the trajectory to the steady state values.
+Furthermore, the 
+asymptotic linear constraints can also generate initial conditions
+for the solution path
+that are better than initializing the solution path to the steady
+state values.
+Using the improved asymptotic constraints typically halves the computational
+burden associated with solving the nonlinear problem.
+
+
+
+\nocite{GUCKENHEIMERHOLMES,FUHRER:96}
+%\bibliographystyle{authordate1}
+\bibliographystyle{plainnat}
+\bibliography{files,anderson,second,usingAimBetter}
+
 \newpage
 \appendix
 
-\section{Appendix}
-\label{sec:app}
+\section{command line flags}
+\label{sec:command-line-flags}
+
+\begin{description}
+\item[p] 
+\item[v] 
+\item[V] 
+\item[l] 
+\item[r] 
+\item[a] 
+\item[s] 
+\item[N] 
+\item[F] 
+\item[X] 
+\item[H] 
+\item[D] 
+\item[K] 
+\item[E] 
+\item[L] 
+\item[S] 
+\item[I] 
+\item[J] 
+\item[h] 
+\end{description}
+
+\section{AMA Bootstrap Example}
+\label{sec:contExample}
+\label{sec:exampleAimBoot}
+
+
+For $T^0=0$ we can use Equation \ref{eq:qn} to compute $\hat{x}_0,\hat{x}_1\ldots$ for arbitrary
+initial conditions:
+\begin{gather*}
+\hat{x}_0=B_1
+\begin{bmatrix}
+  (\bar{m}_{-1}-x^\ast)\\ (\bar{p}_{-1}-p^\ast)\\ (\bar{s}_{-1}-s^\ast)
+\end{bmatrix} = 
+\begin{bmatrix}
+  (1 + \gamma)(\bar{m}_{-1}-m^\ast) + \delta (\bar{s}_{-1}-s^\ast) \lambda (1 - 2 s^\ast)\\
+\frac{(1 + \gamma)(\bar{m}_{-1}-m^\ast) p^\ast \rho}{m^\ast(\beta \gamma + \rho)} + 
+\frac{\delta(\bar{s}_{-1}-s^\ast)\lambda (1 - 2 s^\ast)p^\ast \rho(\rho - \beta) }{m^\ast(\beta\gamma + \rho)(\beta - \beta\lambda - \rho + 2 \beta\lambda s^\ast)}\\
+(\bar{s}_{-1}-s^\ast) \lambda (1 - 2 s^\ast)
+\end{bmatrix}\\
+\hat{x}_1=B 
+\begin{bmatrix}
+  \hat{m}_{0}\\ \hat{p}_{0}\\ \hat{s}_{0}
+\end{bmatrix} = 
+\begin{bmatrix}
+  (1 + \gamma)(\hat{m}_{0}-m^\ast) + \delta (\hat{s}_{0}-s^\ast) \lambda (1 - 2 s^\ast)\\
+\frac{(1 + \gamma)(\hat{m}_{0}-m^\ast) p^\ast \rho}{m^\ast(\beta \gamma + \rho)} + 
+\frac{\delta(\hat{s}_{0}-s^\ast)\lambda (1 - 2 s^\ast)p^\ast \rho(\rho - \beta) }{m^\ast(\beta\gamma + \rho)(\beta - \beta\lambda - \rho + 2 \beta\lambda s^\ast)}\\
+(\hat{s}_{0}-s^\ast) \lambda (1 - 2 s^\ast)
+\end{bmatrix}\\ \vdots
+\end{gather*}
+
+Since the eigenvalues of $B_{-1}$ are $(1 + \gamma)$ and $\lambda(1- 2 s^\ast)$
+the bootstrap path ultimately converges to the steady state.
+The bootstrap path  approximation to the non linear solution improves 
+as the solution approaches  the
+steady state.
+
+For $T^0=1$ after substituting the initial conditions and the
+AMA bootstrap path, we must find $m_0,p_0,s_0$ satisfying the system
+\begin{gather*}
+-\alpha + \log(\frac{m_0}{p_0}) - \beta \log(\rho + \frac{\frac{(1+\gamma)p^\ast \rho m_0}{m^\ast(\beta \gamma + \rho)}- p_0 +\frac{\delta\lambda p^\ast \rho(\rho - \beta)(2 s^\ast -1)s_0}{m^\ast(\beta \gamma + \rho)(\beta - \beta \lambda -\rho + 2 \beta \lambda s^\ast)}}{p_0})=0\\
+  -\bar{m}_{-1} - \gamma \bar{m}_{-1} + \gamma \mu + m_0 - \delta s_0 = 0\\
+-(\bar{s}_{-1} \lambda) + \bar{s}_{-1}  \lambda + s_0 = 0
+\end{gather*}
+\section{Transition Matrix Details}
+\label{transMat}
+%\input{transMat}
+\section{Mathematica Code for Models}
+
+
+
+
+
 
 \subsection{Juillard Model}
 \label{sec:juillard-model-}
@@ -118,3 +1031,225 @@ There is a Mathematica implementation of the stack algorithm
 \includegraphics[width=5.0in,height=8.5in]{../../stackStochSims/models/juillardExample/shks.pdf}
 
 \end{document}
+
+% \subsubsection{Computational Results}
+
+% Table \ref{tab:comp} 
+% presents some computational results for the Money Demand Model.
+% The last column demonstrates
+% the equivalence between the convergent solution paths
+% obtained by using the asymptotic linearization and those obtained
+% using the traditional fixed point constraint.
+% The computations using Q and using FP each used a convergence tolerance of 
+% $10^-8$.
+% The $\| \cdot \|_2$ difference between the initial portions of
+% the trajectories are also within the supplied convergence tolerance of 
+% $10^{-8}$.
+
+% \begin{table}[htbp]
+%   \begin{center}
+%     \leavevmode
+% %\input{../../cFortran/nlaim/current/compareFinal}
+% % cp ../../cFortran/nlaim/current/compareFinal.tex compareFinal.tex}
+% \input{compareFinal}
+%     \caption{Asymptotic Linearization and Fixed Point Solution Characteristics}
+%     \label{tab:comp}
+%   \end{center}
+% \end{table}
+
+
+% The following figures employ two measures of error to characterize
+% the rate of convergence of the two algorithms: approximation error and 
+% change in path error.
+% The approximation error is
+% $\| D(S_{1k}(T)x_{now} - S_{2k}(T^\ast)x_{converged})\|_2$. 
+% The change in path error is
+% $\|D( S_{1k}(T+1)x_{next} - S_{2k}(T)x_{now})\|_2$. 
+
+
+
+% The top half of 
+% Figure \ref{fig:aggoneandhalf} reports the variation in approximation 
+% error as a function of the computation horizon when $\lambda=1.5$.
+% For any given horizon, the 
+% approximation error is always about 6 times larger
+% when using the fixed point instead of the asymptotic
+% linearization.
+% The bottom half of 
+% Figure \ref{fig:aggoneandhalf} emphasizes this point by
+% reporting the variation in approximation 
+% rescaled so that the initial approximation errors are the same.
+
+
+
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% \fbox{
+% %%    \epsfig{file=togMonFir.ps}
+% %    cp ../../cFortran/nlaim/current/togMonFir.ps togMonFir.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMonFir.ps}
+% }    \caption{Approximation Error as Function of $T$ for $\lambda=1.5$}
+%     \label{fig:aggoneandhalf}
+% \fbox{
+% %    \epsfig{file=togMonChgFir.ps}
+% %    cp ../../cFortran/nlaim/current/togMonChgFir.ps togMonChgFir.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMonChgFir.ps}
+% }    \caption{Change in Path Error as Function of $T$ for $\lambda=1.5$}
+%     \label{fig:deloneandhalf}
+%   \end{center}
+% \end{figure}
+
+% Without prior knowledge of the convergent solution,
+% algorithms rely on the change in the solution path to determine convergence.
+% Figure \ref{fig:deloneandhalf} reports the variation in the change in
+% path
+% error as a function of the computation horizon when $\lambda=1.5$.
+% The asymptotic linearization algorithm would signal convergence before
+% the fixed point algorithm.
+% The accuracy of the solution does not suffer since the aggregate errors are
+% so much less for any given computation horizon.
+
+
+% Figure \ref{fig:aggsmlposroot} reports the variation in approximation 
+% error as a function of the computation horizon  when $\lambda=1.9$.
+% Again, for any given horizon, the 
+% approximation error is always significantly less when using the asymptotic
+% linearization.
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% \fbox{
+% %    \epsfig{file=togMon.ps}
+% %    cp ../../cFortran/nlaim/current/togMon.ps togMon.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMon.ps}
+% }    \caption{Approximation Error as Function of $T$ for $\lambda=1.9$}
+%     \label{fig:aggsmlposroot}
+% \fbox{
+% %    \epsfig{file=togMonChg.ps}
+% %    cp ../../cFortran/nlaim/current/togMonChg.ps togMonChg.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMonChg.ps}
+% }    \caption{Change in Path Error as Function of $T$ for $\lambda=1.9$}
+%     \label{fig:delsmlposroot}
+%   \end{center}
+% \end{figure}
+% Figure \ref{fig:delsmlposroot} reports the variation in the change in
+% approximation 
+% error as a function of the computation horizon when $\lambda=1.9$.
+% The asymptotic linearization algorithm would signal convergence before
+% the fixed point algorithm.
+
+
+
+% Figure \ref{fig:aggsmlnegroot} reports the variation in approximation 
+% error as a function of the computation horizon when $\lambda=2.3$.
+% For any given horizon, the 
+% approximation error is always significantly less when using the asymptotic
+% linearization.
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% \fbox{
+% %    \epsfig{file=togMonThi.ps}
+% %    cp ../../cFortran/nlaim/current/togMonThi.ps togMonThi.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMonThi.ps}
+% }    \caption{Approximation Error as Function of $T$ for $\lambda=2.3$}
+%     \label{fig:aggsmlnegroot}
+% \fbox{
+% %    \epsfig{file=togMonChgThi.ps}
+% %    cp ../../cFortran/nlaim/current/togMonChgThi.ps togMonChgThi.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togMonChgThi.ps}
+% }    \caption{Change in Path Error as Function of $T$ for $\lambda=2.3$}
+%     \label{fig:delsmlnegroot}
+%   \end{center}
+% \end{figure}
+% Figure \ref{fig:delsmlnegroot} reports the variation in the change in
+% approximation 
+% error as a function of the computation horizon when $\lambda=2.3$.
+% The asymptotic linearization algorithm would signal convergence before
+% the fixed point algorithm.
+
+
+
+
+
+% Figure \ref{fig:numbIntMPS} presents a density plot comparing the
+% number of horizons required for convergence for the two algorithms as a
+% function of the initial conditions.
+% Since $m_0$ and $s_0$ depend only on initial conditions they will
+% not vary as the horizon length, $T_0$, changes, but
+% $p_0$ will depend on the future values and the terminal conditions and will
+% vary with the horizon length.
+% The asymptotic linearization converges faster than the fixed point for all
+% initial conditions.
+% \begin{sidewaysfigure}[htbp]
+%   \begin{center}
+%     \leavevmode
+
+% \fbox{
+% %    \epsfig{file=densityGraph.ps,width=5.0in}
+% %    cp ../../cFortran/nlaim/current/densityGraph.ps densityGraph.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/densityGraph.ps,width=5.0in}
+% }    
+%     \caption{Number of Iterations as a Function of Initial Conditions}
+%     \label{fig:numbIntMPS}
+%   \end{center}
+% \end{sidewaysfigure}
+
+% Figures \ref{fig:aggboubas} -\ref{fig:bouHorToSS} 
+% present some computational results for the Boucekkine Model.
+% Figure    \ref{fig:aggboubas} reports the approximation error while 
+% Figure \ref{fig:delboubas} reports the variation in the change in
+% approximation 
+% error as a function of the computation horizon when $d=0.5$
+% For any given horizon, the 
+% approximation error is always significantly less when using the asymptotic
+% linearization.
+% The asymptotic linearization algorithm would signal convergence before
+% the fixed point algorithm.
+% The accuracy of the solution does not suffer since the aggregate errors are
+% so much less for any given computation horizon.
+% \begin{figure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% \fbox{
+% %    \epsfig{file=togBou.ps}
+% %    cp ../../cFortran/nlaim/current/togBou.ps togBou.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togBou.ps}
+% }    \caption{Variation in Approximation Error as Function of $T$ for $a=-3,b=\frac{3}{2},c=\frac{5}{2},d=\frac{1}{2}$}
+%     \label{fig:aggboubas}
+% \fbox{
+% %    \epsfig{file=togBouChg.ps}
+% %    cp ../../cFortran/nlaim/current/togBouChg.ps togBouChg.ps
+% %%    \epsfig{file=../../cFortran/nlaim/current/togBouChg.ps}
+% }    \caption{Change in Path Error as Function of $T$ for $a=-3,b=\frac{3}{2},c=\frac{5}{2},d=\frac{1}{2}$}
+%     \label{fig:delboubas}
+%   \end{center}
+% \end{figure}
+
+
+
+
+
+
+% Figure \ref{fig:bouHorToSS} presents a graph  comparing the
+% number of horizons required for convergence for the two algorithms as a
+% function of the initial conditions for $w$.
+% The asymptotic linearization converges faster than the fixed point for all
+% initial conditions.
+% \begin{sidewaysfigure}[htbp]
+%   \begin{center}
+%     \leavevmode
+% \fbox{
+% %    \epsfig{file=wCurve.ps,width=5.0in}    
+% %    cp ../../cFortran/nlaim/current/wCurve.ps wCurve.ps    
+% %%    \epsfig{file=../../cFortran/nlaim/current/wCurve.ps,width=5.0in}    
+% }    \caption{Horizon Length Versus Distance to Steady State}
+%     \label{fig:bouHorToSS}
+%   \end{center}
+% \end{sidewaysfigure}
+
+
+
+
+
