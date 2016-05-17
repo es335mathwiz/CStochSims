@@ -1,4 +1,5 @@
 \documentclass[12pt]{article}
+\usepackage{currfile}
 \RequirePackage[log]{snapshot}
 \usepackage{rotating}
 \usepackage{amsmath}
@@ -15,7 +16,7 @@
 \maketitle
 
 
-
+This document was generated using \currfilename.
 
   \begin{abstract}
 This paper describes how to compute stochastic simulations on a cluster of linux machines.
@@ -498,7 +499,7 @@ $\  S_{2k} =
 $}\\
 \text{  chosen to select comparable parts of the state vector. }
 \end{gather*}
-If $m= 10^{-k}$ then larger components of $D x$ have k significant digits\cite{NAG}. 
+If $m= 10^{-k}$ then larger components of $D x$ have k significant digits\cite{nag95}. 
 The numerical calculation for this paper set $k \approx 8$.
 
 
