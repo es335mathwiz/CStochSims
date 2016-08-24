@@ -477,6 +477,7 @@ int maxNumberElements[1]={MAXELEMENTS};
 The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during calculation.
 @d main variable declarations
 @{
+#include<stdio.h>
 FILE * outFile;
 int stochasticPathLength=1;
 int * julliardPermVec;
