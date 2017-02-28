@@ -513,12 +513,12 @@ julliardPathQ=(double *)calloc(
     *replications*
     julNEQS*(julNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
 sizeof(double));
-fmats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(double));
-fmatsj =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(int));
-fmatsi =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(int));
-smats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(double));
-smatsj =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(int));
-smatsi =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(int));
+fmats =(double **)calloc((*pathLength)+julNLAGS+1,8);
+fmatsj =(int **)calloc((*pathLength)+julNLAGS+1,8);
+fmatsi =(int **)calloc((*pathLength)+julNLAGS+1,8);
+smats =(double **)calloc((*pathLength)+julNLAGS+1,8);
+smatsj =(int **)calloc((*pathLength)+julNLAGS+1,8);
+smatsi =(int **)calloc((*pathLength)+julNLAGS+1,8);
 for(i=0;i<(*pathLength)+julNLAGS+1;i++){
 fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 fmatsj[i] =(int *)calloc(MAXELEMENTS,sizeof(int));
