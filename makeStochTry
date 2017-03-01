@@ -18,6 +18,8 @@ SPARSELIB =   ./ranlib.o
 
 debCFLAGS = -g  -pg -DUNIX -DCLOCK  -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 
+
+
 fastCFLAGS =  -O4 -DUNIX -DCLOCK   -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 fastSPARSELIB = 	  ./ranlib.o
 
@@ -109,7 +111,7 @@ printall:
 
 stochRun:	stochRun.o stackC.o  myNewt.o dtime.o\
 			ma50ad.o stochProto.o juillard.o ranlib.o
-		$(LINK) -o stochRun -O4 stochRun.o myNewt.o dtime.o\
+		$(LINK) -o stochRun -g  stochRun.o myNewt.o dtime.o\
 		stackC.o juillard.o ma50ad.o stochProto.o\
 		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)
 
