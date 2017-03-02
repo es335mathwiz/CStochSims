@@ -1932,6 +1932,7 @@ cfree(deviations);cfree(fullfvec);\
 	for (i=0;i<*numberOfEquations;i++)
 		if (fabs(fvec[(*numberOfEquations**lags)+i]) > test) 
         test=fabs(fvec[(*numberOfEquations**lags)+i]);
+dfunc(x,params,smats[0],smatsj[0],smatsi[0]);
 	if (test<0.01*TOLF) FREERETURN
 	for (sum=0.0,i=0;i<*numberOfEquations;i++) sum += SQR(x[i]);
 	stpmax=(*lags+*leads+1)*STPMX*FMAX(sqrt(sum),(double)n);
@@ -1939,7 +1940,7 @@ cfree(deviations);cfree(fullfvec);\
 
 @d get newton update
 @{
-dfunc(x,params,smats[0],smatsj[0],smatsi[0]);
+dfunc(x,params,smats[0],smatsj[0],smatsi[0]);printf("delete this in stackC.w");
 		for (i=0;i<n;i++) xold[i]=x[i];
 		fold=f;
 		/*modification begin*/
@@ -2191,6 +2192,8 @@ else {  printf("Caller has terminated with inform =%d.\n",*inform);}
 auxInit=qRows=0;
 maxHElementsForSparseAMA=maxHElements;
 void * aPointerToVoid;/*adding since all the sparseAMA.h files have this arg*/
+printf("from stackC.w line 2194\n");
+cPrintSparse(*numberOfEquations,smats[0],smatsj[0],smatsi[0]);
 sparseAMA(&maxHElementsForSparseAMA,DISCRETE_TIME,*numberOfEquations,
 *numberOfEquations*(*lags+1+*leads),*leads,
 smats[0],smatsj[0],smatsi[0],
