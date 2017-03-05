@@ -612,6 +612,7 @@ double * w;
 double * x;
 int * trans;
 int * cColumns;
+int * balColumns;
 int *hColumns;
 double * nsSumC;
 double * nsSumD;@|
@@ -672,6 +673,7 @@ nzmaxLeft = (int *)calloc(1,sizeof(int));
 hColumns = (int *)calloc(1,sizeof(int));
 nonZeroNow = (int *)calloc(1,sizeof(int));
 cColumns = (int *)calloc(1,sizeof(int));
+balColumns = (int *)calloc(1,sizeof(int));
 *hColumns = *numberOfEquations*(*leadss+*lagss+1);
 *cColumns = *numberOfEquations * *leadss;
 *nzmax = *maxNumberHElements;
@@ -788,6 +790,7 @@ cfree(nzmaxLeft);
 cfree(nonZeroNow);
 cfree(hColumns);
 cfree(cColumns);
+cfree(balColumns);
 @}
 
 
@@ -1331,6 +1334,7 @@ void nxtGuess(@<nxtGuess argument list@>)
 @<nxtGuess initialize lagged C and d matrices@>
 
 for(tNow=0;tNow<*capT;tNow++){
+if(tNow< *leads){*ma50bdJob=1;} else {*ma50bdJob=1;}
 @<nxtGuess obtain sparse representation and compute next C and d@>
 }
 if(*leads>0){
@@ -1407,23 +1411,35 @@ ymatsj[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
 ymatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 cmats[i] =(double *)calloc(*maxNumberHElements,sizeof(double));
 cmatsj[i] =(int *)calloc(*maxNumberHElements,sizeof(int));
-cmatsi[i] =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
-dmats[i] =(double *)calloc(*numberOfEquations**leads,sizeof(double));
-dmatsj[i] =(int *)calloc(*numberOfEquations**leads,sizeof(int));
-dmatsi[i] =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
+cmatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
+dmats[i] =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
+dmatsj[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+dmatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 }
 
 @}
 @d nxtGuess storage allocations
 @{
+ma50bdIptru = (int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIptrl = (int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIrnf = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
+ma50bdIq = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdJob = (int *)calloc(1,sizeof(int));
 @}
 @d nxtGuess initialize lagged C and d matrices
 @{
 for(i=0;i<*lags;i++){
-cmatsi[i][0]=cmatsi[i][1]=1;
-dmatsi[i][0]=dmatsi[i][1]=1;
-cmatsj[i][0]=cmatsj[i][1]=1;
-dmatsj[i][0]=dmatsj[i][1]=1;
+for(j=0;j<*rowDim;j++){
+cmatsi[i][j]=1;
+dmatsi[i][j]=1;
+cmatsj[i][j]=1;
+dmatsj[i][j]=1;
+cmats[i][j]=0;
+dmats[i][j]=0;
+}
+cmatsi[i][*rowDim]=1;
+dmatsi[i][*rowDim]=1;
 }
 @}
 
