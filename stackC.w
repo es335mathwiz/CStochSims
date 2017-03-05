@@ -185,6 +185,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 @<compPathError definition@>
 @<nxtGuess definition@>
 @<nxtFPGuess definition@>
+@<chkDrv definition@>
 @}
 
 
@@ -247,6 +248,7 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 @d define constants and specify include files
 @{
 #define SPARSEFACTOR 3 @|  SPARSEFACTOR 
+
 @}
 
 
@@ -948,6 +950,7 @@ cfree(nzmax);
 @o stack.h -d
 @{
 void nxtGuess(@<nxtGuess argument list@>);
+void newNxtGuess(@<nxtGuess argument list@>);
 @}
 
 
@@ -962,6 +965,315 @@ double * initialX,
 double * shockVec,
 double * updateDirection @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
+@}
+
+
+@d chkDrv definition
+@{
+#include <math.h>
+#define NEGLIGIBLEDOUBLE 1.0e-9
+chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
+double * fvec,double * delxvec)
+{
+int i;
+int aOne=1;
+double * fvals;
+fvals = (double * ) calloc(n,sizeof(double));
+#ifdef DEBUG 
+printf("chkDrv:beginning\n");
+#endif
+
+
+amux_(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
+for(i=0;i<n;i++){
+if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
+#ifdef DEBUG 
+printf("chkDrv:discrepancy for %d,(%e,%e)\n",i,fvals[i],fvec[i]);
+#endif
+}
+}
+cfree(fvals);
+#ifdef DEBUG 
+printf("chkDrv:done\n");
+#endif
+
+}
+#define addOneToFEvals (intOutputInfo[2])++
+#define homotopyAlpha (doubleControlParameters+10)
+#define addOneToFDrvEvals (intOutputInfo[3])++
+#define maxNumberStackElements intControlParameters[5]
+constructFdrv(int numberOfEquations,int lags, int leads,int pathLength,
+double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
+double * termConstr,int * termConstrj,int * termConstri,
+double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
+double * shockVec,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
+int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo)
+{
+double * deviations;
+int * ignore;double  dignore[1]={1.0};
+int rowDim;int * fvecj;int * fveci;
+int i;int j;int soFar;double * zeroShockVec;
+ignore = (int *)calloc(numberOfEquations+1,sizeof(int));
+fvecj = (int *)calloc(numberOfEquations+1,sizeof(int));
+fveci = (int *)calloc(numberOfEquations+1,sizeof(int));
+deviations = (double * ) calloc(numberOfEquations*(leads+lags),sizeof(double));
+zeroShockVec = (double * ) calloc(numberOfEquations,sizeof(double));
+/*identity matrix for lagged values*/
+for(i=0;i<numberOfEquations*lags;i++){
+fvec[i]=0;
+fdrv[i]=1;
+fdrvj[i]=i+1;
+fdrvi[i]=i+1;}
+fdrvi[i]=i+1;
+soFar=numberOfEquations*lags;
+
+/*fill in derivative matrices*/
+{/*shock only applies for first period*/
+addOneToFEvals;
+vFunc(xvec,params,shockVec,
+fvec+numberOfEquations*lags,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+addOneToFDrvEvals;
+vFuncDrv(xvec,params,shockVec,
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+for(j=0;j<numberOfEquations+1;j++){
+fdrvi[numberOfEquations*lags+j]=
+fdrvi[numberOfEquations*lags+j]+soFar;
+}
+for(j=0;j<fdrvi[(lags+1)*numberOfEquations]-
+fdrvi[(lags)*numberOfEquations];j++){
+fdrvj[j+fdrvi[(lags)*numberOfEquations]-1]=
+fdrvj[j+fdrvi[(lags)*numberOfEquations]-1];
+}
+soFar=fdrvi[numberOfEquations*(lags+1)]-1;
+}
+for(i=1;i<pathLength;i++){
+addOneToFEvals;
+vFunc(xvec+i*numberOfEquations,params,zeroShockVec,
+fvec+numberOfEquations*lags+i*numberOfEquations,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+addOneToFDrvEvals;
+vFuncDrv(xvec+i*numberOfEquations,params,zeroShockVec,
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags+(i*numberOfEquations),homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+for(j=0;j<numberOfEquations+1;j++){
+fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]=
+fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]+soFar;
+}
+for(j=0;j<fdrvi[(i+lags+1)*numberOfEquations]-
+fdrvi[(i+lags)*numberOfEquations];j++){
+fdrvj[j+fdrvi[(i+lags)*numberOfEquations]-1]=
+fdrvj[j+fdrvi[(i+lags)*numberOfEquations]-1]+i*numberOfEquations;
+}
+soFar=fdrvi[numberOfEquations*(lags+i+1)]-1;
+}
+pathNewtAssert(soFar<maxNumberStackElements*pathLength);
+/*fill in terminal constraint*/
+for(i=0;i<termConstri[numberOfEquations*leads]-termConstri[0];i++){
+fdrv[soFar+i]=termConstr[i];
+fdrvj[soFar+i]=termConstrj[i]+(numberOfEquations*pathLength);
+}
+for(i=0;i<numberOfEquations*leads+1;i++){
+fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
+}
+
+/*xxxxxxxxx add code for deviations*/
+for(i=0;i<numberOfEquations* (lags+ leads);i++){
+deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
+rowDim=numberOfEquations*leads;
+amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
+termConstr,termConstrj,termConstri);
+for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
+cfree(ignore);
+cfree(fvecj);
+cfree(fveci);
+cfree(deviations);
+cfree(zeroShockVec);
+}
+@}
+
+@d newNxtGuess argument list
+@{
+int * sysDim,
+int * maxNumberHElements,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,
+double * xdel,
+int * ma50bdJob,
+int * ma50bdIq,
+double * ma50bdFact,
+int * ma50bdIrnf,
+int * ma50bdIptrl,
+int * ma50bdIptru,
+int * intControlParameters,double * doubleControlParameters
+@}
+
+@d newNxtGuess definition
+@{
+#define sysDimSwitchLevel 30000
+#define ma50DropThreshold (1e-8)
+
+void newNxtGuess(@<newNxtGuess argument list@>)
+{
+
+
+int i;
+int maxElementsEncountered=0;
+double * copychkfdrv;int * copychkfdrvj;int * copychkfdrvi;
+int * jcn;
+double * cntl;
+int * icntl;
+int * ip ;
+int * np;
+int * jfirst;
+int * lenr;
+int * lastr;
+int * nextr;
+int * ifirst;
+int * lenc;
+int * lastc;
+int * nextc;
+int * info;
+double * rinfo;
+int *lfact;
+double * fact;
+int *irnf;
+int * iptrl;
+int * iptru;
+int *iw;
+double * w;
+int nzmax;
+int  * aOne;
+int nonZeroNow;
+int  trans;
+@}
+@d newNxtGuess definition
+@{
+
+copychkfdrv = (double * )calloc(*maxNumberHElements,sizeof(double));
+copychkfdrvj = (int * )calloc(*maxNumberHElements,sizeof(int));
+copychkfdrvi=(int * ) calloc(*sysDim+1,sizeof(int));
+jcn = (int *)calloc(*maxNumberHElements,sizeof(int));
+cntl= (double *)calloc(5,sizeof(double));
+icntl= (int *)calloc(9,sizeof(int));
+ip = (int *)calloc(*sysDim,sizeof(int));
+np = (int *)calloc(1,sizeof(int));
+jfirst = (int *)calloc(*sysDim,sizeof(int));
+lenr = (int *)calloc(*sysDim,sizeof(int));
+lastr = (int *)calloc(*sysDim,sizeof(int));
+nextr = (int *)calloc(*sysDim,sizeof(int));
+w = (double *)calloc(*sysDim,sizeof(double));
+iw = (int *)calloc(3**sysDim,sizeof(int));
+ifirst = (int *)calloc(*sysDim,sizeof(int));
+lenc = (int *)calloc(*sysDim,sizeof(int));
+lastc = (int *)calloc(*sysDim,sizeof(int));
+nextc = (int *)calloc(*sysDim,sizeof(int));
+info = (int *)calloc(7,sizeof(int));
+rinfo = (double *)calloc(1,sizeof(double));
+lfact = (int *)calloc(1,sizeof(int));
+*lfact = ( *maxNumberHElements);/*pessimistic setting for filling*/
+aOne = (int *)calloc(1,sizeof(int));
+*aOne=1;
+@}
+@d newNxtGuess definition
+@{
+copmat_(sysDim,fdrv,fdrvj,fdrvi,
+copychkfdrv,copychkfdrvj,copychkfdrvi,aOne,aOne);
+
+ma50id_(cntl,icntl);
+cntl[1]=ma50Balance;
+cntl[2]=ma50DropEntry;
+cntl[3]=ma50DropCol;
+icntl[3]=ma50PivotSearch;
+/*if(*sysDim>sysDimSwitchLevel){cntl[2]=ma50DropThreshold;}*/
+nzmax=*maxNumberHElements;
+nonZeroNow=copychkfdrvi[*sysDim]-copychkfdrvi[0];
+ma50ad_(sysDim,sysDim,&nonZeroNow,
+&nzmax,copychkfdrv,copychkfdrvj,jcn,copychkfdrvi,cntl,icntl,
+ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+
+#ifdef DEBUG 
+printf("\n ma50ad info\n");
+for(i=0;i<7;i++)printf(" %d ",info[i]);
+printf("\n ma50ad info\n");
+#endif
+
+if(*ma50bdJob!=2){
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+#ifdef DEBUG 
+printf("\n ma50bd info\n");
+for(i=0;i<7;i++)printf(" %d ",info[i]);
+printf("\n ma50bd info\n");
+#endif
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob=1)*ma50bdJob=1;
+/* if it was 1 promote 
+                             to 3(ie conservative alternative)*/
+/*unless we're dropping terms with cntl[2]>0*/
+if(cntl[2]>0){*ma50bdJob=1;}
+} else {
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(info[0]<-7){/* small pivot values,
+reset to 3*/
+#ifdef DEBUG 
+printf("small pivots, resetting to 3\n");
+#endif
+*ma50bdJob=1;
+/*unless we're dropping terms with cntl[2]>0*/
+if(cntl[2]>0){*ma50bdJob=1;}
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+}
+}
+    trans = 1;
+ma50cd_(sysDim,sysDim,icntl,copychkfdrvi,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+fvec,xdel,
+w,info);
+*maxNumberHElements=maxElementsEncountered;
+pathNewtAssert(info[0]>=0);
+@}
+@d newNxtGuess definition
+@{
+cfree(aOne);
+cfree(jcn );
+cfree(cntl);
+cfree(icntl);
+cfree(ip );
+cfree(np );
+cfree(jfirst );
+cfree(lenr );
+cfree(lastr );
+cfree(nextr );
+cfree(w);
+cfree(iw);
+cfree(ifirst );
+cfree(lenc );
+cfree(lastc );
+cfree(nextc );
+cfree(info );
+cfree(rinfo );
+cfree(lfact);
+cfree(copychkfdrv);cfree(copychkfdrvj);cfree(copychkfdrvi);
+}
 @}
 
 
