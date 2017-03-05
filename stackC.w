@@ -177,6 +177,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @o  stackC.c -d
 @{
+@<define assert bump@>
 @<define constants and specify include files@>
 @<nxtCDmats definition@>
 @<oneStepBack definition@>
@@ -1841,6 +1842,32 @@ pureStackView:   testStack
 
 Numerical Recipes has a globally convergent
 routine for find the root of a system of equations\cite{press92}
+@d define assert bump
+@{
+
+#define wordybump(potentialMaxValue) \
+   if(potentialMaxValue>maxElementsEncountered) \
+   maxElementsEncountered=potentialMaxValue;\
+printf("bump stuff(%d,%d) at line %d",potentialMaxValue,maxElementsEncountered,\
+__LINE__);
+
+
+#define bump(potentialMaxValue) \
+   if(potentialMaxValue>maxElementsEncountered) \
+   maxElementsEncountered=potentialMaxValue;
+
+#include <signal.h>
+#define pathNewtAssert(expression)  \
+  if(!(expression))\
+		   __pathNewtAssert (expression, __FILE__, __LINE__)
+
+#define __pathNewtAssert(expression, file, lineno)  \
+  {printf("pathNewtAssert: processid=%ld\n",getpid());\
+   printf ("%s:%u: failed assertion\n", file, lineno);\
+   	kill(getpid(),SIGUSR2);}
+
+
+@}
 
 @o myNewt.c -d 
 @{
