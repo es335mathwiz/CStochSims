@@ -1470,11 +1470,12 @@ dmatsi[*lags+*capT+1][0]=dmatsi[*lags+*capT+1][1]=1;
 @}
 @d nxtGuess backsolve
 @{
+if(*leads>0){
 oneStepBack(rowDim,
    ymats+*lags+*capT,ymatsj+*lags+*capT,ymatsi+*lags+*capT,
    cmats+*lags+*capT,cmatsj+*lags+*capT,cmatsi+*lags+*capT,
    dmats+*lags+*capT,dmatsj+*lags+*capT,dmatsi+*lags+*capT);
-
+}
 for(i=*capT-1;i>-1;i--){
 oneStepBack(numberOfEquations,
    ymats+*lags+i,ymatsj+*lags+i,ymatsi+*lags+i,
@@ -1485,6 +1486,8 @@ oneStepBack(numberOfEquations,
 for(i=0;i<*capT;i++){
 csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
+pathNewtAssert(*ierr == 0);
+bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
 csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
