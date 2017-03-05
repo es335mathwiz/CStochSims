@@ -1871,7 +1871,7 @@ for (its=1;its<=MAXITS;its++) {
 #define NRANSI
 #include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
 #define MAXITS 200
-#define TOLF 1.0e-20
+#define TOLF 1.0e-12
 #define TOLMIN 1.0e-6
 #define TOLX 1.0e-10
 #define STPMX 100.0
@@ -1932,6 +1932,7 @@ cfree(deviations);cfree(fullfvec);\
 	for (i=0;i<*numberOfEquations;i++)
 		if (fabs(fvec[(*numberOfEquations**lags)+i]) > test) 
         test=fabs(fvec[(*numberOfEquations**lags)+i]);
+dfunc(x,params,smats[0],smatsj[0],smatsi[0]);
 	if (test<0.01*TOLF) FREERETURN
 	for (sum=0.0,i=0;i<*numberOfEquations;i++) sum += SQR(x[i]);
 	stpmax=(*lags+*leads+1)*STPMX*FMAX(sqrt(sum),(double)n);
@@ -1939,7 +1940,7 @@ cfree(deviations);cfree(fullfvec);\
 
 @d get newton update
 @{
-dfunc(x,params,smats[0],smatsj[0],smatsi[0]);
+dfunc(x,params,smats[0],smatsj[0],smatsi[0]);printf("delete this in stackC.w");
 		for (i=0;i<n;i++) xold[i]=x[i];
 		fold=f;
 		/*modification begin*/
@@ -2008,7 +2009,7 @@ for(i=0;i<n;i++)x[i]=x[i]-p[i];
 				temp=fabs(g[i])*FMAX(fabs(x[i]),1.0)/den;
 				if (temp > test) test=temp;
 			}
-			*check=(test < TOLMIN ? 1 : 0);
+			*check=(test < TOLMIN ? 0 : 1);
 			FREERETURN
 		}
 		test=0.0;
@@ -2191,6 +2192,8 @@ else {  printf("Caller has terminated with inform =%d.\n",*inform);}
 auxInit=qRows=0;
 maxHElementsForSparseAMA=maxHElements;
 void * aPointerToVoid;/*adding since all the sparseAMA.h files have this arg*/
+printf("from stackC.w line 2194\n");
+cPrintSparse(*numberOfEquations,smats[0],smatsj[0],smatsi[0]);
 sparseAMA(&maxHElementsForSparseAMA,DISCRETE_TIME,*numberOfEquations,
 *numberOfEquations*(*lags+1+*leads),*leads,
 smats[0],smatsj[0],smatsi[0],
@@ -2370,7 +2373,7 @@ int i;
 				temp=fabs(g[i])*FMAX(fabs(x[i]),1.0)/den;
 				if (temp > test) test=temp;
 			}
-			*check=(test < TOLMIN ? 1 : 0);
+			*check=(test < TOLMIN ? 0 : 1);
 			PFREERETURN
 		}
 		test=0.0;
