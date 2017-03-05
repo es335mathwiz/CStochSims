@@ -404,6 +404,8 @@ pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
 filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
