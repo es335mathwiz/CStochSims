@@ -414,6 +414,8 @@ aplb_(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
 evenSumDA,evenSumDJA,evenSumDIA,
 nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
 
 @}
@@ -469,13 +471,13 @@ submat_(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
-
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
 
-ma50id_(cntl,icntl)
-;
+ma50id_(cntl,icntl);
 ma50ad_(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+/*wordybump(info[3]);*/
+pathNewtAssert(info[0]>=0);
 /* restore odd since ad is destructive*/
 submat_(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
@@ -491,6 +493,8 @@ ma50bd_(rowDim,rowDim,nonZeroNow,aOne,
 oddSumCA,oddSumCJA,jcn,
 cntl,icntl,ip,oddSumCIA,np,lfact,fact,irnf,iptrl,iptru,
 w,iw,info,rinfo);
+/*wordybump(info[3]);*/
+pathNewtAssert(info[0]>=0);
 @}
 
 MA50CD applies the factoriation to solve
@@ -527,21 +531,29 @@ ma50cd_(rowDim,rowDim,icntl,oddSumCIA,np,trans,
 lfact,fact,irnf,iptrl,iptru,
 nsSumC,x,
 w,info);
+bump(info[3]);
+pathNewtAssert(info[0]>=0);
 
 *nzmaxLeft= *nzmax-cmatsExtent-1;
 dnscsr_(aOne,rowDim,nzmaxLeft,x,
 aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 ierr);
+pathNewtAssert(*ierr == 0);
+
 itb[i+1]=itb[i+1]+cmatsExtent;
 itb[i]=itb[i]+cmatsExtent;
 cmatsExtent=itb[i+1]-1;
 }
+bump(cmatsExtent);
+
 aSmallDouble=DBL_EPSILON;
 filter_(cColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
 csrcsc_(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
 csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+pathNewtAssert(*ierr == 0);
+bump(*rowDim);
 /*code should use info from previous call to set lfact
 also can avoid calls to ma50ad once pattern settles down*/
 
@@ -550,7 +562,8 @@ trans,lfact,fact,irnf,iptrl,iptru,nsSumD,x,w,info);
 
 dnscsr_(rowDim,aOne,rowDim,x,
 rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
-
+/*wordybump(info[3]);*/
+pathNewtAssert(*ierr == 0);
 @}
 
 \subsection{nxtCDmats Variable Declarations}
@@ -600,6 +613,7 @@ double * w;
 double * x;
 int * trans;
 int * cColumns;
+int * balColumns;
 int *hColumns;
 double * nsSumC;
 double * nsSumD;@|
@@ -660,6 +674,7 @@ nzmaxLeft = (int *)calloc(1,sizeof(int));
 hColumns = (int *)calloc(1,sizeof(int));
 nonZeroNow = (int *)calloc(1,sizeof(int));
 cColumns = (int *)calloc(1,sizeof(int));
+balColumns = (int *)calloc(1,sizeof(int));
 *hColumns = *numberOfEquations*(*leadss+*lagss+1);
 *cColumns = *numberOfEquations * *leadss;
 *nzmax = *maxNumberHElements;
