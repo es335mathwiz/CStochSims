@@ -247,7 +247,6 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 @d define constants and specify include files
 @{
 #define SPARSEFACTOR 3 @|  SPARSEFACTOR 
-
 @}
 
 
@@ -613,7 +612,6 @@ double * w;
 double * x;
 int * trans;
 int * cColumns;
-int * balColumns;
 int *hColumns;
 double * nsSumC;
 double * nsSumD;@|
@@ -674,7 +672,6 @@ nzmaxLeft = (int *)calloc(1,sizeof(int));
 hColumns = (int *)calloc(1,sizeof(int));
 nonZeroNow = (int *)calloc(1,sizeof(int));
 cColumns = (int *)calloc(1,sizeof(int));
-balColumns = (int *)calloc(1,sizeof(int));
 *hColumns = *numberOfEquations*(*leadss+*lagss+1);
 *cColumns = *numberOfEquations * *leadss;
 *nzmax = *maxNumberHElements;
@@ -870,17 +867,6 @@ dmatsA dmatsJA dmatsIA
 @}
 
 
-@d backSub definition
-
-@{
-(*last cmat better be all zeros or don't have enough equations to determine
-delta y*)
-backSub[cmats_,dmats_]:=
-With[{rc=Rest[Reverse[cmats]],rd=Rest[Reverse[dmats]]},
-With[{ytail=dmats[[{-1}]]},
-Reverse[oneStepBack[{ytail,rc,rd}][[1]]]]]
-@}
-
 
 \subsection{oneStepBack Definition}
 \label{sec:oneStepBack}
@@ -903,16 +889,21 @@ if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
   amub_(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
   rcy,rcyj,rcyi,rowDim,iw,ierr);
+pathNewtAssert(*ierr == 0);
+
 aSmallDouble=DBL_EPSILON;
 
 filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
+pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
   aplb_(rowDim,aOne,aOne,
   dmatsA[0],dmatsJA[0],dmatsIA[0],
   rcy,rcyj,rcyi,
   yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],
-  nzmax,iw,ierr);} else {
+  nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+} else {
   for(i=0;i<*rowDim;i++)
   {yvecA[0][i]=dmatsA[0][i];}
   for(i=0;i<*rowDim;i++)
@@ -960,7 +951,39 @@ cfree(iw);
 cfree(nzmax);
 @}
 
-
+\subsection{terminalConditions}
+\label{sec:term}
+@d computeR argument list
+@{
+int * numberOfEquations,int * lags, int * leads,
+int * maxNumberElements,
+void (* func)(),void (* dfunc)(),double * params,
+double * expansionPoint,
+double * qMat,int * qMatj,int * qMati,
+double * impact, int * impactj, int * impacti,
+double * rvec
+@}
+@d computeR
+@{
+void computeR(
+@<computeR argument list@>
+)
+{
+impactPart1=calloc(numberOfEquations*leads,sizeof(double));
+impactPart2=calloc(numberOfEquations*leads,sizeof(double));
+/*xxxxxxxxx add code for deviations*/
+rowDim=numberOfEquations*leads;
+amux_(&rowDim,expansionPoint,rvec,termConstr,termConstrj,termConstri);
+amux_(&rowDim,expansionPoint,impactPart1+(numberOfEuations*lags),
+impactr,impactrj,impactri);
+amux_(&rowDim,impactPart1,impactPart2,
+impactr,impactrj,impactri);
+for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
+}
+cfree(impactPart1);
+cfree(impactPart2);
+}
+@}
 
 
 
@@ -988,7 +1011,6 @@ double * shockVec,
 double * updateDirection @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
-
 
 @d chkDrv definition
 @{
