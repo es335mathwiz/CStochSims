@@ -195,7 +195,6 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @d define constants and specify include files
 @{
-#include <stdlib.h>
 #include <stdio.h>
 #include <float.h>
 @|stdio.h math.h
@@ -364,10 +363,12 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 amub_(rowDim,cColumns,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
 filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1 also need to shift right*/
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
@@ -375,6 +376,8 @@ for(j=0;j<ib[*rowDim]-1;j++)
 aplb_(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
 b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
 nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
 
 
@@ -397,7 +400,8 @@ nzmax,iw,ierr);
 amub_(rowDim,aOne,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
 filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
 
@@ -553,6 +557,7 @@ rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
 
 @d nxtCDmats variable declarations
 @{
+int maxElementsEncountered=0;
 /*void * calloc(unsigned amt,int size);*/
 double * evenSumCA;int * evenSumCJA;int * evenSumCIA;
 double * evenSumDA;int * evenSumDJA;int * evenSumDIA;
