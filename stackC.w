@@ -1871,7 +1871,7 @@ for (its=1;its<=MAXITS;its++) {
 #define NRANSI
 #include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
 #define MAXITS 200
-#define TOLF 1.0e-20
+#define TOLF 1.0e-12
 #define TOLMIN 1.0e-6
 #define TOLX 1.0e-10
 #define STPMX 100.0
@@ -2009,7 +2009,7 @@ for(i=0;i<n;i++)x[i]=x[i]-p[i];
 				temp=fabs(g[i])*FMAX(fabs(x[i]),1.0)/den;
 				if (temp > test) test=temp;
 			}
-			*check=(test < TOLMIN ? 1 : 0);
+			*check=(test < TOLMIN ? 0 : 1);
 			FREERETURN
 		}
 		test=0.0;
@@ -2373,7 +2373,7 @@ int i;
 				temp=fabs(g[i])*FMAX(fabs(x[i]),1.0)/den;
 				if (temp > test) test=temp;
 			}
-			*check=(test < TOLMIN ? 1 : 0);
+			*check=(test < TOLMIN ? 0 : 1);
 			PFREERETURN
 		}
 		test=0.0;
