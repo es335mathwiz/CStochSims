@@ -1345,13 +1345,21 @@ if(*leads>0){
 
 @d nxtGuess variable declarations
 @{
+int maxElementsEncountered=0;
+int * ma50bdJob;
+int * ma50bdIq;
+double * ma50bdFact;
+int * ma50bdIrnf;
+int * ma50bdIptrl;
+int * ma50bdIptru;
+
 int tNow;
 double * deviations;
 double **cmats;int  **cmatsj;int  **cmatsi;
 double **dmats;int **dmatsj;int **dmatsi;
 double **ymats;int  **ymatsj;int  **ymatsi;
 double *gmats;int  *gmatsj;int  *gmatsi;
-int i;
+int i,j;
 int *hColumns;
 int *qColumns;
 int *rowDim;
@@ -1374,7 +1382,7 @@ qColumns=(int *)calloc(1,sizeof(int));
 rowDim=(int *)calloc(1,sizeof(int));
 *hColumns=*numberOfEquations*(*lags+1+*leads);
 *qColumns=*numberOfEquations*(*lags+*leads);
-*rowDim=*numberOfEquations* *leads;
+*rowDim=*numberOfEquations* (*leads? *leads:1);
 
 fullfvec=(double *)calloc(*numberOfEquations**leads,sizeof(double));
 fulldfvec=(double *)calloc(*numberOfEquations*(*lags+*leads+ 1),sizeof(double));
