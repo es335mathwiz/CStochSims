@@ -1333,7 +1333,9 @@ void nxtGuess(@<nxtGuess argument list@>)
 for(tNow=0;tNow<*capT;tNow++){
 @<nxtGuess obtain sparse representation and compute next C and d@>
 }
+if(*leads>0){
 @<nxtGuess use terminal constraint@>
+}
 @<nxtGuess backsolve@>
 @<nxtGuess storage deallocations@>
 
