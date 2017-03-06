@@ -1823,15 +1823,21 @@ int * maxNumberHElements,
 double ** fmats,int ** fmatsj,int **fmatsi,
 double ** smats,int ** smatsj,int **smatsi)
 {
+int maxElementsEncountered=0;
 int * rowDim;
 int * qColumns;
 int tNow;
 int * aOne;
+int * aZero;
 int * ierr;int i;
 double * deviations;
+double * zeroShockVec;
 double * fullfvec;
 ierr = (int *) calloc(1,sizeof(int));
 aOne= (int *) calloc(1,sizeof(int));
+*aOne=1;
+aZero= (int *) calloc(1,sizeof(int));
+*aZero=1;
 rowDim= (int *) calloc(1,sizeof(int));
 qColumns= (int *) calloc(1,sizeof(int));
 *rowDim=*numberOfEquations* *leads;
