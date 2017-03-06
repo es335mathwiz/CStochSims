@@ -1,3 +1,6 @@
+
+UNAME= $(shell uname)
+
 #Flags, Compilers, Linkers
 #LINK = ifort
 LINK = gfortran
@@ -8,7 +11,7 @@ FFLAGS = -c -g -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 #CC = icc
 CC = gcc
 #CFLAGS = -c -g -I$(SPAMADIR)/src/main/include -I../stackStochSims/
-LAPACKLIBS=  -L/opt/atlas/lib/ -lcblas  -latlas -llapack -lf77blas
+#LAPACKLIBS=  -L/opt/atlas/lib/ -lcblas  -latlas -llapack -lf77blas
 SYSTEM= -DUNIX
 FRBUSDIR=$(HOME)/aim/frbus
 CFLAGS = -O4  -DUNIX -DCLOCK  -I$(SPAMADIR)/src/main/include -I../stackStochSims/
@@ -23,9 +26,20 @@ CFLAGS=$(debCFLAGS)
 fastCFLAGS =  -O4 -DUNIX -DCLOCK   -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 fastSPARSELIB = 	  ./ranlib.o
 
+ifeq ($(UNAME),Linux)
+narPath=../sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-amd64-Linux-g++-shared/lib/amd64-Linux-g++/shared
+endif
+
+ifeq ($(UNAME),Darwin)
+narPath = ../sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-x86_64-MacOSX-g++-shared/lib/x86_64-MacOSX-g++/shared/
+endif
+
+
+
+
 LINTFLAGS = -b -c  -h 
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(HOME)/aim/sparse -lsparseAim
-LINKFLAGS =  -v  -lc -ldl -lm -L../sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-amd64-Linux-g++-shared/lib/amd64-Linux-g++/shared -lsparseAMA-1.0-SNAPSHOT
+LINKFLAGS =  -v  -lc -ldl -lm -L$(narPath) -lsparseAMA-1.0-SNAPSHOT -lc
 
 
 #LAPACKLIB  = /mq/home/m1gsa00/aim/summer98/aimCCode/lapack_os5.a \
@@ -113,7 +127,7 @@ stochRun:	stochRun.o stackC.o  myNewt.o dtime.o\
 			ma50ad.o stochProto.o juillard.o ranlib.o
 		$(LINK) -o stochRun -g  stochRun.o myNewt.o dtime.o\
 		stackC.o juillard.o ma50ad.o stochProto.o\
-		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)
+		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)  -lc
 
 
 myNewt.c:			 stackC.w
@@ -134,7 +148,7 @@ debStochRun:	debStochRun.o debStackC.o  debMyNewt.o dtime.o\
 			ma50ad.o debStochProto.o debJuillard.o ranlib.o
 		$(LINK) -o debStochRun  debStochRun.o debMyNewt.o dtime.o\
 		debStackC.o debJuillard.o ma50ad.o debStochProto.o\
-		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB)
+		$(fastSPARSELIB) $(LINKFLAGS) $(fastLAPACKLIB) -lc
 
 
 

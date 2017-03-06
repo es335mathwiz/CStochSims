@@ -1,6 +1,6 @@
 %	$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $	
 \documentclass[html]{article}
-@i /msu/home/m1gsa00/miscProjects/math/miscLatexPkg.tex
+
 \begin{document}
 
 \title{``C'' Program Calling stochSim()
@@ -107,7 +107,8 @@ the page numbers of the component's definition.}
 @o stochRun.c -d
 @{
 @<defines and includes@>
-main(int argc, char * argv[])
+void  cfree(void * ptr){free(ptr);}
+int main(int argc, char * argv[])
 {
 @<main variable declarations@>
 @<main storage allocations determined at compile time@>
@@ -140,9 +141,11 @@ julliard.c.
 
 @d defines and includes
 @{
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+/*#include <string>*/
+#include<string.h>
+#include<stdio.h>
+#include<stdlib.h>
+
 #define julNLAGS 1
 #define julNLEADS 5
 #define julNEQS 5
@@ -157,6 +160,50 @@ void julModDerivative(double * xvec,double * pvec,
 double * alhs,
 int * jalhs,
 int * ialhs);
+void FPnewt(int * numberOfEquations,int * lags, int * leads,
+void (* func)(),void (* dfunc)(),double * params,
+double x[],
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,
+int *check);
+void julModData(int t,double * vectorOfVals);
+void julModShocks(int t,double * vectorOfVals);
+void julModPeriodicPointGuesser
+(double * parameters,int period,
+	double *);
+
+void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
+int * iarray);
+void altComputeAsymptoticQMatrix(
+int * numberOfEquations,int * lags, int * leads,
+void (* func)(),void (* dfunc)(),double * params,
+double canadaFP[],int * pthLngth,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,
+double * qMat,int * qMatj,int * qMati,
+int * ierr
+);
+void stochSim(
+int * numberOfEquations,int * lags, int * leads,int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,
+int * replications,
+int * t0,int * tf,int * permVecs,
+double * shockTable,int * shocksAvailable,
+double * dataTable,int * dataAvailable,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double * fixedPoint,
+double x[],
+int *failedQ);
+void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName);
+
+void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName);
+
+
+
 @}
 
 The user may specify the maximum number of non zero elements
@@ -299,7 +346,7 @@ printf("done generating perm vec\n");
 
 @o stochRun.c
 @{
-fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName)
+void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName)
 {
 int i;
 fprintf(file,"%s={",matrixName);
@@ -307,7 +354,7 @@ for(i=0;(i<length-1);i++){
 fprintf(file,"%30.20f,",matrix[i]);}
 fprintf(file,"%30.20f};\n",matrix[length-1]);
 }
-fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName)
+void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName)
 {
 int i;
 fprintf(file,"%s={",matrixName);
@@ -479,7 +526,7 @@ int maxNumberElements[1]={MAXELEMENTS};
 The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during calculation.
 @d main variable declarations
 @{
-#include<stdio.h>
+
 FILE * outFile;
 int stochasticPathLength=1;
 int * julliardPermVec;

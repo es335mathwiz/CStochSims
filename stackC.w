@@ -1,7 +1,7 @@
 %	$Id: stackC.w,v 1.39 2000/03/28 21:05:12 m1gsa00 Exp m1gsa00 $	
 \documentclass{article}
 %\documentclass[html]{article}
-@i /msu/home/m1gsa00/miscProjects/math/miscLatexPkg.tex
+@i miscLatexPkg.tex
 \newcommand{\Treebox}[1]{
 \Tr{\psframebox{#1}}}
 \begin{document}
@@ -2191,7 +2191,7 @@ HTMLSOURCE   = $(WEBSOURCE:.hw=.tex)
 atIFiles    = 
 AIMLIB  = -L /msu/res2/m1gsa00/aim/summer98/aimCCode -lfaim -lsrrit lapack_os5.a blas_os5.a
 
-OTHERSOURCE =  /msu/res2/m1gsa00/aim/frbus/miscLatexPkg.tex
+OTHERSOURCE =  miscLatexPkg.tex
 
 SOURCE = $(CSOURCE)  $(OTHERSOURCE)
 
@@ -3174,7 +3174,7 @@ int i;
 @o myNewt.c -d
 @{
 
-altComputeAsymptoticQMatrix(
+void altComputeAsymptoticQMatrix(
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double canadaFP[],int * pthLngth,
@@ -3368,7 +3368,7 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 @{
 #include <math.h>
 #define NRANSI
-#include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
+#include "./nrutil.h"
 #define ALF 1.0e-4
 #define TOLX 1.0e-10
 
@@ -3544,8 +3544,6 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 @{
 @<lnsrch free storage@>
 @}
-
-
 
 
 
