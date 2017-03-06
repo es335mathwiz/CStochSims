@@ -1499,6 +1499,12 @@ bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
 @}
 @d nxtGuess storage deallocations
 @{
+cfree(ma50bdIptru);
+cfree(ma50bdIptrl);
+cfree(ma50bdIrnf);
+cfree(ma50bdFact);
+cfree(ma50bdIq);
+cfree(ma50bdJob);
 cfree(deviations);
 cfree(hColumns);
 cfree(qColumns);
@@ -1508,6 +1514,7 @@ cfree(fullfvec);
 cfree(fulldfvec);
 cfree(ierr);
 cfree(aOne);
+
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
 cfree(cmats[i]);
 cfree(cmatsj[i]);
@@ -1575,6 +1582,13 @@ void nxtFPGuess(@<nxtFPGuess argument list@>)
 
 @d nxtFPGuess variable declarations
 @{
+int * ma50bdJob;
+int * ma50bdIq;
+double * ma50bdFact;
+int * ma50bdIrnf;
+int * ma50bdIptrl;
+int * ma50bdIptru;
+
 int j;
 double **cmats;int  **cmatsj;int  **cmatsi;
 double **dmats;int **dmatsj;int **dmatsi;
@@ -1634,6 +1648,12 @@ dmatsi[i] =(int *)calloc(*numberOfEquations* *leads+1,sizeof(int));
 @}
 @d nxtFPGuess storage allocations
 @{
+ma50bdIptru = (int *)calloc(*numberOfEquations* *leads,sizeof(int));
+ma50bdIptrl = (int *)calloc(*numberOfEquations* *leads,sizeof(int));
+ma50bdIrnf = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
+ma50bdIq = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdJob = (int *)calloc(1,sizeof(int));
 @}
 @d nxtFPGuess initialize C and d matrices
 @{
@@ -1657,13 +1677,17 @@ dnscsr_(numberOfEquations,aOne,numberOfEquations,fullfvec,
 numberOfEquations,
 fmats,fmatsj,fmatsi,
 ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(fmatsi[*numberOfEquations]-fmatsi[0]);
 dnscsr_(numberOfEquations,hColumns,maxNumberHElements,
 fulldfvec,
 numberOfEquations,
 smats,smatsj,smatsi,
 ierr);
+pathNewtAssert(*ierr == 0);
+bump(smatsi[*numberOfEquations]-smatsi[0]);
 */
+*ma50bdJob=1;
 nxtCDmats(numberOfEquations,lags,leads,
 numberOfEquations,maxNumberHElements,
    smats,smatsj,smatsi,
@@ -1691,6 +1715,7 @@ smatsi[*numberOfEquations* *leads]=2* (*numberOfEquations * *leads)+1;
 for(j=0;j<=*numberOfEquations* *leads;j++)fmatsi[j]=1;
 fmatsj[0]=fmatsj[1]=1;fmats[0]=0;
 
+*ma50bdJob=1;
 nxtCDmats(numberOfEquations,lags,leads,
 rowDim,maxNumberHElements,
 smats,smatsj,smatsi,
@@ -1726,15 +1751,26 @@ oneStepBack(numberOfEquations,
 for(i=0;i<*lags+1;i++){
 csrdns_(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
 updateDirection+(( i) * *numberOfEquations),numberOfEquations,ierr);
+pathNewtAssert(*ierr == 0);
+
+
 }
 csrdns_(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
 updateDirection+((*lags+1 ) * *numberOfEquations),rowDim,ierr);
+pathNewtAssert(*ierr == 0);
+
 
 
 
 @}
 @d nxtFPGuess storage deallocations
 @{
+cfree(ma50bdIptru);
+cfree(ma50bdIptrl);
+cfree(ma50bdIrnf);
+cfree(ma50bdFact);
+cfree(ma50bdIq);
+cfree(ma50bdJob);
 cfree(hColumns);
 cfree(qColumns);
 cfree(rowDim);
