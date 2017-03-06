@@ -1846,9 +1846,14 @@ deviations = (double *) calloc(*numberOfEquations* (*lags+*leads+1),sizeof(doubl
 zeroShockVec = (double *) calloc(*numberOfEquations,sizeof(double));
 fullfvec = (double *) calloc(*numberOfEquations,sizeof(double));
 
-for(tNow=0;tNow<*capT;tNow++) {
- theFunction(initialX+((tNow/*+(*lags-1)*/) * *numberOfEquations),initialX,
+{/*use shock for first period only*/
+ theFunction(initialX,initialX,
 shockVec,
+  fmats[0],fmatsj[0],fmatsi[0]);
+}
+for(tNow=1;tNow<*capT;tNow++) {
+ theFunction(initialX+((tNow/*+(*lags-1)*/) * *numberOfEquations),initialX,
+zeroShockVec,
   fmats[tNow],fmatsj[tNow],fmatsi[tNow]);
 
 }
