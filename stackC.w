@@ -1855,24 +1855,26 @@ for(tNow=1;tNow<*capT;tNow++) {
  theFunction(initialX+((tNow/*+(*lags-1)*/) * *numberOfEquations),initialX,
 zeroShockVec,
   fmats[tNow],fmatsj[tNow],fmatsi[tNow]);
-
 }
 
 
 copmat_(rowDim,termConstr,termConstrj,termConstri,
-smats[*capT],smatsj[*capT],smatsi[*capT],&aOne,&aOne);
+smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
-deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i];}
+deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
 amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
+pathNewtAssert(*ierr == 0);
+bump(fmatsi[*capT][*rowDim]-fmatsi[*capT][0]);
+cfree(zeroShockVec);
 }
+
+
 @}
-
-
 \subsection{B matrix computation}
 \label{sec:bmat}
 
@@ -2272,6 +2274,435 @@ pureStackView:   testStack
 
 \section{Numerical Recipes Modifications of FPnewt}
 
+\subsection{array allocation program}
+\label{sec:allocarray}
+
+@o stackC.c -d
+@{
+#include "stochSims.h"
+void allocMa50(int numberOfEquations,int lags,int leads,
+int pathLength,int maxElements,
+int **ma50bdIptru,
+int **ma50bdIptrl,
+int **ma50bdIrnf,
+double **ma50bdFact,
+int **ma50bdIq,
+int **ma50bdJob)
+{
+int sysDim;
+sysDim= numberOfEquations*(lags+pathLength+leads);
+*ma50bdIptru = (int *)calloc(sysDim,sizeof(int));
+*ma50bdIptrl = (int *)calloc(sysDim,sizeof(int));
+*ma50bdIrnf = (int *)calloc(maxElements,sizeof(int));
+*ma50bdFact = (double *)calloc(maxElements,sizeof(double));
+*ma50bdIq = (int *)calloc(sysDim,sizeof(int));
+*ma50bdJob = (int *)calloc(1,sizeof(int));
+}
+
+void allocFPNewt(int numberOfEquations,int lags,int leads,
+int pathLength,int maxElements,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,int***fmatsj,int***fmatsi,
+double***smats,int***smatsj,int***smatsi)
+{int i;
+if(pathLength<1)pathLength=1;
+*genericFP=(double *) calloc(numberOfEquations*(lags+leads+1+pathLength),
+sizeof(double));
+*genericIntercept=(double *) calloc(numberOfEquations*(leads),
+sizeof(double));
+*fmats =(double **)calloc((pathLength)+lags+1,sizeof(double *));
+*fmatsj =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*fmatsi =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*smats =(double **)calloc((pathLength)+lags+1,sizeof(double *));
+*smatsj =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*smatsi =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+for(i=0;i<(pathLength)+lags+1;i++){
+(*fmats)[i] =(double *)calloc(numberOfEquations*(lags+leads),sizeof(double));
+(*fmatsj)[i] =(int *)calloc(numberOfEquations*(lags+leads),sizeof(int));
+(*fmatsi)[i] =(int *)calloc(
+     numberOfEquations*(lags+leads)+1,sizeof(int));
+(*smats)[i] =(double *)calloc(maxElements,sizeof(double));
+(*smatsj)[i] =(int *)calloc(maxElements,sizeof(int));
+(*smatsi)[i] =(int *)calloc(
+     numberOfEquations*(lags+leads)+1,sizeof(int));
+}
+}
+void cfreeMa50(
+int **ma50bdIptru,
+int **ma50bdIptrl,
+int **ma50bdIrnf,
+double **ma50bdFact,
+int **ma50bdIq,
+int **ma50bdJob)
+{
+cfree(*ma50bdIptru);
+cfree(*ma50bdIptrl);
+cfree(*ma50bdIrnf);
+cfree(*ma50bdFact);
+cfree(*ma50bdIq);
+cfree(*ma50bdJob);
+}
+void cfreeFPNewt(int lags, int pathLength,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,int***fmatsj,int***fmatsi,
+double***smats,int***smatsj,int***smatsi)
+{int i;
+cfree(*genericFP);
+cfree(*genericIntercept);
+for(i=0;i<(pathLength)+lags+1;i++){
+cfree((*fmats)[i]);
+cfree((*fmatsj)[i]);
+cfree((*fmatsi)[i]);
+cfree((*smats)[i]);
+cfree((*smatsj)[i]);
+cfree((*smatsi)[i]);
+}
+cfree(*fmats);
+cfree(*fmatsj);
+cfree(*fmatsi);
+cfree(*smats);
+cfree(*smatsj);
+cfree(*smatsi);
+}
+void allocAltComputeAsymptoticQ(int numberOfEquations,int lags,int leads,
+int maxElements,double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti)
+{
+*AMqMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*AMqMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*AMqMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*rootr=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+*rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+
+}
+
+
+void cfreeAltComputeAsymptoticQ(
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double**rootr,double**rooti)
+{
+cfree(*AMqMatrix);
+cfree(*AMqMatrixj);
+cfree(*AMqMatrixi);
+cfree(*rootr);
+cfree(*rooti);
+}
+
+
+
+void allocPhiF(int numberOfEquations,int lags,int leads,
+int numberExogenous,
+int maxElements,
+double**psiMatrix,int**psiMatrixj,int**psiMatrixi,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**phiMatrix,int**phiMatrixj,int**phiMatrixi,
+double**fMatrix,int**fMatrixj,int**fMatrixi,
+double**vartheta,int**varthetaj,int**varthetai,
+double**impact,int**impactj,int**impacti
+)
+{
+*psiMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*psiMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*psiMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+
+*upsilonMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*upsilonMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*upsilonMatrixi=(int *)
+   calloc((numberExogenous+1),
+        sizeof(int));
+
+*phiMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*phiMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*phiMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+
+*fMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*fMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*fMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*vartheta=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetai=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*impact=(double *)
+   calloc(maxElements,sizeof(double));
+*impactj=(int *)
+   calloc(maxElements,sizeof(int));
+*impacti=(int *)
+   calloc(((1+leads)*numberOfEquations+1),
+        sizeof(int));
+}
+
+void cfreePhiF(
+double**psiMatrix,int**psiMatrixj,int**psiMatrixi,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**phiMatrix,int**phiMatrixj,int**phiMatrixi,
+double**fMatrix,int**fMatrixj,int**fMatrixi,
+double**vartheta,int**varthetaj,int**varthetai,
+double**impact,int**impactj,int**impacti
+)
+{
+cfree(*psiMatrix);
+cfree(*psiMatrixj);
+cfree(*psiMatrixi);
+cfree(*upsilonMatrix);
+cfree(*upsilonMatrixj);
+cfree(*upsilonMatrixi);
+cfree(*phiMatrix);
+cfree(*phiMatrixj);
+cfree(*phiMatrixi);
+cfree(*fMatrix);
+cfree(*fMatrixj);
+cfree(*fMatrixi);
+cfree(*vartheta);
+cfree(*varthetaj);
+cfree(*varthetai);
+cfree(*impact);
+cfree(*impactj);
+cfree(*impacti);
+}
+
+ 
+void allocLinearTerminator(int numberOfEquations,int lags,int leads,
+int numberExogenous,
+int maxElements,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**hMat,int**hMatj,int**hMati,
+double**hzMat,int**hzMatj,int**hzMati,
+double**cstar,int**cstarj,int**cstari,
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti,
+double**bMat,int**bMatj,int**bMati,
+double**phiInvMat,int**phiInvMatj,int**phiInvMati,
+double**fmat,int**fmatj,int**fmati,
+double**varthetaZstar,int**varthetaZstarj,int**varthetaZstari,
+double**impact,int**impactj,int**impacti,
+double**varthetaC,int**varthetaCj,int**varthetaCi,
+double**selectZmat,int**selectZmatj,int**selectZmati
+)
+{
+*upsilonMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*upsilonMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*upsilonMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*hMat=(double *)
+   calloc(maxElements,sizeof(double));
+*hMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*hMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*hzMat=(double *)
+   calloc(maxElements,sizeof(double));
+*hzMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*hzMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*bMat=(double *)
+   calloc(maxElements,sizeof(double));
+*bMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*bMati=(int *)
+   calloc((numberOfEquations*leads+1),
+        sizeof(int));
+*phiInvMat=(double *)
+   calloc(maxElements,sizeof(double));
+*phiInvMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*phiInvMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*fmat=(double *)
+   calloc(maxElements,sizeof(double));
+*fmatj=(int *)
+   calloc(maxElements,sizeof(int));
+*fmati=(int *)
+   calloc((numberOfEquations*leads+1),
+        sizeof(int));
+*impact=(double *)
+   calloc(maxElements,sizeof(double));
+*impactj=(int *)
+   calloc(maxElements,sizeof(int));
+*impacti=(int *)
+   calloc((numberOfEquations*(leads+1)+1),
+        sizeof(int));
+*varthetaC=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaCj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetaCi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*selectZmat=(double *)
+   calloc(maxElements,sizeof(double));
+*selectZmatj=(int *)
+   calloc(maxElements,sizeof(int));
+*selectZmati=(int *)
+   calloc((numberExogenous+1),
+        sizeof(int));
+*varthetaZstar=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaZstarj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetaZstari=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*AMqMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*AMqMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*AMqMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*cstar=(double *) calloc((numberOfEquations),sizeof(double));
+*cstarj=(int *) calloc((numberOfEquations),sizeof(int));
+*cstari=(int *) calloc((numberOfEquations)+1,sizeof(int));
+*rootr=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+*rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+}
+
+void cfreeLinearTerminator(
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**hMat,int**hMatj,int**hMati,
+double**hzMat,int**hzMatj,int**hzMati,
+double**cstar,int**cstarj,int**cstari,
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti,
+double**bMat,int**bMatj,int**bMati,
+double**phiInvMat,int**phiInvMatj,int**phiInvMati,
+double**fmat,int**fmatj,int**fmati,
+double**varthetaZstar,int**varthetaZstarj,int**varthetaZstari,
+double**impact,int**impactj,int**impacti,
+double**varthetaC,int**varthetaCj,int**varthetaCi,
+double**selectZmat,int**selectZmatj,int**selectZmati
+)
+{
+cfree(*upsilonMatrix);
+cfree(*upsilonMatrixj);
+cfree(*upsilonMatrixi);
+cfree(*hMat);
+cfree(*hMatj);
+cfree(*hMati);
+cfree(*hzMat);
+cfree(*hzMatj);
+cfree(*hzMati);
+cfree(*bMat);
+cfree(*bMatj);
+cfree(*bMati);
+cfree(*phiInvMat);
+cfree(*phiInvMatj);
+cfree(*phiInvMati);
+cfree(*fmat);
+cfree(*fmatj);
+cfree(*fmati);
+cfree(*impact);
+cfree(*impactj);
+cfree(*impacti);
+cfree(*varthetaC);
+cfree(*varthetaCj);
+cfree(*varthetaCi);
+cfree(*selectZmat);
+cfree(*selectZmatj);
+cfree(*selectZmati);
+cfree(*varthetaZstar);
+cfree(*varthetaZstarj);
+cfree(*varthetaZstari);
+cfree(*AMqMatrix);
+cfree(*AMqMatrixj);
+cfree(*AMqMatrixi);
+cfree(*cstar);
+cfree(*cstarj);
+cfree(*cstari);
+cfree(*rootr);
+cfree(*rooti);
+}
+
+
+void allocPathNewt(int numberOfEquations,int lags,int leads,
+int pathLength,int replications,int stochasticPathLength,
+double**genericPath,
+double**genericZeroPath,
+double**genericEasyPath,
+double**genericTargetPath
+)
+{
+*genericPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+*genericZeroPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+*genericEasyPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength+1),
+    sizeof(double));
+*genericTargetPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+}
+void cfreePathNewt(double ** genericPath)
+{
+cfree(*genericPath);
+}
+void allocShockVec(int numberOfEquations,double**shockVec)
+{
+*shockVec=(double *)calloc(
+    numberOfEquations,sizeof(double));
+}
+void cfreeShockVec(double ** shockVec)
+{
+cfree(*shockVec);
+}
+void allocShocksData(int numberOfEquations,int numberOfShocks,int numberOfData,
+double**shockVec,double ** dataVec,double ** zeroShockVec)
+{
+int i;
+*shockVec=(double *)calloc(
+    numberOfShocks*numberOfEquations,sizeof(double));
+*dataVec=(double *)calloc(
+    numberOfData*numberOfEquations,sizeof(double));
+*zeroShockVec=(double *)calloc(
+    numberOfEquations,sizeof(double));
+for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
+}
+void cfreeShocksData(double ** shockVec,double ** dataVec,
+double ** zeroShockVec)
+{
+cfree(*shockVec);
+cfree(*dataVec);
+cfree(*zeroShockVec);
+}
+
+
+@}
 
 \subsection{FPnewt.c}
 \label{sec:FPnewt.c}
@@ -2332,7 +2763,7 @@ for (its=1;its<=MAXITS;its++) {
 #include <math.h>
 #include "sparseAMA.h"
 #define NRANSI
-#include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
+#include "./nrutil.h"
 #define MAXITS 200
 #define TOLF 1.0e-12
 #define TOLMIN 1.0e-6
