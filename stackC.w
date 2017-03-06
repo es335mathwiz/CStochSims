@@ -177,6 +177,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @o  stackC.c -d
 @{
+@<define assert bump@>
 @<define constants and specify include files@>
 @<nxtCDmats definition@>
 @<oneStepBack definition@>
@@ -184,6 +185,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 @<compPathError definition@>
 @<nxtGuess definition@>
 @<nxtFPGuess definition@>
+@<chkDrv definition@>
 @}
 
 
@@ -193,7 +195,6 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @d define constants and specify include files
 @{
-#include <stdlib.h>
 #include <stdio.h>
 #include <float.h>
 @|stdio.h math.h
@@ -361,10 +362,12 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 amub_(rowDim,cColumns,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
 filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1 also need to shift right*/
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
@@ -372,6 +375,8 @@ for(j=0;j<ib[*rowDim]-1;j++)
 aplb_(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
 b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
 nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
 
 
@@ -394,9 +399,12 @@ nzmax,iw,ierr);
 amub_(rowDim,aOne,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
 filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
 
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
@@ -405,6 +413,8 @@ aplb_(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
 evenSumDA,evenSumDJA,evenSumDIA,
 nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
 
 @}
@@ -460,13 +470,13 @@ submat_(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
-
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
 
-ma50id_(cntl,icntl)
-;
+ma50id_(cntl,icntl);
 ma50ad_(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+/*wordybump(info[3]);*/
+pathNewtAssert(info[0]>=0);
 /* restore odd since ad is destructive*/
 submat_(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
@@ -482,6 +492,8 @@ ma50bd_(rowDim,rowDim,nonZeroNow,aOne,
 oddSumCA,oddSumCJA,jcn,
 cntl,icntl,ip,oddSumCIA,np,lfact,fact,irnf,iptrl,iptru,
 w,iw,info,rinfo);
+/*wordybump(info[3]);*/
+pathNewtAssert(info[0]>=0);
 @}
 
 MA50CD applies the factoriation to solve
@@ -518,21 +530,29 @@ ma50cd_(rowDim,rowDim,icntl,oddSumCIA,np,trans,
 lfact,fact,irnf,iptrl,iptru,
 nsSumC,x,
 w,info);
+bump(info[3]);
+pathNewtAssert(info[0]>=0);
 
 *nzmaxLeft= *nzmax-cmatsExtent-1;
 dnscsr_(aOne,rowDim,nzmaxLeft,x,
 aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 ierr);
+pathNewtAssert(*ierr == 0);
+
 itb[i+1]=itb[i+1]+cmatsExtent;
 itb[i]=itb[i]+cmatsExtent;
 cmatsExtent=itb[i+1]-1;
 }
+bump(cmatsExtent);
+
 aSmallDouble=DBL_EPSILON;
 filter_(cColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
 csrcsc_(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
 csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+pathNewtAssert(*ierr == 0);
+bump(*rowDim);
 /*code should use info from previous call to set lfact
 also can avoid calls to ma50ad once pattern settles down*/
 
@@ -541,7 +561,8 @@ trans,lfact,fact,irnf,iptrl,iptru,nsSumD,x,w,info);
 
 dnscsr_(rowDim,aOne,rowDim,x,
 rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
-
+/*wordybump(info[3]);*/
+pathNewtAssert(*ierr == 0);
 @}
 
 \subsection{nxtCDmats Variable Declarations}
@@ -550,6 +571,7 @@ rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
 
 @d nxtCDmats variable declarations
 @{
+int maxElementsEncountered=0;
 /*void * calloc(unsigned amt,int size);*/
 double * evenSumCA;int * evenSumCJA;int * evenSumCIA;
 double * evenSumDA;int * evenSumDJA;int * evenSumDIA;
@@ -590,6 +612,7 @@ double * w;
 double * x;
 int * trans;
 int * cColumns;
+int * balColumns;
 int *hColumns;
 double * nsSumC;
 double * nsSumD;@|
@@ -650,6 +673,7 @@ nzmaxLeft = (int *)calloc(1,sizeof(int));
 hColumns = (int *)calloc(1,sizeof(int));
 nonZeroNow = (int *)calloc(1,sizeof(int));
 cColumns = (int *)calloc(1,sizeof(int));
+balColumns = (int *)calloc(1,sizeof(int));
 *hColumns = *numberOfEquations*(*leadss+*lagss+1);
 *cColumns = *numberOfEquations * *leadss;
 *nzmax = *maxNumberHElements;
@@ -766,6 +790,7 @@ cfree(nzmaxLeft);
 cfree(nonZeroNow);
 cfree(hColumns);
 cfree(cColumns);
+cfree(balColumns);
 @}
 
 
@@ -845,17 +870,6 @@ dmatsA dmatsJA dmatsIA
 @}
 
 
-@d backSub definition
-
-@{
-(*last cmat better be all zeros or don't have enough equations to determine
-delta y*)
-backSub[cmats_,dmats_]:=
-With[{rc=Rest[Reverse[cmats]],rd=Rest[Reverse[dmats]]},
-With[{ytail=dmats[[{-1}]]},
-Reverse[oneStepBack[{ytail,rc,rd}][[1]]]]]
-@}
-
 
 \subsection{oneStepBack Definition}
 \label{sec:oneStepBack}
@@ -878,16 +892,21 @@ if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
   amub_(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
   rcy,rcyj,rcyi,rowDim,iw,ierr);
+pathNewtAssert(*ierr == 0);
+
 aSmallDouble=DBL_EPSILON;
 
 filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
+pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
   aplb_(rowDim,aOne,aOne,
   dmatsA[0],dmatsJA[0],dmatsIA[0],
   rcy,rcyj,rcyi,
   yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],
-  nzmax,iw,ierr);} else {
+  nzmax,iw,ierr);
+pathNewtAssert(*ierr == 0);
+} else {
   for(i=0;i<*rowDim;i++)
   {yvecA[0][i]=dmatsA[0][i];}
   for(i=0;i<*rowDim;i++)
@@ -935,7 +954,39 @@ cfree(iw);
 cfree(nzmax);
 @}
 
-
+\subsection{terminalConditions}
+\label{sec:term}
+@d computeR argument list
+@{
+int * numberOfEquations,int * lags, int * leads,
+int * maxNumberElements,
+void (* func)(),void (* dfunc)(),double * params,
+double * expansionPoint,
+double * qMat,int * qMatj,int * qMati,
+double * impact, int * impactj, int * impacti,
+double * rvec
+@}
+@d computeR
+@{
+void computeR(
+@<computeR argument list@>
+)
+{
+impactPart1=calloc(numberOfEquations*leads,sizeof(double));
+impactPart2=calloc(numberOfEquations*leads,sizeof(double));
+/*xxxxxxxxx add code for deviations*/
+rowDim=numberOfEquations*leads;
+amux_(&rowDim,expansionPoint,rvec,termConstr,termConstrj,termConstri);
+amux_(&rowDim,expansionPoint,impactPart1+(numberOfEuations*lags),
+impactr,impactrj,impactri);
+amux_(&rowDim,impactPart1,impactPart2,
+impactr,impactrj,impactri);
+for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
+}
+cfree(impactPart1);
+cfree(impactPart2);
+}
+@}
 
 
 
@@ -947,6 +998,7 @@ cfree(nzmax);
 @o stack.h -d
 @{
 void nxtGuess(@<nxtGuess argument list@>);
+void newNxtGuess(@<nxtGuess argument list@>);
 @}
 
 
@@ -963,6 +1015,314 @@ double * updateDirection @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
 
+@d chkDrv definition
+@{
+#include <math.h>
+#define NEGLIGIBLEDOUBLE 1.0e-9
+chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
+double * fvec,double * delxvec)
+{
+int i;
+int aOne=1;
+double * fvals;
+fvals = (double * ) calloc(n,sizeof(double));
+#ifdef DEBUG 
+printf("chkDrv:beginning\n");
+#endif
+
+
+amux_(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
+for(i=0;i<n;i++){
+if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
+#ifdef DEBUG 
+printf("chkDrv:discrepancy for %d,(%e,%e)\n",i,fvals[i],fvec[i]);
+#endif
+}
+}
+cfree(fvals);
+#ifdef DEBUG 
+printf("chkDrv:done\n");
+#endif
+
+}
+#define addOneToFEvals (intOutputInfo[2])++
+#define homotopyAlpha (doubleControlParameters+10)
+#define addOneToFDrvEvals (intOutputInfo[3])++
+#define maxNumberStackElements intControlParameters[5]
+constructFdrv(int numberOfEquations,int lags, int leads,int pathLength,
+double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
+double * termConstr,int * termConstrj,int * termConstri,
+double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
+double * shockVec,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
+int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo)
+{
+double * deviations;
+int * ignore;double  dignore[1]={1.0};
+int rowDim;int * fvecj;int * fveci;
+int i;int j;int soFar;double * zeroShockVec;
+ignore = (int *)calloc(numberOfEquations+1,sizeof(int));
+fvecj = (int *)calloc(numberOfEquations+1,sizeof(int));
+fveci = (int *)calloc(numberOfEquations+1,sizeof(int));
+deviations = (double * ) calloc(numberOfEquations*(leads+lags),sizeof(double));
+zeroShockVec = (double * ) calloc(numberOfEquations,sizeof(double));
+/*identity matrix for lagged values*/
+for(i=0;i<numberOfEquations*lags;i++){
+fvec[i]=0;
+fdrv[i]=1;
+fdrvj[i]=i+1;
+fdrvi[i]=i+1;}
+fdrvi[i]=i+1;
+soFar=numberOfEquations*lags;
+
+/*fill in derivative matrices*/
+{/*shock only applies for first period*/
+addOneToFEvals;
+vFunc(xvec,params,shockVec,
+fvec+numberOfEquations*lags,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+addOneToFDrvEvals;
+vFuncDrv(xvec,params,shockVec,
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+for(j=0;j<numberOfEquations+1;j++){
+fdrvi[numberOfEquations*lags+j]=
+fdrvi[numberOfEquations*lags+j]+soFar;
+}
+for(j=0;j<fdrvi[(lags+1)*numberOfEquations]-
+fdrvi[(lags)*numberOfEquations];j++){
+fdrvj[j+fdrvi[(lags)*numberOfEquations]-1]=
+fdrvj[j+fdrvi[(lags)*numberOfEquations]-1];
+}
+soFar=fdrvi[numberOfEquations*(lags+1)]-1;
+}
+for(i=1;i<pathLength;i++){
+addOneToFEvals;
+vFunc(xvec+i*numberOfEquations,params,zeroShockVec,
+fvec+numberOfEquations*lags+i*numberOfEquations,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+addOneToFDrvEvals;
+vFuncDrv(xvec+i*numberOfEquations,params,zeroShockVec,
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags+(i*numberOfEquations),homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+for(j=0;j<numberOfEquations+1;j++){
+fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]=
+fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]+soFar;
+}
+for(j=0;j<fdrvi[(i+lags+1)*numberOfEquations]-
+fdrvi[(i+lags)*numberOfEquations];j++){
+fdrvj[j+fdrvi[(i+lags)*numberOfEquations]-1]=
+fdrvj[j+fdrvi[(i+lags)*numberOfEquations]-1]+i*numberOfEquations;
+}
+soFar=fdrvi[numberOfEquations*(lags+i+1)]-1;
+}
+pathNewtAssert(soFar<maxNumberStackElements*pathLength);
+/*fill in terminal constraint*/
+for(i=0;i<termConstri[numberOfEquations*leads]-termConstri[0];i++){
+fdrv[soFar+i]=termConstr[i];
+fdrvj[soFar+i]=termConstrj[i]+(numberOfEquations*pathLength);
+}
+for(i=0;i<numberOfEquations*leads+1;i++){
+fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
+}
+
+/*xxxxxxxxx add code for deviations*/
+for(i=0;i<numberOfEquations* (lags+ leads);i++){
+deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
+rowDim=numberOfEquations*leads;
+amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
+termConstr,termConstrj,termConstri);
+for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
+cfree(ignore);
+cfree(fvecj);
+cfree(fveci);
+cfree(deviations);
+cfree(zeroShockVec);
+}
+@}
+
+@d newNxtGuess argument list
+@{
+int * sysDim,
+int * maxNumberHElements,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,
+double * xdel,
+int * ma50bdJob,
+int * ma50bdIq,
+double * ma50bdFact,
+int * ma50bdIrnf,
+int * ma50bdIptrl,
+int * ma50bdIptru,
+int * intControlParameters,double * doubleControlParameters
+@}
+
+@d newNxtGuess definition
+@{
+#define sysDimSwitchLevel 30000
+#define ma50DropThreshold (1e-8)
+
+void newNxtGuess(@<newNxtGuess argument list@>)
+{
+
+
+int i;
+int maxElementsEncountered=0;
+double * copychkfdrv;int * copychkfdrvj;int * copychkfdrvi;
+int * jcn;
+double * cntl;
+int * icntl;
+int * ip ;
+int * np;
+int * jfirst;
+int * lenr;
+int * lastr;
+int * nextr;
+int * ifirst;
+int * lenc;
+int * lastc;
+int * nextc;
+int * info;
+double * rinfo;
+int *lfact;
+double * fact;
+int *irnf;
+int * iptrl;
+int * iptru;
+int *iw;
+double * w;
+int nzmax;
+int  * aOne;
+int nonZeroNow;
+int  trans;
+@}
+@d newNxtGuess definition
+@{
+
+copychkfdrv = (double * )calloc(*maxNumberHElements,sizeof(double));
+copychkfdrvj = (int * )calloc(*maxNumberHElements,sizeof(int));
+copychkfdrvi=(int * ) calloc(*sysDim+1,sizeof(int));
+jcn = (int *)calloc(*maxNumberHElements,sizeof(int));
+cntl= (double *)calloc(5,sizeof(double));
+icntl= (int *)calloc(9,sizeof(int));
+ip = (int *)calloc(*sysDim,sizeof(int));
+np = (int *)calloc(1,sizeof(int));
+jfirst = (int *)calloc(*sysDim,sizeof(int));
+lenr = (int *)calloc(*sysDim,sizeof(int));
+lastr = (int *)calloc(*sysDim,sizeof(int));
+nextr = (int *)calloc(*sysDim,sizeof(int));
+w = (double *)calloc(*sysDim,sizeof(double));
+iw = (int *)calloc(3**sysDim,sizeof(int));
+ifirst = (int *)calloc(*sysDim,sizeof(int));
+lenc = (int *)calloc(*sysDim,sizeof(int));
+lastc = (int *)calloc(*sysDim,sizeof(int));
+nextc = (int *)calloc(*sysDim,sizeof(int));
+info = (int *)calloc(7,sizeof(int));
+rinfo = (double *)calloc(1,sizeof(double));
+lfact = (int *)calloc(1,sizeof(int));
+*lfact = ( *maxNumberHElements);/*pessimistic setting for filling*/
+aOne = (int *)calloc(1,sizeof(int));
+*aOne=1;
+@}
+@d newNxtGuess definition
+@{
+copmat_(sysDim,fdrv,fdrvj,fdrvi,
+copychkfdrv,copychkfdrvj,copychkfdrvi,aOne,aOne);
+
+ma50id_(cntl,icntl);
+cntl[1]=ma50Balance;
+cntl[2]=ma50DropEntry;
+cntl[3]=ma50DropCol;
+icntl[3]=ma50PivotSearch;
+/*if(*sysDim>sysDimSwitchLevel){cntl[2]=ma50DropThreshold;}*/
+nzmax=*maxNumberHElements;
+nonZeroNow=copychkfdrvi[*sysDim]-copychkfdrvi[0];
+ma50ad_(sysDim,sysDim,&nonZeroNow,
+&nzmax,copychkfdrv,copychkfdrvj,jcn,copychkfdrvi,cntl,icntl,
+ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+
+#ifdef DEBUG 
+printf("\n ma50ad info\n");
+for(i=0;i<7;i++)printf(" %d ",info[i]);
+printf("\n ma50ad info\n");
+#endif
+
+if(*ma50bdJob!=2){
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+#ifdef DEBUG 
+printf("\n ma50bd info\n");
+for(i=0;i<7;i++)printf(" %d ",info[i]);
+printf("\n ma50bd info\n");
+#endif
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob=1)*ma50bdJob=1;
+/* if it was 1 promote 
+                             to 3(ie conservative alternative)*/
+/*unless we're dropping terms with cntl[2]>0*/
+if(cntl[2]>0){*ma50bdJob=1;}
+} else {
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(info[0]<-7){/* small pivot values,
+reset to 3*/
+#ifdef DEBUG 
+printf("small pivots, resetting to 3\n");
+#endif
+*ma50bdJob=1;
+/*unless we're dropping terms with cntl[2]>0*/
+if(cntl[2]>0){*ma50bdJob=1;}
+ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+fdrv,fdrvj,fdrvi,
+cntl,icntl,ip,copychkfdrvi,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+}
+}
+    trans = 1;
+ma50cd_(sysDim,sysDim,icntl,copychkfdrvi,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+fvec,xdel,
+w,info);
+*maxNumberHElements=maxElementsEncountered;
+pathNewtAssert(info[0]>=0);
+@}
+@d newNxtGuess definition
+@{
+cfree(aOne);
+cfree(jcn );
+cfree(cntl);
+cfree(icntl);
+cfree(ip );
+cfree(np );
+cfree(jfirst );
+cfree(lenr );
+cfree(lastr );
+cfree(nextr );
+cfree(w);
+cfree(iw);
+cfree(ifirst );
+cfree(lenc );
+cfree(lastc );
+cfree(nextc );
+cfree(info );
+cfree(rinfo );
+cfree(lfact);
+cfree(copychkfdrv);cfree(copychkfdrvj);cfree(copychkfdrvi);
+}
+@}
+
 
 @d nxtGuess definition
 @{
@@ -974,9 +1334,12 @@ void nxtGuess(@<nxtGuess argument list@>)
 @<nxtGuess initialize lagged C and d matrices@>
 
 for(tNow=0;tNow<*capT;tNow++){
+if(tNow< *leads){*ma50bdJob=1;} else {*ma50bdJob=1;}
 @<nxtGuess obtain sparse representation and compute next C and d@>
 }
+if(*leads>0){
 @<nxtGuess use terminal constraint@>
+}
 @<nxtGuess backsolve@>
 @<nxtGuess storage deallocations@>
 
@@ -986,13 +1349,21 @@ for(tNow=0;tNow<*capT;tNow++){
 
 @d nxtGuess variable declarations
 @{
+int maxElementsEncountered=0;
+int * ma50bdJob;
+int * ma50bdIq;
+double * ma50bdFact;
+int * ma50bdIrnf;
+int * ma50bdIptrl;
+int * ma50bdIptru;
+
 int tNow;
 double * deviations;
 double **cmats;int  **cmatsj;int  **cmatsi;
 double **dmats;int **dmatsj;int **dmatsi;
 double **ymats;int  **ymatsj;int  **ymatsi;
 double *gmats;int  *gmatsj;int  *gmatsi;
-int i;
+int i,j;
 int *hColumns;
 int *qColumns;
 int *rowDim;
@@ -1015,7 +1386,7 @@ qColumns=(int *)calloc(1,sizeof(int));
 rowDim=(int *)calloc(1,sizeof(int));
 *hColumns=*numberOfEquations*(*lags+1+*leads);
 *qColumns=*numberOfEquations*(*lags+*leads);
-*rowDim=*numberOfEquations* *leads;
+*rowDim=*numberOfEquations* (*leads? *leads:1);
 
 fullfvec=(double *)calloc(*numberOfEquations**leads,sizeof(double));
 fulldfvec=(double *)calloc(*numberOfEquations*(*lags+*leads+ 1),sizeof(double));
@@ -1028,35 +1399,47 @@ cmatsi =(int **)calloc(*capT+(*lags+*leads)+1,sizeof(int *));
 dmats =(double **)calloc(*capT+(*lags+*leads)+1,sizeof(double *));
 dmatsj =(int **)calloc(*capT+(*lags+*leads)+1,sizeof(int *));
 dmatsi =(int **)calloc(*capT+(*lags+*leads)+1,sizeof(int *));
-gmats =(double *)calloc(*numberOfEquations**leads,sizeof(double));
-gmatsj =(int *)calloc(*numberOfEquations**leads,sizeof(int));
-gmatsi =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
+gmats =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
+gmatsj =(int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+gmatsi =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 ymats =(double **)calloc(*capT+(*leads+*lags)+1,sizeof(double *));
 ymatsj =(int **)calloc(*capT+(*leads+*lags)+1,sizeof(int *));
 ymatsi =(int **)calloc(*capT+(*leads+*lags)+1,sizeof(int *));
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
-ymats[i] =(double *)calloc(*numberOfEquations**leads,sizeof(double));
-ymatsj[i] =(int *)calloc(*numberOfEquations**leads,sizeof(int));
-ymatsi[i] =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
+ymats[i] =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
+ymatsj[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+ymatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 cmats[i] =(double *)calloc(*maxNumberHElements,sizeof(double));
 cmatsj[i] =(int *)calloc(*maxNumberHElements,sizeof(int));
-cmatsi[i] =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
-dmats[i] =(double *)calloc(*numberOfEquations**leads,sizeof(double));
-dmatsj[i] =(int *)calloc(*numberOfEquations**leads,sizeof(int));
-dmatsi[i] =(int *)calloc(*numberOfEquations**leads+1,sizeof(int));
+cmatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
+dmats[i] =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
+dmatsj[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+dmatsi[i] =(int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 }
 
 @}
 @d nxtGuess storage allocations
 @{
+ma50bdIptru = (int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIptrl = (int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIrnf = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
+ma50bdIq = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdJob = (int *)calloc(1,sizeof(int));
 @}
 @d nxtGuess initialize lagged C and d matrices
 @{
 for(i=0;i<*lags;i++){
-cmatsi[i][0]=cmatsi[i][1]=1;
-dmatsi[i][0]=dmatsi[i][1]=1;
-cmatsj[i][0]=cmatsj[i][1]=1;
-dmatsj[i][0]=dmatsj[i][1]=1;
+for(j=0;j<*rowDim;j++){
+cmatsi[i][j]=1;
+dmatsi[i][j]=1;
+cmatsj[i][j]=1;
+dmatsj[i][j]=1;
+cmats[i][j]=0;
+dmats[i][j]=0;
+}
+cmatsi[i][*rowDim]=1;
+dmatsi[i][*rowDim]=1;
 }
 @}
 
@@ -1087,11 +1470,12 @@ dmatsi[*lags+*capT+1][0]=dmatsi[*lags+*capT+1][1]=1;
 @}
 @d nxtGuess backsolve
 @{
+if(*leads>0){
 oneStepBack(rowDim,
    ymats+*lags+*capT,ymatsj+*lags+*capT,ymatsi+*lags+*capT,
    cmats+*lags+*capT,cmatsj+*lags+*capT,cmatsi+*lags+*capT,
    dmats+*lags+*capT,dmatsj+*lags+*capT,dmatsi+*lags+*capT);
-
+}
 for(i=*capT-1;i>-1;i--){
 oneStepBack(numberOfEquations,
    ymats+*lags+i,ymatsj+*lags+i,ymatsi+*lags+i,
@@ -1102,14 +1486,25 @@ oneStepBack(numberOfEquations,
 for(i=0;i<*capT;i++){
 csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
+pathNewtAssert(*ierr == 0);
+bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
+if(*leads>0){
 csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
+}
 
 @}
 @d nxtGuess storage deallocations
 @{
+cfree(ma50bdIptru);
+cfree(ma50bdIptrl);
+cfree(ma50bdIrnf);
+cfree(ma50bdFact);
+cfree(ma50bdIq);
+cfree(ma50bdJob);
 cfree(deviations);
 cfree(hColumns);
 cfree(qColumns);
@@ -1119,6 +1514,7 @@ cfree(fullfvec);
 cfree(fulldfvec);
 cfree(ierr);
 cfree(aOne);
+
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
 cfree(cmats[i]);
 cfree(cmatsj[i]);
@@ -1186,6 +1582,13 @@ void nxtFPGuess(@<nxtFPGuess argument list@>)
 
 @d nxtFPGuess variable declarations
 @{
+int * ma50bdJob;
+int * ma50bdIq;
+double * ma50bdFact;
+int * ma50bdIrnf;
+int * ma50bdIptrl;
+int * ma50bdIptru;
+
 int j;
 double **cmats;int  **cmatsj;int  **cmatsi;
 double **dmats;int **dmatsj;int **dmatsi;
@@ -1245,6 +1648,12 @@ dmatsi[i] =(int *)calloc(*numberOfEquations* *leads+1,sizeof(int));
 @}
 @d nxtFPGuess storage allocations
 @{
+ma50bdIptru = (int *)calloc(*numberOfEquations* *leads,sizeof(int));
+ma50bdIptrl = (int *)calloc(*numberOfEquations* *leads,sizeof(int));
+ma50bdIrnf = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
+ma50bdIq = (int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdJob = (int *)calloc(1,sizeof(int));
 @}
 @d nxtFPGuess initialize C and d matrices
 @{
@@ -1268,13 +1677,17 @@ dnscsr_(numberOfEquations,aOne,numberOfEquations,fullfvec,
 numberOfEquations,
 fmats,fmatsj,fmatsi,
 ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(fmatsi[*numberOfEquations]-fmatsi[0]);
 dnscsr_(numberOfEquations,hColumns,maxNumberHElements,
 fulldfvec,
 numberOfEquations,
 smats,smatsj,smatsi,
 ierr);
+pathNewtAssert(*ierr == 0);
+bump(smatsi[*numberOfEquations]-smatsi[0]);
 */
+*ma50bdJob=1;
 nxtCDmats(numberOfEquations,lags,leads,
 numberOfEquations,maxNumberHElements,
    smats,smatsj,smatsi,
@@ -1302,6 +1715,7 @@ smatsi[*numberOfEquations* *leads]=2* (*numberOfEquations * *leads)+1;
 for(j=0;j<=*numberOfEquations* *leads;j++)fmatsi[j]=1;
 fmatsj[0]=fmatsj[1]=1;fmats[0]=0;
 
+*ma50bdJob=1;
 nxtCDmats(numberOfEquations,lags,leads,
 rowDim,maxNumberHElements,
 smats,smatsj,smatsi,
@@ -1337,15 +1751,26 @@ oneStepBack(numberOfEquations,
 for(i=0;i<*lags+1;i++){
 csrdns_(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
 updateDirection+(( i) * *numberOfEquations),numberOfEquations,ierr);
+pathNewtAssert(*ierr == 0);
+
+
 }
 csrdns_(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
 updateDirection+((*lags+1 ) * *numberOfEquations),rowDim,ierr);
+pathNewtAssert(*ierr == 0);
+
 
 
 
 @}
 @d nxtFPGuess storage deallocations
 @{
+cfree(ma50bdIptru);
+cfree(ma50bdIptrl);
+cfree(ma50bdIrnf);
+cfree(ma50bdFact);
+cfree(ma50bdIq);
+cfree(ma50bdJob);
 cfree(hColumns);
 cfree(qColumns);
 cfree(rowDim);
@@ -1398,44 +1823,58 @@ int * maxNumberHElements,
 double ** fmats,int ** fmatsj,int **fmatsi,
 double ** smats,int ** smatsj,int **smatsi)
 {
+int maxElementsEncountered=0;
 int * rowDim;
 int * qColumns;
 int tNow;
 int * aOne;
+int * aZero;
 int * ierr;int i;
 double * deviations;
+double * zeroShockVec;
 double * fullfvec;
 ierr = (int *) calloc(1,sizeof(int));
 aOne= (int *) calloc(1,sizeof(int));
+*aOne=1;
+aZero= (int *) calloc(1,sizeof(int));
+*aZero=1;
 rowDim= (int *) calloc(1,sizeof(int));
 qColumns= (int *) calloc(1,sizeof(int));
 *rowDim=*numberOfEquations* *leads;
 *qColumns=*numberOfEquations* (*leads+*lags);
 deviations = (double *) calloc(*numberOfEquations* (*lags+*leads+1),sizeof(double));
+zeroShockVec = (double *) calloc(*numberOfEquations,sizeof(double));
 fullfvec = (double *) calloc(*numberOfEquations,sizeof(double));
 
-for(tNow=0;tNow<*capT;tNow++) {
- theFunction(initialX+((tNow/*+(*lags-1)*/) * *numberOfEquations),initialX,
+{/*use shock for first period only*/
+ theFunction(initialX,initialX,
 shockVec,
+  fmats[0],fmatsj[0],fmatsi[0]);
+}
+for(tNow=1;tNow<*capT;tNow++) {
+ theFunction(initialX+((tNow/*+(*lags-1)*/) * *numberOfEquations),initialX,
+zeroShockVec,
   fmats[tNow],fmatsj[tNow],fmatsi[tNow]);
-
 }
 
 
 copmat_(rowDim,termConstr,termConstrj,termConstri,
-smats[*capT],smatsj[*capT],smatsi[*capT],&aOne,&aOne);
+smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
-deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i];}
+deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
 amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
+pathNewtAssert(*ierr == 0);
+bump(fmatsi[*capT][*rowDim]-fmatsi[*capT][0]);
+cfree(zeroShockVec);
 }
+
+
 @}
-
-
 \subsection{B matrix computation}
 \label{sec:bmat}
 
@@ -1835,12 +2274,467 @@ pureStackView:   testStack
 
 \section{Numerical Recipes Modifications of FPnewt}
 
+\subsection{array allocation program}
+\label{sec:allocarray}
+
+@o stackC.c -d
+@{
+#include "stochSims.h"
+void allocMa50(int numberOfEquations,int lags,int leads,
+int pathLength,int maxElements,
+int **ma50bdIptru,
+int **ma50bdIptrl,
+int **ma50bdIrnf,
+double **ma50bdFact,
+int **ma50bdIq,
+int **ma50bdJob)
+{
+int sysDim;
+sysDim= numberOfEquations*(lags+pathLength+leads);
+*ma50bdIptru = (int *)calloc(sysDim,sizeof(int));
+*ma50bdIptrl = (int *)calloc(sysDim,sizeof(int));
+*ma50bdIrnf = (int *)calloc(maxElements,sizeof(int));
+*ma50bdFact = (double *)calloc(maxElements,sizeof(double));
+*ma50bdIq = (int *)calloc(sysDim,sizeof(int));
+*ma50bdJob = (int *)calloc(1,sizeof(int));
+}
+
+void allocFPNewt(int numberOfEquations,int lags,int leads,
+int pathLength,int maxElements,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,int***fmatsj,int***fmatsi,
+double***smats,int***smatsj,int***smatsi)
+{int i;
+if(pathLength<1)pathLength=1;
+*genericFP=(double *) calloc(numberOfEquations*(lags+leads+1+pathLength),
+sizeof(double));
+*genericIntercept=(double *) calloc(numberOfEquations*(leads),
+sizeof(double));
+*fmats =(double **)calloc((pathLength)+lags+1,sizeof(double *));
+*fmatsj =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*fmatsi =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*smats =(double **)calloc((pathLength)+lags+1,sizeof(double *));
+*smatsj =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+*smatsi =(int **)calloc((pathLength)+lags+1,sizeof(int *));
+for(i=0;i<(pathLength)+lags+1;i++){
+(*fmats)[i] =(double *)calloc(numberOfEquations*(lags+leads),sizeof(double));
+(*fmatsj)[i] =(int *)calloc(numberOfEquations*(lags+leads),sizeof(int));
+(*fmatsi)[i] =(int *)calloc(
+     numberOfEquations*(lags+leads)+1,sizeof(int));
+(*smats)[i] =(double *)calloc(maxElements,sizeof(double));
+(*smatsj)[i] =(int *)calloc(maxElements,sizeof(int));
+(*smatsi)[i] =(int *)calloc(
+     numberOfEquations*(lags+leads)+1,sizeof(int));
+}
+}
+void cfreeMa50(
+int **ma50bdIptru,
+int **ma50bdIptrl,
+int **ma50bdIrnf,
+double **ma50bdFact,
+int **ma50bdIq,
+int **ma50bdJob)
+{
+cfree(*ma50bdIptru);
+cfree(*ma50bdIptrl);
+cfree(*ma50bdIrnf);
+cfree(*ma50bdFact);
+cfree(*ma50bdIq);
+cfree(*ma50bdJob);
+}
+void cfreeFPNewt(int lags, int pathLength,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,int***fmatsj,int***fmatsi,
+double***smats,int***smatsj,int***smatsi)
+{int i;
+cfree(*genericFP);
+cfree(*genericIntercept);
+for(i=0;i<(pathLength)+lags+1;i++){
+cfree((*fmats)[i]);
+cfree((*fmatsj)[i]);
+cfree((*fmatsi)[i]);
+cfree((*smats)[i]);
+cfree((*smatsj)[i]);
+cfree((*smatsi)[i]);
+}
+cfree(*fmats);
+cfree(*fmatsj);
+cfree(*fmatsi);
+cfree(*smats);
+cfree(*smatsj);
+cfree(*smatsi);
+}
+void allocAltComputeAsymptoticQ(int numberOfEquations,int lags,int leads,
+int maxElements,double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti)
+{
+*AMqMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*AMqMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*AMqMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*rootr=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+*rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+
+}
+
+
+void cfreeAltComputeAsymptoticQ(
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double**rootr,double**rooti)
+{
+cfree(*AMqMatrix);
+cfree(*AMqMatrixj);
+cfree(*AMqMatrixi);
+cfree(*rootr);
+cfree(*rooti);
+}
+
+
+
+void allocPhiF(int numberOfEquations,int lags,int leads,
+int numberExogenous,
+int maxElements,
+double**psiMatrix,int**psiMatrixj,int**psiMatrixi,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**phiMatrix,int**phiMatrixj,int**phiMatrixi,
+double**fMatrix,int**fMatrixj,int**fMatrixi,
+double**vartheta,int**varthetaj,int**varthetai,
+double**impact,int**impactj,int**impacti
+)
+{
+*psiMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*psiMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*psiMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+
+*upsilonMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*upsilonMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*upsilonMatrixi=(int *)
+   calloc((numberExogenous+1),
+        sizeof(int));
+
+*phiMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*phiMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*phiMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+
+*fMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*fMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*fMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*vartheta=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetai=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*impact=(double *)
+   calloc(maxElements,sizeof(double));
+*impactj=(int *)
+   calloc(maxElements,sizeof(int));
+*impacti=(int *)
+   calloc(((1+leads)*numberOfEquations+1),
+        sizeof(int));
+}
+
+void cfreePhiF(
+double**psiMatrix,int**psiMatrixj,int**psiMatrixi,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**phiMatrix,int**phiMatrixj,int**phiMatrixi,
+double**fMatrix,int**fMatrixj,int**fMatrixi,
+double**vartheta,int**varthetaj,int**varthetai,
+double**impact,int**impactj,int**impacti
+)
+{
+cfree(*psiMatrix);
+cfree(*psiMatrixj);
+cfree(*psiMatrixi);
+cfree(*upsilonMatrix);
+cfree(*upsilonMatrixj);
+cfree(*upsilonMatrixi);
+cfree(*phiMatrix);
+cfree(*phiMatrixj);
+cfree(*phiMatrixi);
+cfree(*fMatrix);
+cfree(*fMatrixj);
+cfree(*fMatrixi);
+cfree(*vartheta);
+cfree(*varthetaj);
+cfree(*varthetai);
+cfree(*impact);
+cfree(*impactj);
+cfree(*impacti);
+}
+
+ 
+void allocLinearTerminator(int numberOfEquations,int lags,int leads,
+int numberExogenous,
+int maxElements,
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**hMat,int**hMatj,int**hMati,
+double**hzMat,int**hzMatj,int**hzMati,
+double**cstar,int**cstarj,int**cstari,
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti,
+double**bMat,int**bMatj,int**bMati,
+double**phiInvMat,int**phiInvMatj,int**phiInvMati,
+double**fmat,int**fmatj,int**fmati,
+double**varthetaZstar,int**varthetaZstarj,int**varthetaZstari,
+double**impact,int**impactj,int**impacti,
+double**varthetaC,int**varthetaCj,int**varthetaCi,
+double**selectZmat,int**selectZmatj,int**selectZmati
+)
+{
+*upsilonMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*upsilonMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*upsilonMatrixi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*hMat=(double *)
+   calloc(maxElements,sizeof(double));
+*hMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*hMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*hzMat=(double *)
+   calloc(maxElements,sizeof(double));
+*hzMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*hzMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*bMat=(double *)
+   calloc(maxElements,sizeof(double));
+*bMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*bMati=(int *)
+   calloc((numberOfEquations*leads+1),
+        sizeof(int));
+*phiInvMat=(double *)
+   calloc(maxElements,sizeof(double));
+*phiInvMatj=(int *)
+   calloc(maxElements,sizeof(int));
+*phiInvMati=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*fmat=(double *)
+   calloc(maxElements,sizeof(double));
+*fmatj=(int *)
+   calloc(maxElements,sizeof(int));
+*fmati=(int *)
+   calloc((numberOfEquations*leads+1),
+        sizeof(int));
+*impact=(double *)
+   calloc(maxElements,sizeof(double));
+*impactj=(int *)
+   calloc(maxElements,sizeof(int));
+*impacti=(int *)
+   calloc((numberOfEquations*(leads+1)+1),
+        sizeof(int));
+*varthetaC=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaCj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetaCi=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*selectZmat=(double *)
+   calloc(maxElements,sizeof(double));
+*selectZmatj=(int *)
+   calloc(maxElements,sizeof(int));
+*selectZmati=(int *)
+   calloc((numberExogenous+1),
+        sizeof(int));
+*varthetaZstar=(double *)
+   calloc(maxElements,sizeof(double));
+*varthetaZstarj=(int *)
+   calloc(maxElements,sizeof(int));
+*varthetaZstari=(int *)
+   calloc((numberOfEquations+1),
+        sizeof(int));
+*AMqMatrix=(double *)
+   calloc(maxElements,sizeof(double));
+*AMqMatrixj=(int *)
+   calloc(maxElements,sizeof(int));
+*AMqMatrixi=(int *)
+   calloc((numberOfEquations*(leads+lags)+1),
+        sizeof(int));
+*cstar=(double *) calloc((numberOfEquations),sizeof(double));
+*cstarj=(int *) calloc((numberOfEquations),sizeof(int));
+*cstari=(int *) calloc((numberOfEquations)+1,sizeof(int));
+*rootr=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+*rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
+}
+
+void cfreeLinearTerminator(
+double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
+double**hMat,int**hMatj,int**hMati,
+double**hzMat,int**hzMatj,int**hzMati,
+double**cstar,int**cstarj,int**cstari,
+double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
+double** rootr,double**rooti,
+double**bMat,int**bMatj,int**bMati,
+double**phiInvMat,int**phiInvMatj,int**phiInvMati,
+double**fmat,int**fmatj,int**fmati,
+double**varthetaZstar,int**varthetaZstarj,int**varthetaZstari,
+double**impact,int**impactj,int**impacti,
+double**varthetaC,int**varthetaCj,int**varthetaCi,
+double**selectZmat,int**selectZmatj,int**selectZmati
+)
+{
+cfree(*upsilonMatrix);
+cfree(*upsilonMatrixj);
+cfree(*upsilonMatrixi);
+cfree(*hMat);
+cfree(*hMatj);
+cfree(*hMati);
+cfree(*hzMat);
+cfree(*hzMatj);
+cfree(*hzMati);
+cfree(*bMat);
+cfree(*bMatj);
+cfree(*bMati);
+cfree(*phiInvMat);
+cfree(*phiInvMatj);
+cfree(*phiInvMati);
+cfree(*fmat);
+cfree(*fmatj);
+cfree(*fmati);
+cfree(*impact);
+cfree(*impactj);
+cfree(*impacti);
+cfree(*varthetaC);
+cfree(*varthetaCj);
+cfree(*varthetaCi);
+cfree(*selectZmat);
+cfree(*selectZmatj);
+cfree(*selectZmati);
+cfree(*varthetaZstar);
+cfree(*varthetaZstarj);
+cfree(*varthetaZstari);
+cfree(*AMqMatrix);
+cfree(*AMqMatrixj);
+cfree(*AMqMatrixi);
+cfree(*cstar);
+cfree(*cstarj);
+cfree(*cstari);
+cfree(*rootr);
+cfree(*rooti);
+}
+
+
+void allocPathNewt(int numberOfEquations,int lags,int leads,
+int pathLength,int replications,int stochasticPathLength,
+double**genericPath,
+double**genericZeroPath,
+double**genericEasyPath,
+double**genericTargetPath
+)
+{
+*genericPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+*genericZeroPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+*genericEasyPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength+1),
+    sizeof(double));
+*genericTargetPath=(double *)calloc(
+    replications*
+    numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
+    sizeof(double));
+}
+void cfreePathNewt(double ** genericPath)
+{
+cfree(*genericPath);
+}
+void allocShockVec(int numberOfEquations,double**shockVec)
+{
+*shockVec=(double *)calloc(
+    numberOfEquations,sizeof(double));
+}
+void cfreeShockVec(double ** shockVec)
+{
+cfree(*shockVec);
+}
+void allocShocksData(int numberOfEquations,int numberOfShocks,int numberOfData,
+double**shockVec,double ** dataVec,double ** zeroShockVec)
+{
+int i;
+*shockVec=(double *)calloc(
+    numberOfShocks*numberOfEquations,sizeof(double));
+*dataVec=(double *)calloc(
+    numberOfData*numberOfEquations,sizeof(double));
+*zeroShockVec=(double *)calloc(
+    numberOfEquations,sizeof(double));
+for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
+}
+void cfreeShocksData(double ** shockVec,double ** dataVec,
+double ** zeroShockVec)
+{
+cfree(*shockVec);
+cfree(*dataVec);
+cfree(*zeroShockVec);
+}
+
+
+@}
 
 \subsection{FPnewt.c}
 \label{sec:FPnewt.c}
 
 Numerical Recipes has a globally convergent
 routine for find the root of a system of equations\cite{press92}
+@d define assert bump
+@{
+
+#define wordybump(potentialMaxValue) \
+   if(potentialMaxValue>maxElementsEncountered) \
+   maxElementsEncountered=potentialMaxValue;\
+printf("bump stuff(%d,%d) at line %d",potentialMaxValue,maxElementsEncountered,\
+__LINE__);
+
+
+#define bump(potentialMaxValue) \
+   if(potentialMaxValue>maxElementsEncountered) \
+   maxElementsEncountered=potentialMaxValue;
+
+#include <signal.h>
+#define pathNewtAssert(expression)  \
+  if(!(expression))\
+		   __pathNewtAssert (expression, __FILE__, __LINE__)
+
+#define __pathNewtAssert(expression, file, lineno)  \
+  {printf("pathNewtAssert: processid=%ld\n",getpid());\
+   printf ("%s:%u: failed assertion\n", file, lineno);\
+   	kill(getpid(),SIGUSR2);}
+
+
+@}
 
 @o myNewt.c -d 
 @{
