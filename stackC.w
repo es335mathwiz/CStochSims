@@ -3547,11 +3547,6 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 
 
 
-@o notStack.c -d
-@{
-@<backSub definition@>
-@}
-
 
 
 \section{Development Notes}
