@@ -1843,6 +1843,7 @@ qColumns= (int *) calloc(1,sizeof(int));
 *rowDim=*numberOfEquations* *leads;
 *qColumns=*numberOfEquations* (*leads+*lags);
 deviations = (double *) calloc(*numberOfEquations* (*lags+*leads+1),sizeof(double));
+zeroShockVec = (double *) calloc(*numberOfEquations,sizeof(double));
 fullfvec = (double *) calloc(*numberOfEquations,sizeof(double));
 
 for(tNow=0;tNow<*capT;tNow++) {
