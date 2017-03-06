@@ -3368,7 +3368,7 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 @{
 #include <math.h>
 #define NRANSI
-#include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
+#include "./nrutil.h"
 #define ALF 1.0e-4
 #define TOLX 1.0e-10
 

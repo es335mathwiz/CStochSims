@@ -107,6 +107,7 @@ the page numbers of the component's definition.}
 @o stochRun.c -d
 @{
 @<defines and includes@>
+void  cfree(void * ptr){free(ptr);}
 int main(int argc, char * argv[])
 {
 @<main variable declarations@>
@@ -144,7 +145,7 @@ julliard.c.
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
-int cfree(void * ptr);
+
 #define julNLAGS 1
 #define julNLEADS 5
 #define julNEQS 5
