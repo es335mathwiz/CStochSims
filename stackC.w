@@ -1489,9 +1489,12 @@ updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
+if(*leads>0){
 csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
-
+pathNewtAssert(*ierr == 0);
+bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
+}
 
 @}
 @d nxtGuess storage deallocations
