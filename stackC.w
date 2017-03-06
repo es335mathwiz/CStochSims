@@ -1869,7 +1869,7 @@ for (its=1;its<=MAXITS;its++) {
 #include <math.h>
 #include "sparseAMA.h"
 #define NRANSI
-#include "/msu/res2/m1gsa00/aim/frbus/nrutil.h"
+#include "./nrutil.h"
 #define MAXITS 200
 #define TOLF 1.0e-12
 #define TOLMIN 1.0e-6
@@ -2280,7 +2280,7 @@ int i;
 @o myNewt.c -d
 @{
 
-altComputeAsymptoticQMatrix(
+void altComputeAsymptoticQMatrix(
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double canadaFP[],int * pthLngth,
