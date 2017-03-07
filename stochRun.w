@@ -306,7 +306,7 @@ julliardPathQ+(i *julNEQS));}
 printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 printf("using q matrix\n");
-
+cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
 
 
 stochSim(numberOfEquations,lags,leads,pathLength,
