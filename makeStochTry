@@ -46,7 +46,7 @@ fastSPARSELIB = 	  ./ranlib.o
 LINTFLAGS = -b -c  -h 
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(HOME)/aim/sparse -lsparseAim
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(narPath) -lsparseAMA-1.0-SNAPSHOT -lc 
-LINKFLAGS =  -v  -lc -ldl -lm $(SPAMADIR)/sparseAMA.o $(SPAMADIR)/dnaupd.o $(SPAMADIR)/dneupd.o  $(SPAMADIR)/second.o $(SPAMADIR)/sparskit2.o -lc $(LAPACKLIBS)
+LINKFLAGS =  -v  -lc -ldl -lm $(SPAMADIR)/sparseAMA.o $(SPAMADIR)/dnaupd.o  $(SPAMADIR)/second.o $(SPAMADIR)/dneupd.o $(SPAMADIR)/sparskit2.o -lc $(LAPACKLIBS)
 
 
 #LAPACKLIB  = /mq/home/m1gsa00/aim/summer98/aimCCode/lapack_os5.a \
