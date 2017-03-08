@@ -463,7 +463,7 @@ for(i=0;i<*maxNumberHElements;i++)
 {evenSumCA[i]=oddSumCA[i];evenSumCJA[i]=oddSumCJA[i];}
 for(i=0;i<*rowDim +1;i++)
 {evenSumCIA[i]=oddSumCIA[i];}
-
+printf("at line 466\n");cPrintSparse(*rowDim,evenSumCA,evenSumCJA,evenSumCIA);
 *firstColumn=(*numberOfEquations* *lagss)+1;
 *lastColumn=*firstColumn + *rowDim-1;
 submat_(rowDim,aOne,aOne,rowDim,
@@ -471,7 +471,7 @@ firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
-
+cPrintSparse(*rowDim,oddSumCA,oddSumCJA,oddSumCIA);
 ma50id_(cntl,icntl);
 ma50ad_(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
