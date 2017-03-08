@@ -471,7 +471,7 @@ firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
-
+cPrintSparse(*rowDim,oddSumCA,oddSumCJA,oddSumCIA);
 ma50id_(cntl,icntl);
 ma50ad_(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
