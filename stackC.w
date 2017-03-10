@@ -786,77 +786,77 @@ ib
 
 @d nxtCDmats scalar variable deallocations
 @{
-cfree(firstColumn);
-cfree(lastColumn);
-cfree(nr);
-cfree(nc);
-cfree(ierr);
-cfree(nzmax);
-cfree(nzmaxLeft);
-cfree(nonZeroNow);
-cfree(hColumns);
-cfree(cColumns);
-cfree(balColumns);
+free(firstColumn);
+free(lastColumn);
+free(nr);
+free(nc);
+free(ierr);
+free(nzmax);
+free(nzmaxLeft);
+free(nonZeroNow);
+free(hColumns);
+free(cColumns);
+free(balColumns);
 @}
 
 
 @d nxtCDmats array variable deallocations
 @{
-cfree(ib);
-cfree(jb);
-cfree(b);
-cfree(itb);
-cfree(jtb);
-cfree(tb);
-cfree(evenSumCIA);
-cfree(evenSumCJA);
-cfree(evenSumCA);
-cfree(oddSumCIA);
-cfree(oddSumCJA);
-cfree(oddSumCA);
-cfree(evenSumDIA);
-cfree(evenSumDJA);
-cfree(evenSumDA);
-cfree(oddSumDIA);
-cfree(oddSumDJA);
-cfree(oddSumDA);
-cfree(iao);
-cfree(jao);
-cfree(ao);
-cfree(iw);
-cfree(w);
+free(ib);
+free(jb);
+free(b);
+free(itb);
+free(jtb);
+free(tb);
+free(evenSumCIA);
+free(evenSumCJA);
+free(evenSumCA);
+free(oddSumCIA);
+free(oddSumCJA);
+free(oddSumCA);
+free(evenSumDIA);
+free(evenSumDJA);
+free(evenSumDA);
+free(oddSumDIA);
+free(oddSumDJA);
+free(oddSumDA);
+free(iao);
+free(jao);
+free(ao);
+free(iw);
+free(w);
 @}
 
 @d ma50xx array variable deallocations
 @{
 
 /*for ma50ad*/
-cfree(jcn);
-cfree(cntl);
-cfree(icntl);
-cfree(ip);
-cfree(np);
-cfree(jfirst);
-cfree(lenr);
-cfree(lastr);
-cfree(nextr);
-cfree(ifirst);
-cfree(lenc);
-cfree(lastc);
-cfree(nextc);
-cfree(info);
-cfree(rinfo);
+free(jcn);
+free(cntl);
+free(icntl);
+free(ip);
+free(np);
+free(jfirst);
+free(lenr);
+free(lastr);
+free(nextr);
+free(ifirst);
+free(lenc);
+free(lastc);
+free(nextc);
+free(info);
+free(rinfo);
 /* ma50bd*/
-cfree(lfact);
-cfree(fact);
-cfree(irnf);
-cfree(iptrl);
-cfree(iptru);
-cfree(x);
-cfree(trans);
-cfree(nsSumD);
-cfree(nsSumC);
-cfree(aOne);
+free(lfact);
+free(fact);
+free(irnf);
+free(iptrl);
+free(iptru);
+free(x);
+free(trans);
+free(nsSumD);
+free(nsSumC);
+free(aOne);
 @}
 
 
@@ -952,13 +952,13 @@ iw = (int *)calloc(1,sizeof(int));
 @}
 @d oneStepBack variable deallocations
 @{
-cfree(ierr);
-cfree(aOne);
-cfree(rcy);
-cfree(rcyj);
-cfree(rcyi);
-cfree(iw);
-cfree(nzmax);
+free(ierr);
+free(aOne);
+free(rcy);
+free(rcyj);
+free(rcyi);
+free(iw);
+free(nzmax);
 @}
 
 \subsection{terminalConditions}
@@ -990,8 +990,8 @@ amux_(&rowDim,impactPart1,impactPart2,
 impactr,impactrj,impactri);
 for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
 }
-cfree(impactPart1);
-cfree(impactPart2);
+free(impactPart1);
+free(impactPart2);
 }
 @}
 
@@ -1075,7 +1075,7 @@ printf("chkDrv:discrepancy for %d,(%e,%e)\n",i,fvals[i],fvec[i]);
 #endif
 }
 }
-cfree(fvals);
+free(fvals);
 #ifdef DEBUG 
 printf("chkDrv:done\n");
 #endif
@@ -1159,11 +1159,11 @@ rowDim=numberOfEquations*leads;
 amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
 termConstr,termConstrj,termConstri);
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
-cfree(ignore);
-cfree(fvecj);
-cfree(fveci);
-cfree(deviations);
-cfree(zeroShockVec);
+free(ignore);
+free(fvecj);
+free(fveci);
+free(deviations);
+free(zeroShockVec);
 }
 @}
 
@@ -1328,26 +1328,26 @@ pathNewtAssert(info[0]>=0);
 @}
 @d newNxtGuess definition
 @{
-cfree(aOne);
-cfree(jcn );
-cfree(cntl);
-cfree(icntl);
-cfree(ip );
-cfree(np );
-cfree(jfirst );
-cfree(lenr );
-cfree(lastr );
-cfree(nextr );
-cfree(w);
-cfree(iw);
-cfree(ifirst );
-cfree(lenc );
-cfree(lastc );
-cfree(nextc );
-cfree(info );
-cfree(rinfo );
-cfree(lfact);
-cfree(copychkfdrv);cfree(copychkfdrvj);cfree(copychkfdrvi);
+free(aOne);
+free(jcn );
+free(cntl);
+free(icntl);
+free(ip );
+free(np );
+free(jfirst );
+free(lenr );
+free(lastr );
+free(nextr );
+free(w);
+free(iw);
+free(ifirst );
+free(lenc );
+free(lastc );
+free(nextc );
+free(info );
+free(rinfo );
+free(lfact);
+free(copychkfdrv);free(copychkfdrvj);free(copychkfdrvi);
 }
 @}
 
@@ -1527,45 +1527,45 @@ bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
 @}
 @d nxtGuess storage deallocations
 @{
-cfree(ma50bdIptru);
-cfree(ma50bdIptrl);
-cfree(ma50bdIrnf);
-cfree(ma50bdFact);
-cfree(ma50bdIq);
-cfree(ma50bdJob);
-cfree(deviations);
-cfree(hColumns);
-cfree(qColumns);
-cfree(rowDim);
-cfree(fullXvec);
-cfree(fullfvec);
-cfree(fulldfvec);
-cfree(ierr);
-cfree(aOne);
+free(ma50bdIptru);
+free(ma50bdIptrl);
+free(ma50bdIrnf);
+free(ma50bdFact);
+free(ma50bdIq);
+free(ma50bdJob);
+free(deviations);
+free(hColumns);
+free(qColumns);
+free(rowDim);
+free(fullXvec);
+free(fullfvec);
+free(fulldfvec);
+free(ierr);
+free(aOne);
 
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
-cfree(cmats[i]);
-cfree(cmatsj[i]);
-cfree(cmatsi[i]);
-cfree(dmats[i]);
-cfree(dmatsj[i]);
-cfree(dmatsi[i]);
-cfree(ymats[i]);
-cfree(ymatsj[i]);
-cfree(ymatsi[i]);
+free(cmats[i]);
+free(cmatsj[i]);
+free(cmatsi[i]);
+free(dmats[i]);
+free(dmatsj[i]);
+free(dmatsi[i]);
+free(ymats[i]);
+free(ymatsj[i]);
+free(ymatsi[i]);
 }
-cfree(cmats);
-cfree(cmatsj);
-cfree(cmatsi);
-cfree(dmats);
-cfree(dmatsj);
-cfree(dmatsi);
-cfree(gmats);
-cfree(gmatsj);
-cfree(gmatsi);
-cfree(ymats);
-cfree(ymatsj);
-cfree(ymatsi);
+free(cmats);
+free(cmatsj);
+free(cmatsi);
+free(dmats);
+free(dmatsj);
+free(dmatsi);
+free(gmats);
+free(gmatsj);
+free(gmatsi);
+free(ymats);
+free(ymatsj);
+free(ymatsi);
 
 @}
 
@@ -1793,43 +1793,43 @@ pathNewtAssert(*ierr == 0);
 @}
 @d nxtFPGuess storage deallocations
 @{
-cfree(ma50bdIptru);
-cfree(ma50bdIptrl);
-cfree(ma50bdIrnf);
-cfree(ma50bdFact);
-cfree(ma50bdIq);
-cfree(ma50bdJob);
-cfree(hColumns);
-cfree(qColumns);
-cfree(rowDim);
+free(ma50bdIptru);
+free(ma50bdIptrl);
+free(ma50bdIrnf);
+free(ma50bdFact);
+free(ma50bdIq);
+free(ma50bdJob);
+free(hColumns);
+free(qColumns);
+free(rowDim);
 
-cfree(fullfvec);
-cfree(fulldfvec);
-cfree(ierr);
-cfree(aOne);
+free(fullfvec);
+free(fulldfvec);
+free(ierr);
+free(aOne);
 for(i=0;i<(*lags+*leads)+2;i++){
-cfree(cmats[i]);
-cfree(cmatsj[i]);
-cfree(cmatsi[i]);
-cfree(dmats[i]);
-cfree(dmatsj[i]);
-cfree(dmatsi[i]);
-cfree(ymats[i]);
-cfree(ymatsj[i]);
-cfree(ymatsi[i]);
+free(cmats[i]);
+free(cmatsj[i]);
+free(cmatsi[i]);
+free(dmats[i]);
+free(dmatsj[i]);
+free(dmatsi[i]);
+free(ymats[i]);
+free(ymatsj[i]);
+free(ymatsi[i]);
 }
-cfree(cmats);
-cfree(cmatsj);
-cfree(cmatsi);
-cfree(dmats);
-cfree(dmatsj);
-cfree(dmatsi);
-cfree(gmats);
-cfree(gmatsj);
-cfree(gmatsi);
-cfree(ymats);
-cfree(ymatsj);
-cfree(ymatsi);
+free(cmats);
+free(cmatsj);
+free(cmatsi);
+free(dmats);
+free(dmatsj);
+free(dmatsi);
+free(gmats);
+free(gmatsj);
+free(gmatsi);
+free(ymats);
+free(ymatsj);
+free(ymatsi);
 
 @}
 
@@ -1911,7 +1911,7 @@ aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
 pathNewtAssert(*ierr == 0);
 bump(fmatsi[*capT][*rowDim]-fmatsi[*capT][0]);
-cfree(zeroShockVec);
+free(zeroShockVec);
 }
 
 
@@ -1937,7 +1937,7 @@ deviations = (double *) calloc(colDim,sizeof(double));
 @}
 @d applySparseReducedForm frees
 @{
-cfree(deviations);
+free(deviations);
 @}
 @d applySparseReducedForm
 @{
@@ -2003,41 +2003,41 @@ nsSumC = (double *)calloc(qrows ,sizeof(double));
 @}
 @d obtainSparseReducedForm frees
 @{
-cfree(w);
-cfree(iw);
-cfree(b);
-cfree(jb);
-cfree(ib);
-cfree(tb);
-cfree(jtb);
-cfree(itb);
-cfree(jcn );
-cfree(cntl);
-cfree(icntl);
-cfree(ip );
-cfree(np );
-cfree(jfirst );
-cfree(lenr );
-cfree(lastr );
-cfree(nextr );
-cfree(ifirst );
-cfree(lenc );
-cfree(lastc );
-cfree(nextc );
-cfree(info );
-cfree(rinfo );
-cfree(/* ma50bd*/
+free(w);
+free(iw);
+free(b);
+free(jb);
+free(ib);
+free(tb);
+free(jtb);
+free(itb);
+free(jcn );
+free(cntl);
+free(icntl);
+free(ip );
+free(np );
+free(jfirst );
+free(lenr );
+free(lastr );
+free(nextr );
+free(ifirst );
+free(lenc );
+free(lastc );
+free(nextc );
+free(info );
+free(rinfo );
+free(/* ma50bd*/
 
 qrmat );
-cfree(qrmatj );
-cfree(qrmati );
-cfree(lfact );
-cfree(fact );
-cfree(irnf );
-cfree(iptrl );
-cfree(iptru );
-cfree(x );
-cfree(nsSumC );
+free(qrmatj );
+free(qrmati );
+free(lfact );
+free(fact );
+free(irnf );
+free(iptrl );
+free(iptru );
+free(x );
+free(nsSumC );
 @}
 
 
@@ -2369,7 +2369,7 @@ for(i=0;i<(pathLength)+lags+1;i++){
      numberOfEquations*(lags+leads)+1,sizeof(int));
 }
 }
-void cfreeMa50(
+void freeMa50(
 int **ma50bdIptru,
 int **ma50bdIptrl,
 int **ma50bdIrnf,
@@ -2377,35 +2377,35 @@ double **ma50bdFact,
 int **ma50bdIq,
 int **ma50bdJob)
 {
-cfree(*ma50bdIptru);
-cfree(*ma50bdIptrl);
-cfree(*ma50bdIrnf);
-cfree(*ma50bdFact);
-cfree(*ma50bdIq);
-cfree(*ma50bdJob);
+free(*ma50bdIptru);
+free(*ma50bdIptrl);
+free(*ma50bdIrnf);
+free(*ma50bdFact);
+free(*ma50bdIq);
+free(*ma50bdJob);
 }
-void cfreeFPNewt(int lags, int pathLength,
+void freeFPNewt(int lags, int pathLength,
 double ** genericFP,
 double ** genericIntercept,
 double***fmats,int***fmatsj,int***fmatsi,
 double***smats,int***smatsj,int***smatsi)
 {int i;
-cfree(*genericFP);
-cfree(*genericIntercept);
+free(*genericFP);
+free(*genericIntercept);
 for(i=0;i<(pathLength)+lags+1;i++){
-cfree((*fmats)[i]);
-cfree((*fmatsj)[i]);
-cfree((*fmatsi)[i]);
-cfree((*smats)[i]);
-cfree((*smatsj)[i]);
-cfree((*smatsi)[i]);
+free((*fmats)[i]);
+free((*fmatsj)[i]);
+free((*fmatsi)[i]);
+free((*smats)[i]);
+free((*smatsj)[i]);
+free((*smatsi)[i]);
 }
-cfree(*fmats);
-cfree(*fmatsj);
-cfree(*fmatsi);
-cfree(*smats);
-cfree(*smatsj);
-cfree(*smatsi);
+free(*fmats);
+free(*fmatsj);
+free(*fmatsi);
+free(*smats);
+free(*smatsj);
+free(*smatsi);
 }
 void allocAltComputeAsymptoticQ(int numberOfEquations,int lags,int leads,
 int maxElements,double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
@@ -2424,15 +2424,15 @@ double** rootr,double**rooti)
 }
 
 
-void cfreeAltComputeAsymptoticQ(
+void freeAltComputeAsymptoticQ(
 double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
 double**rootr,double**rooti)
 {
-cfree(*AMqMatrix);
-cfree(*AMqMatrixj);
-cfree(*AMqMatrixi);
-cfree(*rootr);
-cfree(*rooti);
+free(*AMqMatrix);
+free(*AMqMatrixj);
+free(*AMqMatrixi);
+free(*rootr);
+free(*rooti);
 }
 
 
@@ -2495,7 +2495,7 @@ double**impact,int**impactj,int**impacti
         sizeof(int));
 }
 
-void cfreePhiF(
+void freePhiF(
 double**psiMatrix,int**psiMatrixj,int**psiMatrixi,
 double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
 double**phiMatrix,int**phiMatrixj,int**phiMatrixi,
@@ -2504,24 +2504,24 @@ double**vartheta,int**varthetaj,int**varthetai,
 double**impact,int**impactj,int**impacti
 )
 {
-cfree(*psiMatrix);
-cfree(*psiMatrixj);
-cfree(*psiMatrixi);
-cfree(*upsilonMatrix);
-cfree(*upsilonMatrixj);
-cfree(*upsilonMatrixi);
-cfree(*phiMatrix);
-cfree(*phiMatrixj);
-cfree(*phiMatrixi);
-cfree(*fMatrix);
-cfree(*fMatrixj);
-cfree(*fMatrixi);
-cfree(*vartheta);
-cfree(*varthetaj);
-cfree(*varthetai);
-cfree(*impact);
-cfree(*impactj);
-cfree(*impacti);
+free(*psiMatrix);
+free(*psiMatrixj);
+free(*psiMatrixi);
+free(*upsilonMatrix);
+free(*upsilonMatrixj);
+free(*upsilonMatrixi);
+free(*phiMatrix);
+free(*phiMatrixj);
+free(*phiMatrixi);
+free(*fMatrix);
+free(*fMatrixj);
+free(*fMatrixi);
+free(*vartheta);
+free(*varthetaj);
+free(*varthetai);
+free(*impact);
+free(*impactj);
+free(*impacti);
 }
 
  
@@ -2627,7 +2627,7 @@ double**selectZmat,int**selectZmatj,int**selectZmati
 *rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
 }
 
-void cfreeLinearTerminator(
+void freeLinearTerminator(
 double**upsilonMatrix,int**upsilonMatrixj,int**upsilonMatrixi,
 double**hMat,int**hMatj,int**hMati,
 double**hzMat,int**hzMatj,int**hzMati,
@@ -2643,44 +2643,44 @@ double**varthetaC,int**varthetaCj,int**varthetaCi,
 double**selectZmat,int**selectZmatj,int**selectZmati
 )
 {
-cfree(*upsilonMatrix);
-cfree(*upsilonMatrixj);
-cfree(*upsilonMatrixi);
-cfree(*hMat);
-cfree(*hMatj);
-cfree(*hMati);
-cfree(*hzMat);
-cfree(*hzMatj);
-cfree(*hzMati);
-cfree(*bMat);
-cfree(*bMatj);
-cfree(*bMati);
-cfree(*phiInvMat);
-cfree(*phiInvMatj);
-cfree(*phiInvMati);
-cfree(*fmat);
-cfree(*fmatj);
-cfree(*fmati);
-cfree(*impact);
-cfree(*impactj);
-cfree(*impacti);
-cfree(*varthetaC);
-cfree(*varthetaCj);
-cfree(*varthetaCi);
-cfree(*selectZmat);
-cfree(*selectZmatj);
-cfree(*selectZmati);
-cfree(*varthetaZstar);
-cfree(*varthetaZstarj);
-cfree(*varthetaZstari);
-cfree(*AMqMatrix);
-cfree(*AMqMatrixj);
-cfree(*AMqMatrixi);
-cfree(*cstar);
-cfree(*cstarj);
-cfree(*cstari);
-cfree(*rootr);
-cfree(*rooti);
+free(*upsilonMatrix);
+free(*upsilonMatrixj);
+free(*upsilonMatrixi);
+free(*hMat);
+free(*hMatj);
+free(*hMati);
+free(*hzMat);
+free(*hzMatj);
+free(*hzMati);
+free(*bMat);
+free(*bMatj);
+free(*bMati);
+free(*phiInvMat);
+free(*phiInvMatj);
+free(*phiInvMati);
+free(*fmat);
+free(*fmatj);
+free(*fmati);
+free(*impact);
+free(*impactj);
+free(*impacti);
+free(*varthetaC);
+free(*varthetaCj);
+free(*varthetaCi);
+free(*selectZmat);
+free(*selectZmatj);
+free(*selectZmati);
+free(*varthetaZstar);
+free(*varthetaZstarj);
+free(*varthetaZstari);
+free(*AMqMatrix);
+free(*AMqMatrixj);
+free(*AMqMatrixi);
+free(*cstar);
+free(*cstarj);
+free(*cstari);
+free(*rootr);
+free(*rooti);
 }
 
 
@@ -2709,18 +2709,18 @@ double**genericTargetPath
     numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
     sizeof(double));
 }
-void cfreePathNewt(double ** genericPath)
+void freePathNewt(double ** genericPath)
 {
-cfree(*genericPath);
+free(*genericPath);
 }
 void allocShockVec(int numberOfEquations,double**shockVec)
 {
 *shockVec=(double *)calloc(
     numberOfEquations,sizeof(double));
 }
-void cfreeShockVec(double ** shockVec)
+void freeShockVec(double ** shockVec)
 {
-cfree(*shockVec);
+free(*shockVec);
 }
 void allocShocksData(int numberOfEquations,int numberOfShocks,int numberOfData,
 double**shockVec,double ** dataVec,double ** zeroShockVec)
@@ -2734,12 +2734,12 @@ int i;
     numberOfEquations,sizeof(double));
 for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
 }
-void cfreeShocksData(double ** shockVec,double ** dataVec,
+void freeShocksData(double ** shockVec,double ** dataVec,
 double ** zeroShockVec)
 {
-cfree(*shockVec);
-cfree(*dataVec);
-cfree(*zeroShockVec);
+free(*shockVec);
+free(*dataVec);
+free(*zeroShockVec);
 }
 
 
