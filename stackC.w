@@ -198,7 +198,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
-#include "compileSparseAMA.h"
+#include "useSparseAMA.h"
 #include <sys/types.h>
 #include <unistd.h>
 @|stdio.h math.h
@@ -265,6 +265,8 @@ MA50CD operates on the transpose.
 @d nxtCDmats definition
 @{
 void nxtCDmats(@<nxtCDmats argument list@>){
+#include "useSparseAMA.h"
+#include "stackC.h"
 @<nxtCDmats variable declarations@>
 @<nxtCDmats scalar variable allocations@>
 @<nxtCDmats array variable allocations@>
@@ -887,6 +889,7 @@ void oneStepBack(@<oneStepBack argument list@>);
 
 @d oneStepBack definition
 @{
+#include "stackC.h"
 void oneStepBack(@<oneStepBack argument list@>)
 {
 @<oneStepBack variable definitions@>
@@ -1019,15 +1022,44 @@ double * updateDirection @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
 
+@o stackC.h -d
+@{
+void chkDrv(@<chkDrv argument list@>);
+@}
+
+@d chkDrv argument list
+@{
+int n, double * fdrv,int * fdrvj,int * fdrvi,
+double * fvec,double * delxvec
+@}
+
+@o stackC.h -d
+@{
+void constructFdrv(@<constructFdrv argument list@>);
+@}
+
+@d constructFdrv argument list
+@{
+int numberOfEquations,int lags, int leads,int pathLength,
+double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
+double * termConstr,int * termConstrj,int * termConstri,
+double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
+double * shockVec,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
+int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo
+@}
+
+
 @d chkDrv definition
 @{
 #include <math.h>
 #define NEGLIGIBLEDOUBLE 1.0e-9
-chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
-double * fvec,double * delxvec)
+void chkDrv(@<chkDrv argument list@>)
 {
 int i;
-int aOne=1;
+/*int aOne=1;*/
 double * fvals;
 fvals = (double * ) calloc(n,sizeof(double));
 #ifdef DEBUG 
@@ -1053,18 +1085,10 @@ printf("chkDrv:done\n");
 #define homotopyAlpha (doubleControlParameters+10)
 #define addOneToFDrvEvals (intOutputInfo[3])++
 #define maxNumberStackElements intControlParameters[5]
-constructFdrv(int numberOfEquations,int lags, int leads,int pathLength,
-double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
-double * termConstr,int * termConstrj,int * termConstri,
-double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double * shockVec,
-double * fvec,
-double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
-int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo)
+void constructFdrv(@<constructFdrv argument list@>)
 {
 double * deviations;
-int * ignore;double  dignore[1]={1.0};
+int * ignore;/*double  dignore[1]={1.0};*/
 int rowDim;int * fvecj;int * fveci;
 int i;int j;int soFar;double * zeroShockVec;
 ignore = (int *)calloc(numberOfEquations+1,sizeof(int));
@@ -1604,7 +1628,7 @@ int *qColumns;
 int *rowDim;
 double *fullfvec;
 double *fulldfvec;
-double *fullXvec;
+/*double *fullXvec;*/
 int * aOne;
 int * ierr;
 @}
@@ -1815,6 +1839,13 @@ cfree(ymatsi);
 \label{sec:compPathError}
 
 
+@o stackC.h -d
+@{
+void compPathError(@<compPathError argument list@>);
+@}
+
+
+
 @d compPathError argument list
 @{
 int * numberOfEquations,int * lags,int * leads,
@@ -1831,7 +1862,7 @@ double ** smats,int ** smatsj,int **smatsi
 
 @d compPathError definition
 @{
-void compPathError(@<comPathError argument list@>)
+void compPathError(@<compPathError argument list@>)
 {
 int maxElementsEncountered=0;
 int * rowDim;
@@ -3927,7 +3958,9 @@ c-----------------------------------------------------------------------
 \subsubsection{aplb}
 @o stackC.h -d
 @{
-void aplb_();
+void aplb_(int * nrow,int * ncol,int* job, double * a,int * ja,int * ia,
+double * b,int * jb,int * ib,
+double *     c,int *jc,int * ic,int * nzmax,int * iw,int *ierr);
 @}
 
 
