@@ -2774,8 +2774,20 @@ for (its=1;its<=MAXITS;its++) {
 #include <stdio.h>
 #include <math.h>
 #include "sparseAMA.h"
+#include "stackC.h"
 #define NRANSI
-#include "./nrutil.h"
+/*#include "./nrutil.h"*/
+
+static float sqrarg;
+#define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
+static float maxarg1,maxarg2;
+#define FMAX(a,b) (maxarg1=(a),maxarg2=(b),(maxarg1) > (maxarg2) ?\
+        (maxarg1) : (maxarg2))
+
+static float minarg1,minarg2;
+#define FMIN(a,b) (minarg1=(a),minarg2=(b),(minarg1) < (minarg2) ?\
+        (minarg1) : (minarg2))
+
 #define MAXITS 200
 #define TOLF 1.0e-12
 #define TOLMIN 1.0e-6
@@ -2796,7 +2808,7 @@ cfree(deviations);cfree(fullfvec);\
 
 @d FPnewt declarations
 @{
-    int n;double * xdel;
+    int n;/*double * xdel;*/
 /*	double fmin(double x[]);*/
 	void lnsrch(int n,int np,int reps,
     double xold[], double   * fold, double g[], double p[],double * params,
@@ -2804,8 +2816,8 @@ cfree(deviations);cfree(fullfvec);\
          void (*func)(double*,double*,double*,double*,int*,int*),double *x);
 	void lubksb(double **a, int n, int *indx, double b[]);
 	void ludcmp(double **a, int n, int *indx, double *d);
-	int i,its,j,*indx,*aOne,*ndns,*ierr;
-	double d,den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,normSum;
+	int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
+	double /*d,*/den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,normSum;
     double * shockVec;
     n=*numberOfEquations*(*lags+*leads+1);
 	aOne=(int *)calloc(1,sizeof(int));
@@ -3129,11 +3141,14 @@ smats[0],smatsj[0],smatsi[0]);
 
 @}
 
-
-@o myNewt.c -d
+@o stackC.h -d
 @{
+void computeAsymptoticQMatrix(@<computeAsymptoticQMatrix argument list@>);
+@}
 
-computeAsymptoticQMatrix(
+
+@d computeAsymptoticQMatrix argument list
+@{
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double canadaFP[],int * pthLngth,
@@ -3142,7 +3157,12 @@ double ** smats, int ** smatsj, int ** smatsi,
 int * maxNumberElements,
 double * AMqMatrix,
 int * ierr
-)
+@}
+
+
+@o myNewt.c -d
+@{
+void computeAsymptoticQMatrix(@<computeAsymptoticQMatrix argument list@>)
 {
 @<computeAsymptoticQMatrix variable declarations@>
 @<computeAsymptoticQMatrix variable allocations@>
@@ -3172,15 +3192,15 @@ int * nbig;
 int * nexa;
 int * nnum;
 int * nroot;
-double * zeroVector;
+/*double * zeroVector;*/
 int * qColumns;
 double * rootr;
 double * rooti;
 double * uprbnd;
-double * wts;
-double * err;
+/*double * wts;*/
+/*double * err;*/
 int * hColumns;
-int i;
+/*int i;*/
 @}
 
 @o myNewt.c -d
@@ -3234,18 +3254,18 @@ int maxHElements=50000;
 int maxHElementsForSparseAMA;
 int essential;
 int returnCode=0;
-double * zeroVector;
-int * qColumns;
+/*double * zeroVector;*/
+/*int * qColumns;*/
 double * newH;
 int * newHj;
 int * newHi;
 double * rootr;
 double * rooti;
-double * uprbnd;
-double * wts;
-double * err;
-int * hColumns;
-int i;
+/*double * uprbnd;*/
+/*double * wts;*/
+/*double * err;*/
+/*int * hColumns;*/
+/*int i;*/
 @}
 
 
@@ -3368,8 +3388,8 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 		 double * f, double stpmax, int *check, void (*func)(),double * x);
 
 
-	int i,its,j,*indx,*aOne,*ndns,*ierr;
-	double d,den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,*xoldls,*xdel,normSum;
+	int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
+	double /*d,*/den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,*xoldls,*xdel,normSum;
 @}
 
 
