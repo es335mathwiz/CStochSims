@@ -38,10 +38,14 @@ SPARSEAMALIB= -L../sparseAMA -lsparseAMA
 	make $*.o
 
 .c.o:
+	nuweb $(NUWEBFLAGS)  stochProto.w
+	nuweb $(NUWEBFLAGS)  stochRun.w
 	nuweb $(NUWEBFLAGS)  stackC.w
 	$(CC) $(FCFLAGS) -c $*.c
 
 .f.o:
+	nuweb $(NUWEBFLAGS)  stochProto.w
+	nuweb $(NUWEBFLAGS)  stochRun.w
 	nuweb $(NUWEBFLAGS)  stackC.w
 	$(FC) $(FCFLAGS) -c $*.f
 
