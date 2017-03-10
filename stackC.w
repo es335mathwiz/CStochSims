@@ -1831,15 +1831,7 @@ double ** smats,int ** smatsj,int **smatsi
 
 @d compPathError definition
 @{
-void compPathError(int * numberOfEquations,int * lags,int * leads,
-void (* theFunction)(),
-double * termConstr,int * termConstrj,int * termConstri,double * fp,
-double * initialX,
-double * shockVec,
-int * capT,
-int * maxNumberHElements,
-double ** fmats,int ** fmatsj,int **fmatsi,
-double ** smats,int ** smatsj,int **smatsi)
+void compPathError(@<comPathError argument list@>)
 {
 int maxElementsEncountered=0;
 int * rowDim;
