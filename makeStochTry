@@ -12,6 +12,7 @@ narPath = ../sparseAMA/target/nar/sparseAMA-1.0-SNAPSHOT-x86_64-MacOSX-g++-share
 arpackPath=/usr/local/Cellar/arpack/3.4.0/lib/
 endif
 
+arpackOBJS =   -L../sparseAMA dnaupd.o dneupd.o second.o sparseAMA.o 
 
 
 #Flags, Compilers, Linkers
@@ -25,7 +26,7 @@ FFLAGS = -c -g -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 CC = gcc
 #CFLAGS = -c -g -I$(SPAMADIR)/src/main/include -I../stackStochSims/
 #LAPACKLIBS=  -lcblas  -latlas -llapack -lf77blas
-LAPACKLIBS=    -llapack -lblas -L$(arpackPath) -larpack -lblas
+LAPACKLIBS=    -llapack -lblas $(arpackOBS)  -lblas
 
 SYSTEM= -DUNIX
 FRBUSDIR=$(HOME)/aim/frbus
@@ -46,7 +47,7 @@ fastSPARSELIB = 	  ./ranlib.o
 LINTFLAGS = -b -c  -h 
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(HOME)/aim/sparse -lsparseAim
 #LINKFLAGS =  -v  -lc -ldl -lm -L$(narPath) -lsparseAMA-1.0-SNAPSHOT -lc 
-LINKFLAGS =  -v  -lc -ldl -lm $(SPAMADIR)/sparseAMA.o $(SPAMADIR)/dnaupd.o  $(SPAMADIR)/second.o $(SPAMADIR)/dneupd.o $(SPAMADIR)/sparskit2.o -lc $(LAPACKLIBS)
+LINKFLAGS =  -v  -lc -ldl -lm $(SPAMADIR)/sparseAMA.o $(SPAMADIR)/dnaupd.o  $(SPAMADIR)/second.o $(SPAMADIR)/dneupd.o $(SPAMADIR)/sparskit2.o -lc $(LAPACKLIBS)  -llapack 
 
 
 #LAPACKLIB  = /mq/home/m1gsa00/aim/summer98/aimCCode/lapack_os5.a \

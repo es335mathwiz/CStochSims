@@ -3,7 +3,7 @@
 /*  Provided by: Markku Kolkka, mk59200@cc.tut.fi    */
 /*  HP-UX Addition by: Bo Thide', bt@irfu.se         */
 /*****************************************************/
-#ifdef UNIX
+#if defined(__linux__) || defined(__MACH)
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -14,7 +14,7 @@
 
 struct rusage rusage;
 
-dtime(p)
+int dtime(p)
 double p[];
 {
  double q;

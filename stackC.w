@@ -250,7 +250,7 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 @}
 
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
@@ -874,7 +874,7 @@ dmatsA dmatsJA dmatsIA
 \subsection{oneStepBack Definition}
 \label{sec:oneStepBack}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void oneStepBack(@<oneStepBack argument list@>);
 @}
@@ -995,7 +995,7 @@ cfree(impactPart2);
 \label{sec:nxtGuess}
 
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void nxtGuess(@<nxtGuess argument list@>);
 void newNxtGuess(@<nxtGuess argument list@>);
@@ -1545,7 +1545,7 @@ cfree(ymatsi);
 \label{sec:nxtFPGuess}
 
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void nxtFPGuess(@<nxtFPGuess argument list@>);
 @}
@@ -2736,16 +2736,28 @@ __LINE__);
 
 @}
 
-@o myNewt.c -d 
+@o stackC.h -d
 @{
-@<FPnewt defines@>
-void FPnewt(int * numberOfEquations,int * lags, int * leads,
+
+@}
+
+
+@d FPNewt argument list
+@{
+int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double x[],
 double ** fmats, int ** fmatsj, int ** fmatsi,
 double ** smats, int ** smatsj, int ** smatsi,
 int * maxNumberElements,
-int *check)
+int *check
+@}
+
+
+@o myNewt.c -d 
+@{
+@<FPnewt defines@>
+void FPnewt(@<FPNewt argument list@>)
 {
 @<FPnewt declarations@>
 @<evaluate func and find max element@>
@@ -3744,7 +3756,7 @@ printf("row=%d,col=%d,val=%f\n",i+1,aj[j-1],a[j-1]);}}
 \label{sec:sparsekit2}
 
 \subsubsection{dump}
-@o stack.h -d
+@o stackC.h -d
 @{
 /*void dump_();*/
 @}
@@ -3781,7 +3793,7 @@ c two digits of accuracy (D9.2). )
 \end{verbatim}
 
 \subsubsection{amub}
-@o stack.h -d
+@o stackC.h -d
 @{
 void amub_();
 @}
@@ -3845,7 +3857,7 @@ c-----------------------------------------------------------------------
 
 \subsubsection{amux}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void amux_();
 @}
@@ -3884,7 +3896,7 @@ c-----------------------------------------------------------------------
 
 
 \subsubsection{aplb}
-@o stack.h -d
+@o stackC.h -d
 @{
 void aplb_();
 @}
@@ -3946,7 +3958,7 @@ c-----------------------------------------------------------------------
 
 \subsubsection{csrcsc}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void csrcsc2_();
 @}
@@ -3997,7 +4009,7 @@ c     the transpose.
 c
 c----------------------------------------------------------------------- 
 \end{verbatim}
-@o stack.h -d
+@o stackC.h -d
 @{
 void csrcsc_();
 @}
@@ -4049,7 +4061,7 @@ c-----------------------------------------------------------------------
 \end{verbatim}
 
 \subsubsection{csrdns}
-@o stack.h -d
+@o stackC.h -d
 @{
 void csrdns_();
 @}
@@ -4094,7 +4106,7 @@ c-----------------------------------------------------------------------
 
 
 \subsubsection{dnscsr}
-@o stack.h -d
+@o stackC.h -d
 @{
 void dnscsr_();
 @}
@@ -4144,7 +4156,7 @@ c-----------------------------------------------------------------------
 
 
 \subsubsection{submat}
-@o stack.h -d
+@o stackC.h -d
 @{
 void submat_();
 @}
@@ -4201,7 +4213,7 @@ c----------------------------------------------------------------------c
 
 \subsubsection{MA50AD}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void ma50ad_();
 @}
@@ -4390,7 +4402,7 @@ c-----------------------------------------------------------------
 
 \subsubsection{MA50BD}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void ma50bd_();
 @}
@@ -4540,7 +4552,7 @@ C    floating-point operations performed.
 
 \subsubsection{MA50CD}
 
-@o stack.h -d
+@o stackC.h -d
 @{
 void ma50cd_();
 @}

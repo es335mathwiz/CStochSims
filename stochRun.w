@@ -107,6 +107,8 @@ the page numbers of the component's definition.}
 @o stochRun.c -d
 @{
 @<defines and includes@>
+int  dtime(double * userSystemTime);
+
 void  cfree(void * ptr){free(ptr);}
 int main(int argc, char * argv[])
 {
@@ -145,7 +147,8 @@ julliard.c.
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
-
+#include "sparseAMA.h"
+#include "stackC.h"
 #define julNLAGS 1
 #define julNLEADS 5
 #define julNEQS 5
@@ -243,7 +246,7 @@ int tf[1]={0};
 int replications[1]={1};
 double totalTime[1];
 double userSystemTime[2];
-int shockIndex[1];
+/*int shockIndex[1];*/
 /*void * calloc(unsigned num,int amt);*/
 @| numberOfEquations lags leads
 @}
@@ -251,9 +254,9 @@ int shockIndex[1];
 
 @d main scalar variable initializations
 @{
-int  dtime(double * userSystemTime);
+/*int  dtime(double * userSystemTime);*/
 
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 
@@ -302,7 +305,7 @@ printf("computed Q matrix\n");
 for(i=0;i<*pathLength;i++){
 julModPeriodicPointGuesser(julParam,1,
 julliardPathQ+(i *julNEQS));}
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 printf("using q matrix\n");
@@ -390,8 +393,8 @@ fPrintMathDbl(outFile,(julNEQS*(SHOCKS)),julliardShocks,"julModShocks");
 @{
 double atof();
 int pl;
-int vbl;
-double val;
+/*int vbl;*/
+/*double val;*/
 @}
 
 
@@ -477,7 +480,7 @@ double val;
 
 @d process command line
 @{
-vbl=0;/*hack so that if shock irrelevant variable if no other variables shocked*/
+/*vbl=0;*//*hack so that if shock irrelevant variable if no other variables shocked*/
 *pathLength=1;
 *replications=1;
 *t0=julNLAGS+1;
@@ -538,14 +541,14 @@ double * julliardPathQ;
 double **fmats;int  **fmatsj;int  **fmatsi;
 double **smats;int  **smatsj;int  **smatsi;
 static char flnm[50] = "stochOut.m";
-int i,j;
+int i/*,j*/;
 
 @<define names array@> 
 @}
 @d define names array
 @{
-char * julNamesArray[] =  
-{"ey","pdot","rr","rs","y"};
+/*char * julNamesArray[] =  
+{"ey","pdot","rr","rs","y"};*/
 
 @}
 @d main storage allocations determined at run time
@@ -662,7 +665,7 @@ printf("computed FP solution\n");
 
 @d main variable declarations
 @{
-int * hColumns;
+/*int * hColumns;*/
 @}
 
 @d main variable declarations
@@ -670,14 +673,13 @@ int * hColumns;
 double * AMqMatrix;
 int * AMqMatrixj;
 int * AMqMatrixi;
-double * asymptoticLinearization;
+/*double * asymptoticLinearization;*/
 @|
 asymptoticLinearization AMqMatrix
 @}
 
 @d main storage allocations determined at compile time
 @{
-int  dtime(double * userSystemTime);
 *totalTime=dtime(userSystemTime);
 printf("Hello World!!  after compile time determined storage allocations\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
      *totalTime,*userSystemTime,*(userSystemTime+1));
@@ -688,7 +690,7 @@ Placing times at the end of each scrap.
 
 @d obtain fixed point for terminal constraint
 @{
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 @}
@@ -696,9 +698,9 @@ printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTim
 
 @d process command line
 @{
-int  dtime(double * userSystemTime);
+/*int  dtime(double * userSystemTime);*/
 
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("after processing command lines\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 
@@ -706,7 +708,7 @@ printf("after processing command lines\ntotalTime=%f,userSystemTime=%f,systemTim
 
 @d carryout stochastic sims
 @{
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
 
