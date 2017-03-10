@@ -109,7 +109,7 @@ the page numbers of the component's definition.}
 @<defines and includes@>
 int  dtime(double * userSystemTime);
 
-void  cfree(void * ptr){free(ptr);}
+
 int main(int argc, char * argv[])
 {
 @<main variable declarations@>
@@ -604,29 +604,29 @@ AMqMatrixi=(int *)
 
 @d main storage deallocations
 @{
-cfree(failedQ);
-cfree(AMqMatrix);
-cfree(AMqMatrixj);
-cfree(AMqMatrixi);
-cfree(julliardShocks);
-cfree(julliardData);
-cfree(julliardPermVec);
-cfree(julliardFP);
-cfree(julliardPathQ);
+free(failedQ);
+free(AMqMatrix);
+free(AMqMatrixj);
+free(AMqMatrixi);
+free(julliardShocks);
+free(julliardData);
+free(julliardPermVec);
+free(julliardFP);
+free(julliardPathQ);
 for(i=0;i<(*pathLength)+julNLAGS+1;i++){
-cfree(smats[i]);
-cfree(smatsj[i]);
-cfree(smatsi[i]);
-cfree(fmats[i]);
-cfree(fmatsj[i]);
-cfree(fmatsi[i]);
+free(smats[i]);
+free(smatsj[i]);
+free(smatsi[i]);
+free(fmats[i]);
+free(fmatsj[i]);
+free(fmatsi[i]);
 }
-cfree(fmats);
-cfree(fmatsj);
-cfree(fmatsi);
-cfree(smats);
-cfree(smatsj);
-cfree(smatsi);
+free(fmats);
+free(fmatsj);
+free(fmatsi);
+free(smats);
+free(smatsj);
+free(smatsi);
 @}
 
 
