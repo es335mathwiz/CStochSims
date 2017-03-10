@@ -2838,13 +2838,13 @@ static float minarg1,minarg2;
 
 int nn;
 double *fvec;
-#define FREERETURN {cfree(fvec);cfree(xold);cfree(shockVec);\
-	cfree(p);cfree(g);cfree(aOne);cfree(ierr);\
-	cfree(indx);return;}
-#define PFREERETURN {cfree(fvec);cfree(xold);cfree(xoldls);cfree(xdel);\
-cfree(deviations);cfree(fullfvec);\
-	cfree(p);cfree(g);cfree(aOne);cfree(ierr);\
-	cfree(indx);cfree(rowDim);cfree(qColumns);return;}
+#define FREERETURN {free(fvec);free(xold);free(shockVec);\
+	free(p);free(g);free(aOne);free(ierr);\
+	free(indx);return;}
+#define PFREERETURN {free(fvec);free(xold);free(xoldls);free(xdel);\
+free(deviations);free(fullfvec);\
+	free(p);free(g);free(aOne);free(ierr);\
+	free(indx);free(rowDim);free(qColumns);return;}
 @}
 
 @d FPnewt declarations
@@ -3078,21 +3078,21 @@ for(tNow=0;tNow<*pathLength;tNow++) {
 
 @d Anderson-Moore algorithm  variable deallocations
 @{
-cfree(asymptoticLinearization);
-cfree(cond);
-cfree(epsi);
-cfree(inform);
-cfree(iq);
-cfree(itsbad);
-cfree(nbig);
-cfree(nexa);
-cfree(nnum);
-cfree(nroot);
-cfree(rooti);
-cfree(rootr);
-cfree(uprbnd);
-cfree(qColumns);
-cfree(hColumns);
+free(asymptoticLinearization);
+free(cond);
+free(epsi);
+free(inform);
+free(iq);
+free(itsbad);
+free(nbig);
+free(nexa);
+free(nnum);
+free(nroot);
+free(rooti);
+free(rootr);
+free(uprbnd);
+free(qColumns);
+free(hColumns);
 @}
 
 
@@ -3269,11 +3269,11 @@ int * ierr
 @}
 @d altComputeAsymptoticQMatrix variable deallocations
 @{
-cfree(newH);
-cfree(newHj);
-cfree(newHi);
-cfree(rootr);
-cfree(rooti);
+free(newH);
+free(newHj);
+free(newHi);
+free(rootr);
+free(rooti);
 @}
 @d altComputeAsymptoticQMatrix variable allocations
 @{
@@ -3466,7 +3466,7 @@ double xold[], double * fold, double g[], double p[],
 @< lnsrch preloop@>
 @< lnsrch loop@>
 @< lnsrch postloop@>
-cfree(aOne);cfree(aZero);cfree(aTwo);cfree(fvec);cfree(fvecj);cfree(fveci);
+free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 }
 #undef ALF
 #undef TOLX
@@ -3556,20 +3556,20 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 @d lnsrch free storage
 @{
 
-			cfree(transp);
-            cfree(ierr);
-			cfree(noTransp);
-			cfree(dir);
-			cfree(aDoubleZero);
-			cfree(aDoubleOne);
-			cfree(fnow);
-			cfree(xorig);
-			cfree(fvec);
-			cfree(fvecj);
-			cfree(fveci);
-			cfree(aOne);
-			cfree(aZero);
-			cfree(aTwo);
+			free(transp);
+            free(ierr);
+			free(noTransp);
+			free(dir);
+			free(aDoubleZero);
+			free(aDoubleOne);
+			free(fnow);
+			free(xorig);
+			free(fvec);
+			free(fvecj);
+			free(fveci);
+			free(aOne);
+			free(aZero);
+			free(aTwo);
 @}
 
 @d lnsrch loop

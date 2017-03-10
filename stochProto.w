@@ -82,7 +82,7 @@ Map[iterFunc,shockSeqList]
 @}
 @o stochProto.c -d
 @{
-void cfree();
+void free();
 void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, int ** fmatsj, int ** fmatsi,
@@ -268,7 +268,7 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 tailVec,x,check);
-cfree(tailVec);cfree(shockVec);
+free(tailVec);free(shockVec);
 }
 @}
 
@@ -337,7 +337,7 @@ maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,
 x+(*numberOfEquations*(*lags+*numberOfShocks)*i),failedQ+i);
 };
-cfree(numberOfShocks);
+free(numberOfShocks);
 }
 @}
 
