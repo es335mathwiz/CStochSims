@@ -147,7 +147,7 @@ julliard.c.
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
-#include "sparseAMA.h"
+#include "useSparseAMA.h"
 #include "stackC.h"
 #define julNLAGS 1
 #define julNLEADS 5

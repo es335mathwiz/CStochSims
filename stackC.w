@@ -196,7 +196,11 @@ Assemble the components and output to the file {\bf stackC.c}.
 @d define constants and specify include files
 @{
 #include <stdio.h>
+#include <stdlib.h>
 #include <float.h>
+#include "compileSparseAMA.h"
+#include <sys/types.h>
+#include <unistd.h>
 @|stdio.h math.h
 @}
 
@@ -1811,9 +1815,23 @@ cfree(ymatsi);
 \label{sec:compPathError}
 
 
+@d compPathError argument list
+@{
+int * numberOfEquations,int * lags,int * leads,
+void (* theFunction)(),
+double * termConstr,int * termConstrj,int * termConstri,double * fp,
+double * initialX,
+double * shockVec,
+int * capT,
+int * maxNumberHElements,
+double ** fmats,int ** fmatsj,int **fmatsi,
+double ** smats,int ** smatsj,int **smatsi
+@}
+
+
 @d compPathError definition
 @{
-compPathError(int * numberOfEquations,int * lags,int * leads,
+void compPathError(int * numberOfEquations,int * lags,int * leads,
 void (* theFunction)(),
 double * termConstr,int * termConstrj,int * termConstri,double * fp,
 double * initialX,
@@ -2729,7 +2747,7 @@ __LINE__);
 		   __pathNewtAssert (expression, __FILE__, __LINE__)
 
 #define __pathNewtAssert(expression, file, lineno)  \
-  {printf("pathNewtAssert: processid=%ld\n",getpid());\
+  {printf("pathNewtAssert: processid=%ld\n",(long)getpid());\
    printf ("%s:%u: failed assertion\n", file, lineno);\
    	kill(getpid(),SIGUSR2);}
 
@@ -2773,7 +2791,7 @@ for (its=1;its<=MAXITS;its++) {
 @{
 #include <stdio.h>
 #include <math.h>
-#include "sparseAMA.h"
+#include "useSparseAMA.h"
 #include "stackC.h"
 #define NRANSI
 /*#include "./nrutil.h"*/
@@ -3109,7 +3127,7 @@ else {  printf("Caller has terminated with inform =%d.\n",*inform);}
 @{
 auxInit=qRows=0;
 maxHElementsForSparseAMA=maxHElements;
-void * aPointerToVoid;/*adding since all the sparseAMA.h files have this arg*/
+/*void * aPointerToVoid;adding since all the sparseAMA.h files have this arg*/
 printf("from stackC.w line 2194\n");
 cPrintSparse(*numberOfEquations,smats[0],smatsj[0],smatsi[0]);
 sparseAMA(&maxHElementsForSparseAMA,DISCRETE_TIME,*numberOfEquations,
@@ -3118,8 +3136,7 @@ smats[0],smatsj[0],smatsi[0],
 newH,newHj,newHi,
 &auxInit,&qRows,
 qMat,qMatj,qMati,
-&essential,rootr,rooti,&returnCode,
-aPointerToVoid);
+&essential,rootr,rooti,&returnCode);
 @|NEGLIGIBLEDOUBLE AIMROOTBOUND
 @}
 
@@ -3400,7 +3417,7 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 @{
 #include <math.h>
 #define NRANSI
-#include "./nrutil.h"
+/*#include "./nrutil.h"*/
 #define ALF 1.0e-4
 #define TOLX 1.0e-10
 
@@ -3441,7 +3458,7 @@ cfree(aOne);cfree(aZero);cfree(aTwo);cfree(fvec);cfree(fvecj);cfree(fveci);
 	double a,alam,alam2,alamin,b,disc,f2,fold2,rhs1,rhs2,slope,sum,temp,
 		test,tmplam;
 	int * aOne;int * aTwo,*ierr,*aZero;
-	double * fnow,*fvec,*fnorm, *xorig,*aDoubleZero;
+	double * fnow,*fvec/*,*fnorm*/, *xorig,*aDoubleZero;
     int * fvecj;
     double *dir,*aDoubleOne;
     char * transp, *noTransp;
