@@ -1213,7 +1213,7 @@ c
       nsave = n
       IF (xnp.LT.30.) GO TO 140
       ffm = xnp + p
-      m = ffm
+      m = int(ffm)
       fm = m
       xnpq = xnp*q
       p1 = int(2.195*sqrt(xnpq)-4.6*q) + 0.5
@@ -1239,7 +1239,7 @@ c
 c     TRIANGULAR REGION
 c
       IF (u.GT.p1) GO TO 40
-      ix = xm - p1*v + u
+      ix = int(xm - p1*v + u)
       GO TO 170
 c
 c     PARALLELOGRAM REGION
@@ -1248,20 +1248,20 @@ c
       x = xl + (u-p1)/c
       v = v*c + 1. - abs(xm-x)/p1
       IF (v.GT.1. .OR. v.LE.0.) GO TO 30
-      ix = x
+      ix = int(x)
       GO TO 70
 c
 c     LEFT TAIL
 c
    50 IF (u.GT.p3) GO TO 60
-      ix = xl + alog(v)/xll
+      ix = int(xl + alog(v)/xll)
       IF (ix.LT.0) GO TO 30
       v = v* (u-p2)*xll
       GO TO 70
 c
 c     RIGHT TAIL
 c
-   60 ix = xr - alog(v)/xlr
+   60 ix = int(xr - alog(v)/xlr)
       IF (ix.GT.n) GO TO 30
       v = v* (u-p3)*xlr
 c
@@ -1798,7 +1798,7 @@ c     integral multiple of the number in 0..RANGE
 
    50 GO TO 40
 
-   60 CONTINUE
+      CONTINUE
    70 CONTINUE
    80 IF (.NOT. (err.EQ.1)) GO TO 90
       WRITE (*,*) err1
@@ -2736,16 +2736,16 @@ c
       DATA q/.6931472,.9333737,.9888778,.9984959,.9998293,.9999833,
      +     .9999986,.9999999/
 c
-   10 a = 0.0
+      a = 0.0
       u = ranf()
       GO TO 30
 
    20 a = a + q1
    30 u = u + u
       IF (u.LE.1.0) GO TO 20
-   40 u = u - 1.0
+      u = u - 1.0
       IF (u.GT.q1) GO TO 60
-   50 sexpo = a + u
+      sexpo = a + u
       RETURN
 
    60 i = 1
@@ -2753,9 +2753,9 @@ c
       umin = ustar
    70 ustar = ranf()
       IF (ustar.LT.umin) umin = ustar
-   80 i = i + 1
+      i = i + 1
       IF (u.GT.q(i)) GO TO 70
-   90 sexpo = a + umin*q1
+      sexpo = a + umin*q1
       RETURN
 
       END
@@ -3000,18 +3000,18 @@ c
      +     .8781922E-1,.9930398E-1,.1155599,.1404344,.1836142,.2790016,
      +     .7010474/
 c
-   10 u = ranf()
+      u = ranf()
       s = 0.0
       IF (u.GT.0.5) s = 1.0
       u = u + u - s
-   20 u = 32.0*u
+      u = 32.0*u
       i = int(u)
       IF (i.EQ.32) i = 31
       IF (i.EQ.0) GO TO 100
 c
 c  START CENTER
 c
-   30 ustar = u - float(i)
+      ustar = u - float(i)
       aa = a(i)
    40 IF (ustar.LE.t(i)) GO TO 60
       w = (ustar-t(i))*h(i)
@@ -3033,7 +3033,7 @@ c
    70 tt = u
       ustar = ranf()
    80 IF (ustar.GT.tt) GO TO 50
-   90 u = ranf()
+      u = ranf()
       IF (ustar.GE.u) GO TO 70
       ustar = ranf()
       GO TO 40
@@ -3048,7 +3048,7 @@ c
       i = i + 1
   120 u = u + u
       IF (u.LT.1.0) GO TO 110
-  130 u = u - 1.0
+      u = u - 1.0
   140 w = u*d(i)
       tt = (0.5*w+aa)*w
       GO TO 160
@@ -3056,7 +3056,7 @@ c
   150 tt = u
   160 ustar = ranf()
       IF (ustar.GT.tt) GO TO 50
-  170 u = ranf()
+      u = ranf()
       IF (ustar.GE.u) GO TO 150
       u = ranf()
       GO TO 140

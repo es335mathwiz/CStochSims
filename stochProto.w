@@ -91,7 +91,7 @@ int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
 int *check);
-long ignuin(long low,long high);
+long ignuin_(long *low,long *high);
 
 
 void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
@@ -103,7 +103,7 @@ long mxint;
 ntot=(tfIndex-t0Index+1)*replications;
 mxint=shocksAvailable;
     for(i=0; i<ntot; i++) {
-        *(iarray+i) = ignuin_(&K1,&mxint);
+        *(iarray+i) = (int )ignuin_(&K1,&mxint);
     }
 }
 @}
@@ -317,7 +317,7 @@ double * fixedPoint,
 double x[],
 int *failedQ)
 {
-int check[1]={0};
+/*int check[1]={0};*/
 int * numberOfShocks;
 int i,j;
 numberOfShocks=(int *)calloc(1,sizeof(int));
