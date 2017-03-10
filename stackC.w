@@ -2738,7 +2738,7 @@ __LINE__);
 
 @o stackC.h -d
 @{
-
+void FPnewt(@<FPNewt argument list@>);
 @}
 
 
