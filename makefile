@@ -29,7 +29,7 @@ echo:
 #compilers
 FC = gfortran
 SPARSEAMALIB= -L../sparseAMA -lsparseAMA
-
+STOCHSIMSLIB= -L./ -lstochSims
 .w.c:
 	nuweb $(NUWEBFLAGS) $*
 
@@ -55,12 +55,17 @@ myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
 	$(CC) $(FCFLAGS) -c myNewt.c
 
+juillard.o:	juillard.c
+	$(CC) $(FCFLAGS) -c juillard.c
 
-stochRun:	stochRun.o myNewt.o dtime.o\
-		stackC.o juillard.o stochProto.o ranlib.o
-	$(FC) -o stochRun -g  stochRun.o myNewt.o \
-		stackC.o juillard.o stochProto.o ranlib.o dtime.o $(SPARSEAMALIB) $(LAPACKLIBS)
 
+stochRun:	stochRun.o libstochSims.a juillard.o
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)
+
+libstochSims.a:	myNewt.o dtime.o\
+		stackC.o stochProto.o ranlib.o
+	ar -cvq libstochSims.a myNewt.o dtime.o\
+		stackC.o stochProto.o ranlib.o
 
 
 clean: 
