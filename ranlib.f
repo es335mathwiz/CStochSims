@@ -1200,6 +1200,8 @@ c     .. Data statements ..
       DATA psave,nsave/-1.,-1/
 c     ..
 c     .. Executable Statements ..
+      WRITE (*,*) 'GSAnderson modified ignbin to get rid of warnings .' 
+      WRITE (*,*) 'GSAnderson check results if you need this routine.' 
       IF (pp.NE.psave) GO TO 10
       IF (n.NE.nsave) GO TO 20
       IF (xnp-30.) 150,30,30
