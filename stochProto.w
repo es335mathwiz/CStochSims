@@ -1,7 +1,7 @@
 \documentclass{article}
 \newcommand{\myamp}{&}
 \newcommand{\mywedge}{^}
-\usepackage{notebook}
+%\usepackage{notebook}
 \usepackage{amsmath}
 \usepackage{latexsym}
 \begin{document}
@@ -299,6 +299,26 @@ maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,
 x+(*numberOfEquations*i),check);
 }}
+@}
+
+@d stochSim argument list
+@{int * numberOfEquations,int * lags, int * leads,int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,
+int * replications,
+int * t0,int * tf,int * permVecs,
+double * shockTable,int * shocksAvailable,
+double * dataTable,int * dataAvailable,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double * fixedPoint,
+double x[],
+int *failedQ
+@}
+
+@o stochProto.h -d
+@{
+void stochSim(@<stochSim argument list@>);
 @}
 
 @o stochProto.c -d

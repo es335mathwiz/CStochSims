@@ -3242,11 +3242,8 @@ double * uprbnd;
 int * hColumns;
 /*int i;*/
 @}
-
-@o myNewt.c -d
+@d altComputeAsymptoticQMatrix argument list
 @{
-
-void altComputeAsymptoticQMatrix(
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double canadaFP[],int * pthLngth,
@@ -3255,7 +3252,16 @@ double ** smats, int ** smatsj, int ** smatsi,
 int * maxNumberElements,
 double * qMat,int * qMatj,int * qMati,
 int * ierr
-)
+@}
+
+@o stackC.h -d
+@{
+void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>);
+@}
+
+@o myNewt.c -d
+@{
+void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>)
 {
 @<altComputeAsymptoticQMatrix variable declarations@>
 @<altComputeAsymptoticQMatrix variable allocations@>

@@ -69,4 +69,4 @@ libstochSims.a:	myNewt.o dtime.o\
 
 
 clean: 
-	rm -f *.o 
+	rm -f *.o stochRun 
