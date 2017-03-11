@@ -648,7 +648,7 @@ c     Generate the observation
 c
       DO 30,icat = 1,ncat - 1
           prob = p(icat)/sum
-          ix(icat) = ignbin(ntot,prob)
+          ix(icat) = ignbin(ntot,prob,ntot*prob)
           ntot = ntot - ix(icat)
           IF (ntot.LE.0) RETURN
           sum = sum - p(icat)
@@ -1040,7 +1040,7 @@ c     Abort unless random number generator initialized
       iseed2 = cg2(g)
       RETURN
       END
-      INTEGER FUNCTION ignbin(n,pp)
+      INTEGER FUNCTION ignbin(n,pp,xnp)
 
 c*********************************************************************72
 c
