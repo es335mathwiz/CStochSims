@@ -718,6 +718,9 @@ pathTwo02=aimType2[testModel,1,0.25*plugT00][[-1]];
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include<time.h>
+#include<sys/time.h>
+
 /*set maximal dimension constants*/
 #define PATHLENGTH 1000
 #define REPLICATIONS 1000
