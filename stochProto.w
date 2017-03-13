@@ -80,8 +80,53 @@ Map[iterFunc,shockSeqList]
    horizon>0 && replications>0&&((expType == tMinusOne)||(expType == t)))
 
 @}
+@o stochProtoHide.c -d
+@{
+include "stochProto.h
+
+void processCommandLine(int argc, char * argv[],char ** namesArray,int modelNEQS,char ** paramNamesArray,int numberOfParameters,double * parameters,
+double * dataValues,int numberDataValues,int numberShockValues,
+int * pathLength,int * replications,int * t0,int * stochasticPathLength,
+int* intControlParameters,double * doubleControlParameters,char * flnm);
+void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName);
+void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName);
+
+
+
+/*void cfree();*/
+/*void * calloc(unsigned num,int amt);*/
+void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double * fixedPath,double * intercept,double * linearizationPoint,
+int * exogRows, int * exogCols, int * exogenizeQ,
+double x[],
+int *check,double * lastDel,int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo,
+int * pathNewtMa50bdJob,
+int * pathNewtMa50bdIq,
+double * pathNewtMa50bdFact,
+int * pathNewtMa50bdIrnf,
+int * pathNewtMa50bdIptrl,
+int * pathNewtMa50bdIptru
+);
+long ignuin(long low,long high);
+void phrtsd(char* phrase,long* seed1,long* seed2);
+void setall(long iseed1,long iseed2);
+
+void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
+int * iarray);
+
+@}
+
+
+
+
 @o stochProto.c -d
 @{
+#include "stochProto.h"
 void free();
 void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
@@ -195,8 +240,6 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 
 @o stochProto.c -d
 @{
-#include <stdlib.h>
-#include <stdio.h>
 
 /*void * calloc(unsigned num,int amt);*/
 
@@ -316,10 +359,6 @@ double x[],
 int *failedQ
 @}
 
-@o stochProto.h -d
-@{
-void stochSim(@<stochSim argument list@>);
-@}
 
 @o stochProto.c -d
 @{
@@ -673,6 +712,576 @@ pathTwo02=aimType2[testModel,1,0.25*plugT00][[-1]];
 *)
 
 @}
+
+@o stochProto.h -d
+@{
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+/*set maximal dimension constants*/
+#define PATHLENGTH 1000
+#define REPLICATIONS 1000
+#define PRINTMAX 12
+#define FALSE 0
+#define TRUE 1
+
+
+#define widthIntControlInfo 70
+#define widthDoubleControlInfo 50
+#define widthIntOutputInfo 20
+#define widthDoubleOutputInfo 10
+#define useStackQ intControlParameters[0]
+#define useLnsrchQ intControlParameters[1]
+#define numberOfDebugPairs intControlParameters[2]
+#define useIdentityQ intControlParameters[3]
+#define maxitsInput intControlParameters[4]
+#define maxNumberStackElements intControlParameters[5]
+#define maxNumberAimElements intControlParameters[6]
+#define numberAlphas intControlParameters[7]
+#define numberBetas intControlParameters[8]
+#define useFirstDiffQ intControlParameters[9]
+#define ma50PivotSearch intControlParameters[10]
+#define useQQ intControlParameters[11]
+#define terminalConstraintSelection intControlParameters[12]
+#define useFixedPoint  0
+#define useCrawlingDataPoint  1
+#define useWaggingTail  2
+#define useFixedDataPoint  3
+#define useTailSolutionPlus  4
+#define numberVarsToMonitor intControlParameters[13]
+#define monitoredVars intControlParameters[14]
+/*also reserve next 9 for monotored Vars*/
+#define type3Q intControlParameters[24]
+#define debugQ intControlParameters[25]
+#define numberVarsToShock intControlParameters[26]
+#define shockedVars intControlParameters[27]
+/*also reserve next 9 for shocked Vars*/
+#define tMinusOneQ intControlParameters[37]
+#define debugPairs intControlParameters[38]
+/*also reserve next 10 for debug pairs*/
+
+#define homotopyXGuess intControlParameters[48]
+#define homotopyEasy intControlParameters[49]
+#define useBigX 0
+#define useBigEasy 1
+#define usePreviousHomotopyQ intControlParameters[50]
+#define useShockFileQ intControlParameters[51]
+#define shockFileOffset intControlParameters[52]
+#define dataFileOffset intControlParameters[53]
+#define streamingQ intControlParameters[54]
+#define ICshockVecLength  intControlParameters[55]
+#define ICnumberOfEquation intControlParameters[56]
+#define ICnumberOfLags intControlParameters[57]
+#define ICnumberOfLeads intControlParameters[58]
+#define ICnumberOfParameters intControlParameters[59]
+#define ICnumberOfDataValues intControlParameters[60]
+#define ICnumberOfShocks intControlParameters[61]
+#define ICnumberExog intControlParameters[62]
+#define ignoreFailQ intControlParameters[63]
+
+
+#define tolxInput doubleControlParameters[0]
+#define tolfInput doubleControlParameters[1]
+#define shrinkFactorInput doubleControlParameters[2]
+#define expandFactorInput doubleControlParameters[3]
+#define alaminInput doubleControlParameters[4]
+#define alfInput doubleControlParameters[5]
+#define ma50DropTol doubleControlParameters[6]
+
+#define homotopyAlpha (doubleControlParameters+10)
+/*also reserve next 9 for homotopyAlpha*/
+#define homotopyBeta (doubleControlParameters+20)
+/*also reserve next 9 for homotopyBeta*/
+#define ma50Balance doubleControlParameters[30]
+#define ma50DropEntry doubleControlParameters[31]
+#define ma50DropCol doubleControlParameters[32]
+#define shockScalar doubleControlParameters[33]
+
+
+
+#define addOneToFailedQ (intOutputInfo[0])++
+#define subOneFromFailedQ (intOutputInfo[0])--
+#define resetFailedQ (intOutputInfo[0]=0)
+#define addOneToNewtonSteps (intOutputInfo[1])++
+#define resetNewtonSteps (intOutputInfo[1]=0)
+#define addOneToFEvals (intOutputInfo[2])++
+#define resetFEvals (intOutputInfo[2]=0)
+#define addOneToFDrvEvals (intOutputInfo[3])++
+#define resetFDrvEvals (intOutputInfo[3]=0)
+#define addOneToShrinkSteps (intOutputInfo[4])++
+#define resetShrinkSteps (intOutputInfo[4]=0)
+#define addOneToExpandSteps (intOutputInfo[5])++
+#define resetExpandSteps (intOutputInfo[5]=0)
+#define addOneToLnsrchSteps (intOutputInfo[6])++
+#define resetLnsrchSteps (intOutputInfo[6]=0)
+#define addOneToHomotopies (intOutputInfo[7])++
+#define resetHomotopies (intOutputInfo[7]=0)
+#define addOneToHomotopyFailures (intOutputInfo[8])++
+#define resetHomotopyFailures (intOutputInfo[8]=0)
+#define currentReplication (intOutputInfo[9])
+#define currentDate (intOutputInfo[10])
+
+#define assignRealizedTolf doubleOutputInfo[0]
+#define resetRealizedTolf (doubleOutputInfo[0]=0)
+#define assignRealizedTolx doubleOutputInfo[1]
+#define resetRealizedTolx (doubleOutputInfo[1]=0)
+
+
+#define tMaOne (-1)
+#define tMaTwo (-2)
+#define tMaThree (-3)
+#define tMaFour (-4)
+#define tMaFive (-5)
+#define tMaSix (-6)
+#define tMaSeven (-7)
+#define tMaEight (-8)
+#define tMaNine (-9)
+#define tMaTen (-10)
+#define tMaEleven (-11)
+#define tMaTwelve (-12)
+#define tMaThirteen (-13)
+#define tMaFourteen (-14)
+#define tMaFifteen (-15)
+#define tMaSixteen (-16)
+#define tMaSeventeen (-17)
+#define tMaEighteen (-18)
+#define tMaNineteen (-19)
+#define tMaTwenty (-20)
+#define tMaTwentyOne (-21)
+#define tMaTwentyTwo (-22)
+#define tMaTwentyThree (-23)
+#define tMaTwentyFour (-24)
+#define tMaTwentyFive (-25)
+
+#define tPaOne (1)
+#define tPaTwo (2)
+#define tPaThree (3)
+#define tPaFour (4)
+#define tPaFive (5)
+#define tPaSix (6)
+#define tPaSeven (7)
+#define tPaEight (8)
+#define tPaNine (9)
+#define tPaTen (10)
+#define tPaEleven (11)
+#define tPaTwelve (12)
+#define tPaThirteen (13)
+#define tPaFourteen (14)
+#define tPaFifteen (15)
+#define tPaSixteen (16)
+#define tPaSeventeen (17)
+#define tPaEighteen (18)
+#define tPaNineteen (19)
+#define tPaTwenty (20)
+#define tPaTwentyOne (21)
+#define tPaTwentyTwo (22)
+#define tPaTwentyThree (23)
+#define tPaTwentyFour (24)
+#define tPaTwentyFive (25)
+
+
+
+
+
+
+
+
+@}
+
+@o stochProto.h -d
+@{
+
+/*declare prototypes for functions*/
+/*float  dtime_(float * userSystemTime);*/
+double atof();
+#include <stdio.h>
+#include <stdlib.h>
+
+
+
+
+int intControlParameters[widthIntControlInfo];
+double doubleControlParameters[widthDoubleControlInfo];
+/* int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
+double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
+
+
+/*int qRows=0;
+ int auxInit=0;
+ int aZero=0;*/
+
+/*processCommandLine() determines defaults for these*/
+
+
+/*timing routine variables*/
+
+
+/*workspace*/
+double **fmats;int  **fmatsj;int  **fmatsi;
+double **smats;int  **smatsj;int  **smatsi;
+/*success indicators for stochSims*/
+
+/*csr q matrix*/
+double * AMqMatrix;
+int * AMqMatrixj;
+int * AMqMatrixi;
+/*csr b matrix*/
+/*double * AMbMatrix;
+int * AMbMatrixj;
+int * AMbMatrixi;
+ double * rootr;
+ double * rooti;*/
+/* double * brootr;
+ double * brooti;
+double*upsilonMatrix;int*upsilonMatrixj;int*upsilonMatrixi;
+double*hMat;int*hMatj;int*hMati;
+double*hzMat;int*hzMatj;int*hzMati;
+double*cstar;int*cstarj;int*cstari;
+double*phiInvMat;int*phiInvMatj;int*phiInvMati;
+double*fmat;int*fmatj;int*fmati;
+double*impact;int*impactj;int*impacti;*/
+/*double*selectZmat;int*selectZmatj;int*selectZmati;*/
+/*double*varthetaC;int*varthetaCj;int*varthetaCi;*/
+/*double*varthetaZstar;int*varthetaZstarj;int*varthetaZstari;*/
+
+ /*int * ma50bdJob;
+ int * ma50bdIq;
+ double * ma50bdFact;
+ int * ma50bdIrnf;
+ int * ma50bdIptrl;
+ int * ma50bdIptru;*/
+ /*int * cmpma50bdJob;
+ int * cmpma50bdIq;
+ double * cmpma50bdFact;
+ int * cmpma50bdIrnf;
+ int * cmpma50bdIptrl;
+ int * cmpma50bdIptru;*/
+/* int sysDim;*/
+
+
+
+
+@}
+
+
+@o stochProto.h -d
+@{
+
+
+double FMAX(double a,double b);
+double FMIN(double a,double b);
+double FABS(double a);
+double doRightSmaller(double a,double b);
+double doSign(double a);
+
+
+
+
+@}
+
+
+@o stochProto.h -d
+@{
+void stochSim(@<stochSim argument list@>);
+void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
+int * iarray);
+void processCommandLine(int argc, char * argv[],char ** namesArray,int modelNEQS,char ** paramNamesArray,int numberOfParameters,double * parameters,
+double * dataValues,int numberDataValues,int numShockValues,
+int * pathLength,int * replications,int * t0,int * stochasticPathLength,
+int * intControlParameters,double* doubleControlParameters,char * flnm);
+void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName);
+void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName);
+@}
+
+@o stochProto.c -d
+@{
+#ifdef __APPLE__
+#include<strings.h>
+#endif
+#ifdef __linux__
+#include<string.h>
+#endif
+/* */
+/*#include "stochProto.h"*/
+void modData(int numberOfEquations,int numberDataValues,double * dataVals,
+			 int vbl,int t0,int tf,double val1,double val2)
+{
+  int t;
+  for(t=t0;t<=tf&&t<numberDataValues;t++){
+	if(t0==tf) {
+dataVals[t*numberOfEquations+vbl]=dataVals[t*numberOfEquations+vbl]+
+  (val2+val1)/2;} else {
+dataVals[t*numberOfEquations+vbl]=dataVals[t*numberOfEquations+vbl]+
+  (t-t0)*val2/(tf-t0) + (tf-t)*val1/(tf-t0);}
+  }
+}
+void modDataAbs(int numberOfEquations,int numberDataValues,double * dataVals,
+			 int vbl,int t0,int tf,double val1,double val2)
+{
+  int t;
+  for(t=t0;t<=tf&&t<numberDataValues;t++){
+	if(t0==tf) {
+dataVals[t*numberOfEquations+vbl]= (val2+val1)/2;} else {
+	dataVals[t*numberOfEquations+vbl]=(t-t0)*val2/(tf-t0) + (tf-t)*val1/(tf-t0);}
+  }
+}/* */
+
+
+
+void processCommandLine(int argc, char * argv[],char ** namesArray,int modelNEQS,char ** paramNamesArray,int numberOfParameters,double * parameters,
+double * dataValues,int numberDataValues,int numShockValues,
+int * pathLength,int * replications,int * t0,int * stochasticPathLength,
+int * intControlParameters,double* doubleControlParameters,char * flnm)
+{
+  float aFloat;int i;int anInt;
+ int pl;int t1;int t2; double val1; double val2; int vbl;
+/*setup defaults*/
+useLnsrchQ=FALSE;
+useStackQ=FALSE;
+useIdentityQ=FALSE;
+useFirstDiffQ=FALSE;
+ alaminInput=1e-10;
+ alfInput=1e-4;
+ expandFactorInput=1.3;
+ shrinkFactorInput=0.7;
+ tolfInput=1e-10;
+  tolxInput=1e-10;
+ maxitsInput=100;
+*replications=1;
+*stochasticPathLength=1;
+*pathLength=1;
+*t0=0;
+numberAlphas=1;
+homotopyAlpha[0]=1.0;
+numberBetas=1;
+homotopyBeta[0]=1.0;
+while(argc>1&&argv[1][0] == '-')
+{
+printf("processing command line args\n");
+ switch(argv[1][1]){
+   case 'p':
+i=0;
+while((strcmp(argv[2],paramNamesArray[i])) && (i <modelNEQS))i++;
+if(i==modelNEQS){
+printf("i don't know the parameter %s: ignoring this parmeter value pair\n",argv[2]);} else {vbl = i;}
+         sscanf(argv[3],"%f",&aFloat);val1=(double)aFloat;
+         printf("got %d for param %s  and %f for value\n",vbl,paramNamesArray[i],
+	val1);
+		 parameters[i]=val1;
+         argc--;argv++;
+         argc--;argv++;
+         break;
+   case 'v':
+i=0;
+while((strcmp(argv[2],namesArray[i])) && (i <modelNEQS))i++;
+if(i==modelNEQS){
+printf("i don't know the variable %s: ignoring this variable value pair\n",argv[2]);} else {vbl = i;}
+         t1=(int)atoi(argv[3]);
+         t2=(int)atoi(argv[4]);
+         sscanf(argv[5],"%f",&aFloat);val1=(double)aFloat;
+         sscanf(argv[6],"%f",&aFloat);val2=(double)aFloat;
+         printf("got %d for vbl %s and (%d,%d) (%f,%f)\n",vbl,namesArray[i],
+	t1,t2,val1,val2);
+		 modData(modelNEQS,numberDataValues,dataValues,vbl,t1,t2,val1,val2);
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         break;
+   case 'V':
+i=0;
+while((strcmp(argv[2],namesArray[i])) && (i <modelNEQS))i++;
+if(i==modelNEQS){
+printf("i don't know the variable %s: ignoring this variable value pair\n",argv[2]);} else {vbl = i;}
+         t1=(int)atoi(argv[3]);
+         t2=(int)atoi(argv[4]);
+         sscanf(argv[5],"%f",&aFloat);val1=(double)aFloat;
+         sscanf(argv[6],"%f",&aFloat);val2=(double)aFloat;
+         printf("got %d for vbl %s and (%d,%d) (%f,%f)\n",vbl,namesArray[i],
+	t1,t2,val1,val2);
+		 modDataAbs(modelNEQS,numberDataValues,dataValues,vbl,t1,t2,val1,val2);
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         argc--;argv++;
+         break;
+   case 'l':
+         pl=atoi(argv[2]);
+     printf("got %d for path length\n",pl);
+     if(pl>PATHLENGTH)
+         {
+       *pathLength=PATHLENGTH;
+       printf("setting pathlength to maximum=%d\n",PATHLENGTH);
+       } else   if(pl<1){
+       *pathLength=1;
+       printf("setting pathlength to 1\n");
+       } else 
+     {*pathLength=pl;}
+         argc--;argv++;
+         break;
+   case 'r':
+         pl=atoi(argv[2]);
+     printf("got %d for replications\n",pl);
+     if(pl>REPLICATIONS||pl<1)
+         {
+       *replications=REPLICATIONS;
+       printf("setting repetitions to maximum=%d\n",REPLICATIONS);
+       } else { *replications = pl;}
+         argc--;argv++;
+         break;
+   case 'a':
+         pl=atoi(argv[2]);
+     printf("got %d for t0\n",pl);
+     if(pl>numShockValues||pl<0)
+         {
+       *t0=numShockValues;
+       printf("initial t0 to maximum=%d\n",numShockValues);
+       } else { *t0 = pl;}
+         argc--;argv++;
+         break;
+   case 's':
+         *stochasticPathLength=atoi(argv[2]);
+     printf("got %d for stochasticPathLength\n",*stochasticPathLength);
+     if(*stochasticPathLength<1)
+         {
+       *stochasticPathLength=1;
+       printf("setting tf to 1\n");
+       }
+         argc--;argv++;
+         break;
+   case 'N':
+         (maxitsInput)=atoi(argv[2]);
+     printf("got %d for maxits\n",(maxitsInput));
+     if((maxitsInput)<1)
+         {
+       (maxitsInput)=1;
+       printf("setting maxits to 1\n");
+       }
+         argc--;argv++;
+         break;
+   case 'F':
+         sscanf(argv[2],"%f",&aFloat);
+		 tolfInput=(double)aFloat;
+     printf("got %e for tolfInput\n",tolfInput);
+         argc--;argv++;
+         break;
+   case 'X':
+         sscanf(argv[2],"%f",&aFloat);
+		 tolxInput=(double)aFloat;
+     printf("got %e for tolxInput\n",tolxInput);
+         argc--;argv++;
+         break;
+   case 'H':
+         sscanf(argv[2],"%d",&anInt);
+		 numberAlphas=anInt;
+		 if(anInt>10){numberAlphas=10; printf("only using first 10\n");}
+         argc--;argv++;
+		 for(i=0;i<anInt;i++){
+         sscanf(argv[2],"%f",&aFloat);
+		 if(i<10){homotopyAlpha[i]=(double)aFloat;}
+     printf("got %e for homotopyAlpha[%d]\n",aFloat,i);
+	 argc--;argv++;}
+         break;
+   case 'D':
+         sscanf(argv[2],"%d",&anInt);
+		 numberBetas=anInt;
+		 if(anInt>10){numberBetas=10; printf("only using first 10\n");}
+         argc--;argv++;
+		 for(i=0;i<anInt;i++){
+         sscanf(argv[2],"%f",&aFloat);
+		 if(i<10){homotopyBeta[i]=(double)aFloat;}
+     printf("got %e for homotopyBeta[%d]\n",aFloat,i);
+	 argc--;argv++;}
+         break;
+   case 'K':
+         sscanf(argv[2],"%f",&aFloat);
+		 shrinkFactorInput=(double)aFloat;
+     printf("got %e for shrinkFactorInput\n",shrinkFactorInput);
+         argc--;argv++;
+         break;
+   case 'E':
+         sscanf(argv[2],"%f",&aFloat);
+		 expandFactorInput=(double)aFloat;
+     printf("got %e for expandFactorInput\n",expandFactorInput);
+         argc--;argv++;
+         break;
+   case 'L':
+         useLnsrchQ=TRUE;
+     printf("got flag for using lnsrch algorithm\n");
+         break;
+   case 'S':
+         useStackQ=TRUE;
+     printf("got flag for using stack algorithm\n");
+         break;
+   case 'I':
+         useIdentityQ=TRUE;
+         useFirstDiffQ=FALSE;
+     printf("got flag for using identity matrix\n");
+         break;
+   case 'J':
+         useFirstDiffQ=TRUE;
+         useIdentityQ=FALSE;
+     printf("got flag for using first difference matrix\n");
+         break;
+   case 'h':
+     printf("\n-l <stack pathlength>\n"); 
+     printf("-s <stochastic pathlength>\n");
+     printf("-r <number of replications>\n");
+     printf("-f <output filename>\n");
+     printf("-L  use lnsearch\n");
+     printf("-I  use identity matrix terminal condition\n");
+     printf("-a <offset into datamatrix>\n");
+     printf("-X <x convergence tolerance>\n");
+     printf("-F <f(x) convergence tolerance>\n");
+     printf("-N <maximum number of newton steps>\n");
+     printf("-E <expansion factor>\n");
+     printf("-K <shrinkage factor>\n");
+     printf("-v <variableName> <dataPt 0 > <dataPtf> <incrementVal0> <incrementValf>\n");
+     printf("-V <variableName> <dataPt 0 > <dataPtf> <val0> <valf>\n");
+     printf("-p <parameterName> <valf>\n");
+        break;
+   case 'f':
+         strcpy(flnm,argv[2]);
+         printf("got %s for filename \n",flnm);
+         argc--;argv++;
+         break;
+ default:
+   printf("%s: unknown arg %s-- not processing any more args\n",
+      argv[0],argv[1]);
+ }
+argc--;argv++;
+}
+
+
+printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,*stochasticPathLength);
+
+
+}
+
+void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName)
+{
+int i;
+fprintf(file,"%s={",matrixName);
+for(i=0;(i<length-1);i++){
+fprintf(file,"%30.20f,",matrix[i]);}
+fprintf(file,"%30.20f};\n",matrix[length-1]);
+}
+void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName)
+{
+int i;
+fprintf(file,"%s={",matrixName);
+for(i=0;(i<length-1);i++){
+fprintf(file,"%d,",matrix[i]);}
+fprintf(file,"%d};\n",matrix[length-1]);
+}
+
+
+@}
+
+
+
 \appendix
 
 

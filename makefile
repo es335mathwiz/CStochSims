@@ -6,8 +6,8 @@ SPAMADIR=../sparseAMA
 ifeq ($(UNAME),Linux)
 #compilers
 CC = gcc
-FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ -I../stackStochSims/
-FCFLAGS = -c -g -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include -I../stackStochSims/
+FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ 
+FCFLAGS = -c -g -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include 
 #lapack
 LAPACKLIBS=   -L /msu/res5/software/ARPACK96forCluster -larpack_linux -L/msu/res5/software/lapackGithubForCluster -llapack -lrefblas
 CUNITLIBS= -L /msu/res5/software/myUsr/lib/ -l cunit
@@ -16,8 +16,8 @@ endif
 ifeq ($(UNAME),Darwin)
 #compilers
 CC = gcc-6
-FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I../stackStochSims/
-FCFLAGS = -c -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I../stackStochSims/
+FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ 
+FCFLAGS = -c -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ 
 #lapack
 LAPACKLIBS=  -L /Users/garyanderson/ARPACK96/  -larpack_MACOS -L /Users/garyanderson/lapack-release/ -llapack -lrefblas
 CUNITLIBS= -L /Users/garyanderson/myUsr/lib -l cunit
@@ -59,14 +59,14 @@ juillard.o:	juillard.c
 	$(CC) $(FCFLAGS) -c juillard.c
 
 
-stochRun:	stochRun.o libstochSims.a juillard.o
+stochRun:	stochRun.o  juillard.o libstochSims.a
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)
 
-libstochSims.a:	myNewt.o dtime.o\
+libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o
-	ar -cvq libstochSims.a myNewt.o dtime.o\
+	ar -cvq libstochSims.a myNewt.o \
 		stackC.o stochProto.o ranlib.o
 
 
 clean: 
-	rm -f *.o stochRun 
+	rm -f *.o stochRun libstochSims.a

@@ -2320,7 +2320,7 @@ pureStackView:   testStack
 
 @o stackC.c -d
 @{
-#include "stochSims.h"
+#include "stochProto.h"
 void allocMa50(int numberOfEquations,int lags,int leads,
 int pathLength,int maxElements,
 int **ma50bdIptru,
