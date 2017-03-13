@@ -107,7 +107,7 @@ the page numbers of the component's definition.}
 @o stochRun.c -d
 @{
 @<defines and includes@>
-int  dtime(double * userSystemTime);
+/*int  dtime(double * userSystemTime);*/
 
 
 int main(int argc, char * argv[])
@@ -147,6 +147,8 @@ julliard.c.
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
+#include<time.h>
+#include<sys/time.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
 #define julNLAGS 1
@@ -347,7 +349,7 @@ printf("done generating perm vec\n");
 
 
 
-@o stochRun.c
+@o stochRunHide.c
 @{
 void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName)
 {
@@ -680,7 +682,7 @@ asymptoticLinearization AMqMatrix
 
 @d main storage allocations determined at compile time
 @{
-*totalTime=dtime(userSystemTime);
+/**totalTime=dtime(userSystemTime);*/
 printf("Hello World!!  after compile time determined storage allocations\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
      *totalTime,*userSystemTime,*(userSystemTime+1));
 
