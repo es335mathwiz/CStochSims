@@ -3,7 +3,7 @@
 /*  Provided by: Markku Kolkka, mk59200@cc.tut.fi    */
 /*  HP-UX Addition by: Bo Thide', bt@irfu.se         */
 /*****************************************************/
-#if defined(__linux__) || defined(__MACH)
+#if defined(__linux__) || defined(__MACH__)
 #include <sys/time.h>
 #include <sys/resource.h>
 
