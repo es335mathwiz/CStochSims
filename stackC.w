@@ -344,13 +344,11 @@ timeOffset=i-*lagss;
 @{
 *firstColumn= 1+(i * *numberOfEquations);
 *lastColumn= *firstColumn+ *numberOfEquations-1;
-submat_(rowDim,aOne,aOne,rowDim,firstColumn,lastColumn,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,firstColumn,lastColumn,
 oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 @}
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{evensumC}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{cmats}}}\Tcircle{oddsumC}}}
 
 \vspace{1.0cm}
 
@@ -365,9 +363,10 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 
 @d multiply c matrices by appropriate s matrix and subtract
 @{
-amub_(rowDim,cColumns,aOne,ao,jao,iao,
+sparseMult(rowDim,cColumns,nzmax,iw,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
+
 pathNewtAssert(*ierr == 0);
 bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
@@ -378,16 +377,13 @@ bump(ib[*rowDim]-ib[0]);
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
 
-aplb_(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
-b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
-nzmax,iw,ierr);
+sparseAdd(rowDim,cColumns,nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
+b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{evensumD}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{dmats}}}\Tcircle{oddsumD}}}
 
 \vspace{1.0cm}
 
@@ -402,9 +398,9 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @d multiply d matrices by appropriate s matrix and subtract
 @{
 
-amub_(rowDim,aOne,aOne,ao,jao,iao,
+sparseMult(rowDim,aOne,nzmax,iw,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
@@ -415,10 +411,9 @@ bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
 
-aplb_(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
+sparseAdd(rowDim,aOne,nzmax,iw,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
-evenSumDA,evenSumDJA,evenSumDIA,
-nzmax,iw,ierr);
+evenSumDA,evenSumDJA,evenSumDIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
@@ -437,8 +432,6 @@ evenSumDA=tmp;evenSumDJA=jtmp;evenSumDIA=itmp;
 
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{oddsumC}}{\pstree{\Treebox{APLB\_}}{\Tcircle{evensumC}\pstree{\Tcircle{b}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{smats}}}}}
 % \psset{arrows=<-}
 % \pstree[treemode=U]{\Tcircle{oddsumD}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{evensumD}\Tcircle{fvec}}}
 
@@ -472,7 +465,7 @@ for(i=0;i<*rowDim +1;i++)
 printf("at line 466\n");cPrintSparse(*rowDim,evenSumCA,evenSumCJA,evenSumCIA);
 *firstColumn=(*numberOfEquations* *lagss)+1;
 *lastColumn=*firstColumn + *rowDim-1;
-submat_(rowDim,aOne,aOne,rowDim,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
@@ -484,7 +477,7 @@ ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 /*wordybump(info[3]);*/
 pathNewtAssert(info[0]>=0);
 /* restore odd since ad is destructive*/
-submat_(rowDim,aOne,aOne,rowDim,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,jcn);
@@ -523,13 +516,13 @@ for(i=0;i<*cColumns;i++){
 
 *lastColumn = *firstColumn=(1+i+*numberOfEquations *(1+*lagss));
 
-submat_(rowDim,aOne,
+extractSubmatrix(rowDim,aOne,
 aOne,rowDim,firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,
 nr,nc,
 b,jb,ib);
 
-csrdns_(rowDim,aOne,b,jb,ib,
+csrToDns(rowDim,aOne,b,jb,ib,
 nsSumC,rowDim,ierr);
 
 ma50cd_(rowDim,rowDim,icntl,oddSumCIA,np,trans,
@@ -540,7 +533,7 @@ bump(info[3]);
 pathNewtAssert(info[0]>=0);
 
 *nzmaxLeft= *nzmax-cmatsExtent-1;
-dnscsr_(aOne,rowDim,nzmaxLeft,x,
+dnsToCsr(aOne,rowDim,nzmaxLeft,x,
 aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 ierr);
 pathNewtAssert(*ierr == 0);
@@ -553,10 +546,10 @@ bump(cmatsExtent);
 
 aSmallDouble=DBL_EPSILON;
 filter_(cColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
-csrcsc_(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
+csrToCsc(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
-csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+csrToDns(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(*rowDim);
 /*code should use info from previous call to set lfact
@@ -565,7 +558,7 @@ also can avoid calls to ma50ad once pattern settles down*/
 ma50cd_(rowDim,rowDim,icntl,oddSumCIA,np,
 trans,lfact,fact,irnf,iptrl,iptru,nsSumD,x,w,info);
 
-dnscsr_(rowDim,aOne,rowDim,x,
+dnsToCsr(rowDim,aOne,rowDim,x,
 rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
 /*wordybump(info[3]);*/
 pathNewtAssert(*ierr == 0);
@@ -579,14 +572,14 @@ pathNewtAssert(*ierr == 0);
 @{
 int maxElementsEncountered=0;
 /*void * calloc(unsigned amt,int size);*/
-double * evenSumCA;int * evenSumCJA;int * evenSumCIA;
-double * evenSumDA;int * evenSumDJA;int * evenSumDIA;
-double * oddSumCA;int * oddSumCJA;int * oddSumCIA;
-double * oddSumDA;int * oddSumDJA;int * oddSumDIA;
+double * evenSumCA;unsigned int * evenSumCJA;unsigned int * evenSumCIA;
+double * evenSumDA;unsigned int * evenSumDJA;unsigned int * evenSumDIA;
+double * oddSumCA;unsigned int * oddSumCJA;unsigned int * oddSumCIA;
+double * oddSumDA;unsigned int * oddSumDJA;unsigned int * oddSumDIA;
 double  *ao;int *jao,*iao;
 double *b;int *jb,*ib;
 double *tb;int *jtb,*itb;
-double *tmp;int *jtmp,*itmp;
+double *tmp;unsigned int *jtmp,*itmp;
 int *firstColumn,*lastColumn,*nr,*nc;
 int *iw,*ierr,*nzmax,*nonZeroNow;int cmatsExtent;int *nzmaxLeft;
 int i;
@@ -896,9 +889,9 @@ void oneStepBack(@<oneStepBack argument list@>)
 @<oneStepBack variable allocations@>
 /*cmat non zero then multiply else product is zero*/
 if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
-  amub_(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
+  sparseMult(rowDim,aOne,rowDim,iw,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
-  rcy,rcyj,rcyi,rowDim,iw,ierr);
+  rcy,rcyj,rcyi,ierr);
 pathNewtAssert(*ierr == 0);
 
 aSmallDouble=DBL_EPSILON;
@@ -907,11 +900,10 @@ filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
 pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
-  aplb_(rowDim,aOne,aOne,
+  sparseAdd(rowDim,aOne,nzmax,iw,aOne,
   dmatsA[0],dmatsJA[0],dmatsIA[0],
   rcy,rcyj,rcyi,
-  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],
-  nzmax,iw,ierr);
+  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],ierr);
 pathNewtAssert(*ierr == 0);
 } else {
   for(i=0;i<*rowDim;i++)
@@ -983,11 +975,12 @@ impactPart1=calloc(numberOfEquations*leads,sizeof(double));
 impactPart2=calloc(numberOfEquations*leads,sizeof(double));
 /*xxxxxxxxx add code for deviations*/
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,expansionPoint,rvec,termConstr,termConstrj,termConstri);
-amux_(&rowDim,expansionPoint,impactPart1+(numberOfEuations*lags),
-impactr,impactrj,impactri);
-amux_(&rowDim,impactPart1,impactPart2,
-impactr,impactrj,impactri);
+
+sparseMatTimesVec(&rowDim,termConstr,termConstrj,termConstri,expansionPoint,rvec);
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,expansionPoint,impactPart1+(numberOfEuations*lags));
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,impactPart1,impactPart2);
 for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
 }
 free(impactPart1);
@@ -1067,7 +1060,7 @@ printf("chkDrv:beginning\n");
 #endif
 
 
-amux_(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
+sparseMatTimesVec(&n,fdrv,fdrvj,fdrvi,delxvec,fvals);
 for(i=0;i<n;i++){
 if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
 #ifdef DEBUG 
@@ -1156,8 +1149,8 @@ fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
 for(i=0;i<numberOfEquations* (lags+ leads);i++){
 deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
-termConstr,termConstrj,termConstri);
+sparseMatTimesVec(&rowDim,
+termConstr,termConstrj,termConstri,deviations,fvec+(numberOfEquations*(lags+pathLength)));
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
 free(ignore);
 free(fvecj);
@@ -1512,13 +1505,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*capT;i++){
-csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
+csrToDns(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
 if(*leads>0){
-csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
+csrToDns(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
@@ -1701,13 +1694,13 @@ dmatsj[i][0]=0;
 @d nxtFPGuess obtain sparse representation and compute next C and d
 @{
 /*
-dnscsr_(numberOfEquations,aOne,numberOfEquations,fullfvec,
+dnsToCsr(numberOfEquations,aOne,numberOfEquations,fullfvec,
 numberOfEquations,
 fmats,fmatsj,fmatsi,
 ierr);
 pathNewtAssert(*ierr == 0);
 bump(fmatsi[*numberOfEquations]-fmatsi[0]);
-dnscsr_(numberOfEquations,hColumns,maxNumberHElements,
+dnsToCsr(numberOfEquations,hColumns,maxNumberHElements,
 fulldfvec,
 numberOfEquations,
 smats,smatsj,smatsi,
@@ -1777,13 +1770,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*lags+1;i++){
-csrdns_(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
+csrToDns(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
 updateDirection+(( i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 
 
 }
-csrdns_(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
+csrToDns(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
 updateDirection+((*lags+1 ) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 
@@ -1905,8 +1898,8 @@ smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
-amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
-dnscsr_(rowDim,aOne,rowDim,fullfvec,
+sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
+dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
 pathNewtAssert(*ierr == 0);
@@ -1946,7 +1939,7 @@ void applySparseReducedForm(@<applySparseReducedForm argument list@>)
 @<applySparseReducedForm declarations@>
 @<applySparseReducedForm allocations@>
 for(i=0;i<colDim;i++){deviations[i]=initialX[i]-fp[i%rowDim];}
-amux_(&rowDim,deviations,resultX,bmat,bmatj,bmati);
+sparseMatTimesVec(&rowDim,bmat,bmatj,bmati,deviations,resultX);
 for(i=0;i<rowDim;i++){resultX[i]=resultX[i]+fp[i%rowDim];}
 @<applySparseReducedForm frees@>
 }
@@ -2120,7 +2113,7 @@ transpose*/
 firstColumn=(qcols-qrows+1);
 lastColumn=qcols;
 aOne=1;
-submat_(&qrows,&aOne,&aOne,&qrows,
+extractSubmatrix(&qrows,&aOne,&aOne,&qrows,
 &firstColumn,&lastColumn,
 qmat,qmatj,qmati,&nr,&nc,
 qrmat,qrmatj,qrmati);
@@ -2133,7 +2126,7 @@ ma50ad_(&qrows,&qrows,&nonZeroNow,
 &nzmax,qrmat,qrmatj,jcn,qrmati,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 /* restore odd since ad is destructive*/
-submat_(&qrows,&aOne,&aOne,&qrows,
+extractSubmatrix(&qrows,&aOne,&aOne,&qrows,
 &firstColumn,&lastColumn,
 qmat,qmatj,qmati,&nr,&nc,
 qrmat,qrmatj,jcn);
@@ -2171,13 +2164,13 @@ for(i=0;i<cColumns;i++){
 
 lastColumn = firstColumn=(1+i);
 
-submat_(&qrows,&aOne,
+extractSubmatrix(&qrows,&aOne,
 &aOne,&qrows,&firstColumn,&lastColumn,
 qmat,qmatj,qmati,
 &nr,&nc,
 b,jb,ib);
 
-csrdns_(&qrows,&aOne,b,jb,ib,
+csrToDns(&qrows,&aOne,b,jb,ib,
 nsSumC,&qrows,&ierr);
 
 ma50cd_(&qrows,&qrows,icntl,qrmati,np,&trans,
@@ -2186,7 +2179,7 @@ nsSumC,x,
 w,info);
 
 nzmaxLeft= nzmax-cmatsExtent-1;
-dnscsr_(&aOne,&qrows,&nzmaxLeft,x,
+dnsToCsr(&aOne,&qrows,&nzmaxLeft,x,
 &aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 &ierr);
 itb[i+1]=itb[i+1]+cmatsExtent;
@@ -2195,7 +2188,7 @@ cmatsExtent=itb[i+1]-1;
 }
 aSmallDouble=DBL_EPSILON;
 filter_(&cColumns,&aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,&nzmax,&ierr);
-csrcsc_(&cColumns,&aOne,&aOne,tb,jtb,itb,bmat,bmatj,bmati);
+csrToCsc(&cColumns,&aOne,&aOne,tb,jtb,itb,bmat,bmatj,bmati);
 /*change sign*/
 for(i=0;i<bmati[qrows]-bmati[0];i++)bmat[i]=(-1)*bmat[i];
 @}
@@ -2884,7 +2877,7 @@ free(deviations);free(fullfvec);\
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]-fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations * *lags),numberOfEquations,ierr);
 /* modification end */
 	test=0.0;
@@ -2937,13 +2930,13 @@ for(i=0;i<n;i++)x[i]=x[i]-p[i];
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]+fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations**lags),
         numberOfEquations,ierr);
 
-        amux_(numberOfEquations,fvec,
-        g+(*numberOfEquations * *lags),
-        smats[0],smatsj[0],smatsi[0]);
+        sparseMatTimesVec(numberOfEquations,
+        smats[0],smatsj[0],smatsi[0],fvec,
+        g+(*numberOfEquations * *lags));
         for(i=0;i>*numberOfEquations;i++){
           g[(*numberOfEquations* (*lags-1))+i]=fvec[(*numberOfEquations* *lags)+i];
           g[(*numberOfEquations* (*lags+1))+i]= -fvec[(*numberOfEquations* *lags)+i];
@@ -3057,8 +3050,8 @@ aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i];}
-amux_(rowDim,deviations,fullfvec,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
-dnscsr_(rowDim,aOne,rowDim,fullfvec,
+sparseMatTimesVec(rowDim,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],deviations,fullfvec);
+dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*pathLength],fmatsj[*pathLength],fmatsi[*pathLength],ierr);
 for(i=0;i<*rowDim;i++){
@@ -3067,7 +3060,7 @@ for(i=0;i<*rowDim;i++){
 
         f= 0.5 * normSum;
 for(tNow=0;tNow<*pathLength;tNow++) {
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[tNow],fmatsj[tNow],fmatsi[tNow],
         fvec+(tNow * *numberOfEquations),numberOfEquations,ierr);
         }
@@ -3532,7 +3525,7 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
       *fold *= 0.5;
 
 /*
-csrdns_(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+csrToDns(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
 
     dgemm_(transp,noTransp,
            aOne,aOne,&n,aDoubleOne,
@@ -3780,925 +3773,6 @@ end
 run
 @}
 
-
-
-@d cPrintMatrix definition
-@{
-void cPrintMatrix(nrows,ncols,matrix)
-int  nrows;
-int  ncols;
-double * matrix;
-{
-int i,j;
-for(i=0;i<nrows;i++)
-for(j=0;j<ncols;j++)printf("[%d] [%d] %f\n",i,j,matrix[i+(j*nrows)]);
-}
-void cPrintMatrixNonZero(nrows,ncols,matrix,zerotol)
-int  nrows;
-int  ncols;
-double * matrix;
-double zerotol;
-{
-int i,j;
-double fabs();
-for(i=0;i<nrows;i++)
-for(j=0;j<ncols;j++)
-    if(fabs(matrix[i+(j*nrows)]) > zerotol)
-    printf("[%d] [%d] %f\n",i,j,matrix[i+(j*nrows)]);
-}
-
-void cPrintSparse(int rows,double * a,int * aj,int * ai)
-{
-int i,j,numEls;
-numEls=ai[rows]-ai[0];
-printf("matrix has %d non zero element/s\n",numEls);
-for(i=0;i<rows;i++){
-for(j=ai[i];j<ai[i+1];j++){
-printf("row=%d,col=%d,val=%f\n",i+1,aj[j-1],a[j-1]);}}
-}
-
-@}
-\subsection{SPARSEKIT2}
-\label{sec:sparsekit2}
-
-\subsubsection{dump}
-@o stackC.h -d
-@{
-/*void dump_();*/
-@}
-
-
-\begin{verbatim}
-c----------------------------------------------------------------------- 
-      subroutine dump (i1,i2,values,a,ja,ia,iout)
-      integer i1, i2, ia(*), ja(*), iout
-      real*8 a(*) 
-      logical values 
-c-----------------------------------------------------------------------
-c outputs rows i1 through i2 of a sparse matrix stored in CSR format 
-c (or columns i1 through i2 of a matrix stored in CSC format) in a file, 
-c one (column) row at a time in a nice readable format. 
-c This is a simple routine which is useful for debugging. 
-c-----------------------------------------------------------------------
-c on entry:
-c---------
-c i1    = first row (column) to print out
-c i2    = last row (column) to print out 
-c values= logical. indicates whether or not to print real values.
-c         if value = .false. only the pattern will be output.
-c a,
-c ja, 
-c ia    =  matrix in CSR format (or CSC format) 
-c iout  = logical unit number for output.
-c---------- 
-c the output file iout will have written in it the rows or columns 
-c of the matrix in one of two possible formats (depending on the max 
-c number of elements per row. The values are output with only 
-c two digits of accuracy (D9.2). )
-
-\end{verbatim}
-
-\subsubsection{amub}
-@o stackC.h -d
-@{
-void amub_();
-@}
-
-\begin{verbatim}
-
-/*
-c----------------------------------------------------------------------c
-       subroutine amub (nrow,ncol,job,a,ja,ia,b,jb,ib,
-     *                  c,jc,ic,nzmax,iw,ierr) 
-      real*8 a(*), b(*), c(*) 
-      integer ja(*),jb(*),jc(*),ia(nrow+1),ib(*),ic(*),iw(ncol)
-c-----------------------------------------------------------------------
-c performs the matrix by matrix product C = A B 
-c-----------------------------------------------------------------------
-c on entry:
-c ---------
-c nrow  = integer. The row dimension of A = row dimension of C
-c ncol  = integer. The column dimension of B = column dimension of C
-c job   = integer. Job indicator. When job = 0, only the structure
-c                  (i.e. the arrays jc, ic) is computed and the
-c                  real values are ignored.
-c
-c a,
-c ja,
-c ia   = Matrix A in compressed sparse row format.
-c 
-c b, 
-c jb, 
-c ib    =  Matrix B in compressed sparse row format.
-c
-c nzmax = integer. The  length of the arrays c and jc.
-c         amub will stop if the result matrix C  has a number 
-c         of elements that exceeds exceeds nzmax. See ierr.
-c 
-c on return:
-c----------
-c c, 
-c jc, 
-c ic    = resulting matrix C in compressed sparse row sparse format.
-c           
-c ierr  = integer. serving as error message. 
-c         ierr = 0 means normal return,
-c         ierr .gt. 0 means that amub stopped while computing the
-c         i-th row  of C with i=ierr, because the number 
-c         of elements in C exceeds nzmax.
-c
-c work arrays:
-c------------
-c iw    = integer work array of length equal to the number of
-c         columns in A.
-c Note: 
-c-------
-c   The row dimension of B is not needed. However there is no checking 
-c   on the condition that ncol(A) = nrow(B). 
-c
-c----------------------------------------------------------------------- 
-
-*/
-\end{verbatim}
-
-\subsubsection{amux}
-
-@o stackC.h -d
-@{
-void amux_();
-@}
-
-
-\begin{verbatim}
-
-/*
-c----------------------------------------------------------------------c
-      subroutine amux (n, x, y, a,ja,ia) 
-      real*8  x(*), y(*), a(*) 
-      integer n, ja(*), ia(*)
-c-----------------------------------------------------------------------
-c         A times a vector
-c----------------------------------------------------------------------- 
-c multiplies a matrix by a vector using the dot product form
-c Matrix A is stored in compressed sparse row storage.
-c
-c on entry:
-c----------
-c n     = row dimension of A
-c x     = real array of length equal to the column dimension of
-c         the A matrix.
-c a, ja,
-c    ia = input matrix in compressed sparse row format.
-c
-c on return:
-c-----------
-c y     = real array of length n, containing the product y=Ax
-c
-c-----------------------------------------------------------------------
-*/
-\end{verbatim}
-
-
-
-
-\subsubsection{aplb}
-@o stackC.h -d
-@{
-void aplb_(int * nrow,int * ncol,int* job, double * a,int * ja,int * ia,
-double * b,int * jb,int * ib,
-double *     c,int *jc,int * ic,int * nzmax,int * iw,int *ierr);
-@}
-
-
-\begin{verbatim}
-
-/*
-c-----------------------------------------------------------------------
-      subroutine aplb (nrow,ncol,job,a,ja,ia,b,jb,ib,
-     *     c,jc,ic,nzmax,iw,ierr)
-      real*8 a(*), b(*), c(*) 
-      integer ja(*),jb(*),jc(*),ia(nrow+1),ib(nrow+1),ic(nrow+1),
-     *     iw(ncol)
-c-----------------------------------------------------------------------
-c performs the matrix sum  C = A+B. 
-c-----------------------------------------------------------------------
-c on entry:
-c ---------
-c nrow  = integer. The row dimension of A and B
-c ncol  = integer. The column dimension of A and B.
-c job   = integer. Job indicator. When job = 0, only the structure
-c                  (i.e. the arrays jc, ic) is computed and the
-c                  real values are ignored.
-c
-c a,
-c ja,
-c ia   = Matrix A in compressed sparse row format.
-c 
-c b, 
-c jb, 
-c ib    =  Matrix B in compressed sparse row format.
-c
-c nzmax = integer. The  length of the arrays c and jc.
-c         amub will stop if the result matrix C  has a number 
-c         of elements that exceeds exceeds nzmax. See ierr.
-c 
-c on return:
-c----------
-c c, 
-c jc, 
-c ic    = resulting matrix C in compressed sparse row sparse format.
-c       
-c ierr  = integer. serving as error message. 
-c         ierr = 0 means normal return,
-c         ierr .gt. 0 means that amub stopped while computing the
-c         i-th row  of C with i=ierr, because the number 
-c         of elements in C exceeds nzmax.
-c
-c work arrays:
-c------------
-c iw    = integer work array of length equal to the number of
-c         columns in A.
-c
-c-----------------------------------------------------------------------
-*/
-\end{verbatim}
-
-
-\subsubsection{csrcsc}
-
-@o stackC.h -d
-@{
-void csrcsc2_();
-@}
-
-\begin{verbatim}
-c-----------------------------------------------------------------------
-      subroutine csrcsc2 (n,n2,job,ipos,a,ja,ia,ao,jao,iao)
-      integer ia(n+1),iao(n2+1),ja(*),jao(*)
-      real*8  a(*),ao(*)
-c-----------------------------------------------------------------------
-c Compressed Sparse Row     to      Compressed Sparse Column
-c
-c (transposition operation)   Not in place. 
-c----------------------------------------------------------------------- 
-c Rectangular version.  n is number of rows of CSR matrix,
-c                       n2 (input) is number of columns of CSC matrix.
-c----------------------------------------------------------------------- 
-c -- not in place --
-c this subroutine transposes a matrix stored in a, ja, ia format.
-c ---------------
-c on entry:
-c----------
-c n = number of rows of CSR matrix.
-c n2    = number of columns of CSC matrix.
-c job   = integer to indicate whether to fill the values (job.eq.1) of the
-c         matrix ao or only the pattern., i.e.,ia, and ja (job .ne.1)
-c
-c ipos  = starting position in ao, jao of the transposed matrix.
-c         the iao array takes this into account (thus iao(1) is set to ipos.)
-c         Note: this may be useful if one needs to append the data structure
-c         of the transpose to that of A. In this case use for example
-c                call csrcsc2 (n,n,1,ia(n+1),a,ja,ia,a,ja,ia(n+2)) 
-c     for any other normal usage, enter ipos=1.
-c a = real array of length nnz (nnz=number of nonzero elements in input 
-c         matrix) containing the nonzero elements.
-c ja    = integer array of length nnz containing the column positions
-c     of the corresponding elements in a.
-c ia    = integer of size n+1. ia(k) contains the position in a, ja of
-c     the beginning of the k-th row.
-c
-c on return:
-c ---------- 
-c output arguments:
-c ao    = real array of size nzz containing the "a" part of the transpose
-c jao   = integer array of size nnz containing the column indices.
-c iao   = integer array of size n+1 containing the "ia" index array of
-c     the transpose. 
-c
-c----------------------------------------------------------------------- 
-\end{verbatim}
-@o stackC.h -d
-@{
-void csrcsc_();
-@}
-
-
-\subsubsection{csrcsc}
-\begin{verbatim}
-c----------------------------------------------------------------------- 
-      subroutine csrcsc (n,job,ipos,a,ja,ia,ao,jao,iao)
-      integer ia(n+1),iao(n+1),ja(*),jao(*)
-      real*8  a(*),ao(*)
-c-----------------------------------------------------------------------
-c Compressed Sparse Row     to      Compressed Sparse Column
-c
-c (transposition operation)   Not in place. 
-c----------------------------------------------------------------------- 
-c -- not in place --
-c this subroutine transposes a matrix stored in a, ja, ia format.
-c ---------------
-c on entry:
-c----------
-c n	= dimension of A.
-c job	= integer to indicate whether to fill the values (job.eq.1) of the
-c         matrix ao or only the pattern., i.e.,ia, and ja (job .ne.1)
-c
-c ipos  = starting position in ao, jao of the transposed matrix.
-c         the iao array takes this into account (thus iao(1) is set to ipos.)
-c         Note: this may be useful if one needs to append the data structure
-c         of the transpose to that of A. In this case use for example
-c                call csrcsc (n,1,ia(n+1),a,ja,ia,a,ja,ia(n+2)) 
-c	  for any other normal usage, enter ipos=1.
-c a	= real array of length nnz (nnz=number of nonzero elements in input 
-c         matrix) containing the nonzero elements.
-c ja	= integer array of length nnz containing the column positions
-c 	  of the corresponding elements in a.
-c ia	= integer of size n+1. ia(k) contains the position in a, ja of
-c	  the beginning of the k-th row.
-c
-c on return:
-c ---------- 
-c output arguments:
-c ao	= real array of size nzz containing the "a" part of the transpose
-c jao	= integer array of size nnz containing the column indices.
-c iao	= integer array of size n+1 containing the "ia" index array of
-c	  the transpose. 
-c
-c----------------------------------------------------------------------- 
-
-\end{verbatim}
-
-\subsubsection{csrdns}
-@o stackC.h -d
-@{
-void csrdns_();
-@}
-
-
-\begin{verbatim}
-
-/*c----------------------------------------------------------------------c
-      subroutine csrdns(nrow,ncol,a,ja,ia,dns,ndns,ierr) 
-      real*8 dns(ndns,*),a(*)
-      integer ja(*),ia(*)
-c-----------------------------------------------------------------------
-c Compressed Sparse Row    to    Dense 
-c-----------------------------------------------------------------------
-c
-c converts a row-stored sparse matrix into a densely stored one
-c
-c On entry:
-c---------- 
-c
-c nrow  = row-dimension of a
-c ncol  = column dimension of a
-c a, 
-c ja, 
-c ia    = input matrix in compressed sparse row format. 
-c         (a=value array, ja=column array, ia=pointer array)
-c dns   = array where to store dense matrix
-c ndns  = first dimension of array dns 
-c
-c on return: 
-c----------- 
-c dns   = the sparse matrix a, ja, ia has been stored in dns(ndns,*)
-c 
-c ierr  = integer error indicator. 
-c         ierr .eq. 0  means normal return
-c         ierr .eq. i  means that the code has stopped when processing
-c         row number i, because it found a column number .gt. ncol.
-c 
-c----------------------------------------------------------------------- 
-*/
-\end{verbatim}
-
-
-\subsubsection{dnscsr}
-@o stackC.h -d
-@{
-void dnscsr_();
-@}
-
-
-\begin{verbatim}
-
-/*
-c----------------------------------------------------------------------- 
-      subroutine dnscsr(nrow,ncol,nzmax,dns,ndns,a,ja,ia,ierr)
-      real*8 dns(ndns,*),a(*)
-      integer ia(*),ja(*)
-c-----------------------------------------------------------------------
-c Dense     to    Compressed Row Sparse 
-c----------------------------------------------------------------------- 
-c
-c converts a densely stored matrix into a row orientied
-c compactly sparse matrix. ( reverse of csrdns )
-c Note: this routine does not check whether an element 
-c is small. It considers that a(i,j) is zero if it is exactly
-c equal to zero: see test below.
-c-----------------------------------------------------------------------
-c on entry:
-c---------
-c
-c nrow  = row-dimension of a
-c ncol  = column dimension of a
-c nzmax = maximum number of nonzero elements allowed. This
-c         should be set to be the lengths of the arrays a and ja.
-c dns   = input nrow x ncol (dense) matrix.
-c ndns  = first dimension of dns. 
-c
-c on return:
-c---------- 
-c 
-c a, ja, ia = value, column, pointer  arrays for output matrix 
-c
-c ierr  = integer error indicator: 
-c         ierr .eq. 0 means normal retur
-c         ierr .eq. i means that the the code stopped while
-c         processing row number i, because there was no space left in
-c         a, and ja (as defined by parameter nzmax).
-c----------------------------------------------------------------------- 
-
-*/
-\end{verbatim}
-
-
-\subsubsection{submat}
-@o stackC.h -d
-@{
-void submat_();
-@}
-
-\begin{verbatim}
-
-/*
-      subroutine submat (n,job,i1,i2,j1,j2,a,ja,ia,nr,nc,ao,jao,iao)
-      integer n,job,i1,i2,j1,j2,nr,nc,ia(*),ja(*),jao(*),iao(*)
-      real*8 a(*),ao(*) 
-c-----------------------------------------------------------------------
-c extracts the submatrix A(i1:i2,j1:j2) and puts the result in 
-c matrix ao,iao,jao
-c---- In place: ao,jao,iao may be the same as a,ja,ia.
-c-------------- 
-c on input
-c---------
-c n = row dimension of the matrix 
-c i1,i2 = two integers with i2 .ge. i1 indicating the range of rows to be
-c          extracted. 
-c j1,j2 = two integers with j2 .ge. j1 indicating the range of columns 
-c         to be extracted.
-c         * There is no checking whether the input values for i1, i2, j1,
-c           j2 are between 1 and n. 
-c a,
-c ja,
-c ia    = matrix in compressed sparse row format. 
-c
-c job   = job indicator: if job .ne. 1 then the real values in a are NOT
-c         extracted, only the column indices (i.e. data structure) are.
-c         otherwise values as well as column indices are extracted...
-c         
-c on output
-c-------------- 
-c nr    = number of rows of submatrix 
-c nc    = number of columns of submatrix 
-c     * if either of nr or nc is nonpositive the code will quit.
-c
-c ao,
-c jao,iao = extracted matrix in general sparse format with jao containing
-c   the column indices,and iao being the pointer to the beginning 
-c   of the row,in arrays a,ja.
-c----------------------------------------------------------------------c
-c           Y. Saad, Sep. 21 1989                                      c
-c----------------------------------------------------------------------c
-*/
-\end{verbatim}
-
-
-
-\subsection{HARWELL Routines}
-\label{sec:harwell}
-
-
-\subsubsection{MA50AD}
-
-@o stackC.h -d
-@{
-void ma50ad_();
-@}
-
-\begin{verbatim}
-      SUBROUTINE MA50AD(M,N,NE,LA,A,IRN,JCN,IQ,CNTL,ICNTL,IP,NP,JFIRST,
-     +                  LENR,LASTR,NEXTR,IW,IFIRST,LENC,LASTC,NEXTC,
-     +                  INFO,RINFO)
-
-C MA50A/AD chooses a pivot sequence using a Markowitz criterion with
-C     threshold pivoting.
-
-C If  the user requires a more convenient data interface then the MA48
-C     package should be used. The MA48 subroutines call the MA50
-C     subroutines after checking the user's input data and optionally
-C     permute the matrix to block triangular form.
-
-      INTEGER M,N,NE,LA
-      DOUBLE PRECISION A(LA)
-      INTEGER IRN(LA),JCN(LA),IQ(N)
-      DOUBLE PRECISION CNTL(4)
-      INTEGER ICNTL(7),IP(M),NP,JFIRST(M),LENR(M),LASTR(M),NEXTR(M),
-     +        IW(M),IFIRST(N),LENC(N),LASTC(N),NEXTC(N),INFO(7)
-      DOUBLE PRECISION RINFO
-
-C M is an integer variable that must be set to the number of rows.
-C      It is not altered by the subroutine.
-C N is an integer variable that must be set to the number of columns.
-C      It is not altered by the subroutine.
-C NE is an integer variable that must be set to the number of entries
-C      in the input matrix. It is not altered by the subroutine.
-C LA is an integer variable that must be set to the size of A, IRN, and
-C      JCN. It is not altered by the subroutine.
-C A is an array that holds the input matrix on entry and is used as
-C      workspace.
-C IRN  is an integer array.  Entries 1 to NE must be set to the
-C      row indices of the corresponding entries in A.  IRN is used
-C      as workspace and holds the row indices of the reduced matrix.
-C JCN  is an integer array that need not be set by the user. It is
-C      used to hold the column indices of entries in the reduced
-C      matrix.
-C IQ is an integer array of length N. On entry, it holds pointers
-C      to column starts. During execution, IQ(j) holds the position of
-C      the start of column j of the reduced matrix or -IQ(j) holds the
-C      column index in the permuted matrix of column j. On exit, IQ(j)
-C      holds the index of the column that is in position j of the
-C      permuted matrix.
-
-
-C CNTL must be set by the user as follows and is not altered.
-C     CNTL(1)  Full matrix processing will be used if the density of
-C       the reduced matrix is MIN(CNTL(1),1.0) or more.
-C     CNTL(2) determines the balance between pivoting for sparsity and
-C       for stability, values near zero emphasizing sparsity and values
-C       near one emphasizing stability. Each pivot must have absolute
-C       value at least CNTL(2) times the greatest absolute value in the
-C       same column of the reduced matrix.
-C     CNTL(3) If this is set to a positive value, any entry of the
-C       reduced matrix whose modulus is less than CNTL(3) will be
-C       dropped.
-C     CNTL(4)  Any entry of the reduced matrix whose modulus is less
-C       than or equal to CNTL(4) will be regarded as zero from the
-C        point of view of rank.
-C ICNTL must be set by the user as follows and is not altered.
-C     ICNTL(1)  must be set to the stream number for error messages.
-C       A value less than 1 suppresses output.
-C     ICNTL(2) must be set to the stream number for diagnostic output.
-C       A value less than 1 suppresses output.
-C     ICNTL(3) must be set to control the amount of output:
-C       0 None.
-C       1 Error messages only.
-C       2 Error and warning messages.
-C       3 As 2, plus scalar parameters and a few entries of array
-C         parameters on entry and exit.
-C       4 As 3, plus all parameters on entry and exit.
-C     ICNTL(4) If set to a positive value, the pivot search is limited
-C       to ICNTL(4) columns (Zlatev strategy). This may result in
-C       different fill-in and execution time. If ICNTL(4) is positive,
-C       the workspace arrays LASTR and NEXTR are not referenced.
-C     ICNTL(5) The block size to be used for full-matrix processing.
-C     ICNTL(6) The last ICNTL(6) columns of A must be the last
-C       ICNTL(6) columns of the permuted matrix. A value outside the
-C       range 1 to N-1 is treated as zero.
-C     ICNTL(7) If given the value 1, pivots are limited to
-C       the main diagonal, which may lead to a premature switch to full
-C       processing if no suitable diagonal entries are available.
-C       If given the value 2, IFIRST must be set so that IFIRST(i) is
-C       the column in position i of the permuted matrix and IP must
-C       be set so that IP(i) < IP(j) if row i is recommended to
-C       precede row j in the pivot sequence.
-C IP is an integer array of length M that need not be set on entry
-C      unless ICNTL(7)=2 (see ICNTL(7) for details of this case).
-C      During execution, IP(i) holds the position of the start of row i
-C      of the reduced matrix or -IP(i) holds the row index in the
-C      permuted matrix of row i. Before exit, IP(i) is made positive.
-C NP is an integer variable. It need not be set on entry. On exit,
-C     it will be set to the number of columns to be processed in
-C     packed storage.
-C JFIRST is an integer workarray of length M. JFIRST(i) is the
-C      first column of the reduced matrix to have i entries or is
-C      zero if no column has i entries.
-C LENR is an integer workarray of length M that is used to hold the
-C      numbers of entries in the rows of the reduced matrix.
-C LASTR is an integer workarray of length M, used only if ICNTL(4) = 0.
-C      For rows in the reduced matrix, LASTR(i) indicates the previous
-C      row to i with the same number of entries. LASTR(i) is zero if
-C      no such row exists.
-C NEXTR is an integer workarray of length M, used only if ICNTL(4) = 0
-C      or ICNTL(7)=2. If ICNTL(4)=0, for rows in the reduced matrix,
-C      NEXTR(i) indicates the next row to i with the same number of
-C      entries; and if row i is the last in the chain, NEXTR is
-C      equal to zero. If ICNTL(7)=2, NEXTR is a copy of the value of
-C      IP on entry.
-C IW is an integer array of length M used as workspace and is used to
-C     assist the detection of duplicate entries and the sparse SAXPY
-C     operations. It is reset to zero each time round the main loop.
-C IFIRST is an integer array of length N, used only if ICNTL(4) = 0
-C      or ICNTL(7)=2. If ICNTL(4) = 0, it is a workarray; IFIRST(i)
-C      points to the first row of the reduced matrix to have i entries
-C      or is zero if no row has i entries. If ICNTL(7)=2, IFIRST
-C      must be set on entry (see ICNTL(7) for details of this case).
-C LENC is an integer workarray of length N that is used to hold
-C      the numbers of entries in the columns of the reduced matrix.
-C LASTC is an integer workarray of length N.  For columns in the reduced
-C      matrix, LASTC(j) indicates the previous column to j with the same
-C      number of entries.  If column j is the first in the chain,
-C      LASTC(j) is equal to zero.
-C NEXTC is an integer workarray of length N.  For columns in the reduced
-C      matrix, NEXTC(j) indicates the next column to j with the same
-C      number of entries.  If column j is the last column in the chain,
-C      NEXTC(j) is zero.
-C INFO need not be set on entry. On exit, it holds the following:
-C    INFO(1):
-C       0  Successful entry.
-C      -1  M < 1 or N < 1.
-C      -2  NE < 1.
-C      -3  Insufficient space.
-C      -4  Duplicated entries.
-C      -5  Faulty column permutation in IFIRST when ICNTL(7)=2.
-C      -6  ICNTL(4) not equal to 1 when ICNTL(7)=2.
-C      +1  Rank deficient.
-C      +2  Premature switch to full processing because of failure to
-C          find a stable diagonal pivot (ICNTL(7)>=1 case only).
-C      +3  Both of these warnings.
-C    INFO(2) Number of compresses of the arrays.
-C    INFO(3) Minimum LA recommended to analyse matrix.
-C    INFO(4) Minimum LFACT required to factorize matrix.
-C    INFO(5) Upper bound on the rank of the matrix.
-C    INFO(6) Number of entries dropped from the data structure.
-C    INFO(7) Number of rows processed in full storage.
-C RINFO need not be set on entry. On exit, it holds the number of
-C    floating-point operations needed for the factorization.
-
-
-\end{verbatim}
-
-
-\subsubsection{CNRMS}
-\begin{verbatim}
-c----------------------------------------------------------------------- 
-      subroutine cnrms   (nrow, nrm, a, ja, ia, diag) 
-      real*8 a(*), diag(nrow) 
-      integer ja(*), ia(nrow+1) 
-c-----------------------------------------------------------------------
-c gets the norms of each column of A. (choice of three norms)
-c-----------------------------------------------------------------------
-c on entry:
-c ---------
-c nrow	= integer. The row dimension of A
-c
-c nrm   = integer. norm indicator. nrm = 1, means 1-norm, nrm =2
-c                  means the 2-nrm, nrm = 0 means max norm
-c
-c a,
-c ja,
-c ia   = Matrix A in compressed sparse row format.
-c 
-c on return:
-c----------
-c
-c diag = real vector of length nrow containing the norms
-c
-c-----------------------------------------------------------------
-
-\end{verbatim}
-
-\subsubsection{MA50BD}
-
-@o stackC.h -d
-@{
-void ma50bd_();
-@}
-
-\begin{verbatim}
-      
-SUBROUTINE MA50BD(M,N,NE,JOB,AA,IRNA,IPTRA,CNTL,ICNTL,IP,IQ,NP,
-     +                  LFACT,FACT,IRNF,IPTRL,IPTRU,W,IW,INFO,RINFO)
-C MA50B/BD factorizes the matrix in AA/IRNA/IPTRA as P L U Q where
-C     P and Q are permutations, L is lower triangular, and U is unit
-C     upper triangular. The prior information that it uses depends on
-C     the value of the parameter JOB.
-C
-      INTEGER M,N,NE,JOB
-      DOUBLE PRECISION AA(NE)
-      INTEGER IRNA(NE),IPTRA(N)
-      DOUBLE PRECISION CNTL(4)
-      INTEGER ICNTL(7),IP(M),IQ(N),NP,LFACT
-      DOUBLE PRECISION FACT(LFACT)
-      INTEGER IRNF(LFACT),IPTRL(N),IPTRU(N)
-      DOUBLE PRECISION W(M)
-      INTEGER IW(M+2*N),INFO(7)
-      DOUBLE PRECISION RINFO
-C
-C M is an integer variable that must be set to the number of rows.
-C      It is not altered by the subroutine.
-C N is an integer variable that must be set to the number of columns.
-C      It is not altered by the subroutine.
-C NE is an integer variable that must be set to the number of entries
-C      in the input matrix.  It is not altered by the subroutine.
-C JOB is an integer variable that must be set to the value 1, 2, or 3.
-C     If JOB is equal to 1 and any of the first NP recommended pivots
-C      fails to satisfy the threshold pivot tolerance, the row is
-C      interchanged with the earliest row in the recommended sequence
-C      that does satisfy the tolerance. Normal row interchanges are
-C      performed in the last N-NP columns.
-C     If JOB is equal to 2, then M, N, NE, IRNA, IPTRA, IP, IQ,
-C      LFACT, NP, IRNF, IPTRL, and IPTRU must be unchanged since a
-C      JOB=1 entry for the same matrix pattern and no interchanges are
-C      performed among the first NP pivots; if ICNTL(6) > 0, the first
-C      N-ICNTL(6) columns of AA must also be unchanged.
-C     If JOB is equal to 3, ICNTL(6) must be in the range 1 to N-1.
-C      The effect is as for JOB=2 except that interchanges are
-C      performed.
-C     JOB is not altered by the subroutine.
-C AA is an array that holds the entries of the matrix and
-C      is not altered.
-C IRNA is an integer array of length NE that must be set to hold the
-C      row indices of the corresponding entries in AA. It is not
-C      altered.
-C IPTRA is an integer array that holds the positions of the starts of
-C      the columns of AA. It is not altered by the subroutine.
-C CNTL  must be set by the user as follows and is not altered.
-C     CNTL(2) determines the balance between pivoting for sparsity and
-C       for stability, values near zero emphasizing sparsity and values
-C       near one emphasizing stability.
-C     CNTL(3) If this is set to a positive value, any entry whose
-C       modulus is less than CNTL(3) will be dropped from the factors.
-C       The factorization will then require less storage but will be
-C       inaccurate.
-C     CNTL(4)  Any entry of the reduced matrix whose modulus is less
-C       than or equal to CNTL(4) will be regarded as zero from the
-C        point of view of rank.
-C ICNTL must be set by the user as follows and is not altered.
-C     ICNTL(1)  must be set to the stream number for error messages.
-C       A value less than 1 suppresses output.
-C     ICNTL(2) must be set to the stream number for diagnostic output.
-C       A value less than 1 suppresses output.
-C     ICNTL(3) must be set to control the amount of output:
-C       0 None.
-C       1 Error messages only.
-C       2 Error and warning messages.
-C       3 As 2, plus scalar parameters and a few entries of array
-C         parameters on entry and exit.
-C       4 As 2, plus all parameters on entry and exit.
-C     ICNTL(5) The block size to be used for full-matrix processing.
-C       If <=0, the BLAS1 version is used.
-C       If =1, the BLAS2 version is used.
-C     ICNTL(6) If N > ICNTL(6) > 0, only the columns of A that
-C       correspond to the last ICNTL(6) columns of the permuted matrix
-C       may change prior to an entry with JOB > 1.
-C IP is an integer array. If JOB=1, it must be set so that IP(I) < IP(J)
-C      if row I is recommended to precede row J in the pivot sequence.
-C      If JOB>1, it need not be set. If JOB=1 or JOB=3, IP(I) is set
-C      to -K when row I is chosen for pivot K and IP is eventually
-C      reset to recommend the chosen pivot sequence to a subsequent
-C      JOB=1 entry. If JOB=2, IP is not be referenced.
-C IQ is an integer array that must be set so that either IQ(J) is the
-C      column in position J in the pivot sequence, J=1,2,...,N,
-C      or IQ(1)=0 and the columns are taken in natural order.
-C      It is not altered by the subroutine.
-C NP is an integer variable that holds the number of columns to be
-C      processed in packed storage. It is not altered by the subroutine.
-C LFACT is an integer variable set to the size of FACT and IRNF.
-C      It is not altered by the subroutine.
-C FACT is an array that need not be set on a JOB=1 entry and must be
-C      unchanged since the previous entry if JOB>1. On return, FACT(1)
-C      holds the value of CNTL(3) used, FACT(2) will holds the value
-C      of CNTL(4) used, FACT(3:IPTRL(N)) holds the packed part of L/U
-C      by columns, and the full part of L/U is held by columns
-C      immediately afterwards. U has unit diagonal entries, which are
-C      not stored. In each column of the packed part, the entries of
-C      U precede the entries of L; also the diagonal entries of L
-C      head each column of L and are reciprocated.
-C IRNF is an integer array of length LFACT that need not be set on
-C      a JOB=1 entry and must be unchanged since the previous entry
-C      if JOB>1. On exit, IRNF(1) holds the number of dropped entries,
-C      IRNF(2) holds the number of rows MF in full storage,
-C      IRNF(3:IPTRL(N)) holds the row numbers of the packed part
-C      of L/U, IRNF(IPTRL(N)+1:IPTRL(N)+MF) holds the row indices
-C      of the full part of L/U, and IRNF(IPTRL(N)+MF+I), I=1,2,..,N-NP
-C      holds the vector IPIV output by MA50GD.
-C      If JOB=2, IRNF will be unaltered.
-C IPTRL is an integer array that need not be set on a JOB=1 entry and
-C     must be unchanged since the previous entry if JOB>1.
-C     For J = 1,..., NP, IPTRL(J) holds the position in
-C     FACT and IRNF of the end of column J of L.
-C     For J = NP+1,..., N, IPTRL(J) is equal to IPTRU(J).
-C IPTRU is an integer array that need not be set on a JOB=1 entry and
-C     must be unchanged since the previous entry if JOB>1.
-C     For J = 1,..., N, IPTRU(J) holds the position in
-C     FACT and IRNF of the end of the packed part of column J of U.
-C W is an array of length M used as workspace for holding
-C      the expanded form of a sparse vector.
-C IW is an integer array of length M+2*N used as workspace.
-C INFO need not be set on entry. On exit, it holds the following:
-C    INFO(1) A negative value will indicate an error return and a
-C       positive value a warning. Possible nonzero values are:
-C      -1  M < 1 or N < 1.
-C      -2  NE < 0.
-C      -3  Insufficient space.
-C      -4  There are duplicated entries.
-C      -5  JOB < 1, 3 when ICNTL(6)=0, or > 3.
-C      -6  JOB = 2, but entries were dropped in the corresponding JOB=1
-C          entry.
-C      -7  NP < 0 or NP > N.
-C     -(7+K) Pivot too small in column K when JOB=2.
-C      +1  Rank deficient.
-C    INFO(4) Minimum storage required to factorize matrix (or
-C            recommended value for LFACT if INFO(1) = -3.
-C    INFO(5) Computed rank of the matrix.
-C    INFO(6) Number of entries dropped from the data structure.
-C    INFO(7) Number of rows processed in full storage.
-C RINFO need not be set on entry. On exit, it holds the number of
-C    floating-point operations performed.
-\end{verbatim}
-
-\subsubsection{MA50CD}
-
-@o stackC.h -d
-@{
-void ma50cd_();
-@}
-
-\begin{verbatim}
-
-      SUBROUTINE MA50CD(M,N,ICNTL,IQ,NP,TRANS,LFACT,FACT,IRNF,IPTRL,
-     +                  IPTRU,B,X,W,INFO)
-C MA50C/CD uses the factorization produced by
-C     MA50B/BD to solve A x = b or (A trans) x = b.
-C
-      INTEGER M,N,ICNTL(7),IQ(N),NP
-      LOGICAL TRANS
-      INTEGER LFACT
-      DOUBLE PRECISION FACT(LFACT)
-      INTEGER IRNF(LFACT),IPTRL(N),IPTRU(N)
-      DOUBLE PRECISION B(*),X(*),W(*)
-      INTEGER INFO(7)
-C
-C M  is an integer variable set to the number of rows.
-C     It is not altered by the subroutine.
-C N  is an integer variable set to the number of columns.
-C     It is not altered by the subroutine.
-C ICNTL must be set by the user as follows and is not altered.
-C     ICNTL(1)  must be set to the stream number for error messages.
-C       A value less than 1 suppresses output.
-C     ICNTL(2) must be set to the stream number for diagnostic output.
-C       A value less than 1 suppresses output.
-C     ICNTL(3) must be set to control the amount of output:
-C       0 None.
-C       1 Error messages only.
-C       2 Error and warning messages.
-C       3 As 2, plus scalar parameters and a few entries of array
-C         parameters on entry and exit.
-C       4 As 2, plus all parameters on entry and exit.
-C     ICNTL(5) must be set to control the level of BLAS used:
-C       0 Level 1 BLAS.
-C      >0 Level 2 BLAS.
-C IQ is an integer array holding the permutation Q.
-C     It is not altered by the subroutine.
-C NP is an integer variable that must be unchanged since calling
-C     MA50B/BD. It holds the number of rows and columns in packed
-C     storage. It is not altered by the subroutine.
-C TRANS a logical variable thatmust be set to .TRUE. if (A trans)x = b
-C     is to be solved and to .FALSE. if A x = b is to be solved.
-C     TRANS is not altered by the subroutine.
-C LFACT is an integer variable set to the size of FACT and IRNF.
-C     It is not altered by the subroutine.
-C FACT is an array that must be unchanged since calling MA50B/BD. It
-C     holds the packed part of L/U by columns, and the full part of L/U
-C     by columns. U has unit diagonal entries, which are not stored, and
-C     the signs of the off-diagonal entries are inverted.  In the packed
-C     part, the entries of U precede the entries of L; also the diagonal
-C     entries of L head each column of L and are reciprocated.
-C     FACT is not altered by the subroutine.
-C IRNF is an integer array that must be unchanged since calling
-C     MA50B/BD. It holds the row numbers of the packed part of L/U, and
-C     the row numbers of the full part of L/U.
-C     It is not altered by the subroutine.
-C IPTRL is an integer array that must be unchanged since calling
-C     MA50B/BD. For J = 1,..., NP, IPTRL(J) holds the position in
-C     FACT and IRNF of the end of column J of L.
-C     For J = NP+1,..., N, IPTRL(J) is equal to IPTRU(J).
-C     It is not altered by the subroutine.
-C IPTRU is an integer array that must be unchanged since calling
-C     MA50B/BD. For J = 1,..., N, IPTRU(J) holds the position in
-C     FACT and IRNF of the end of the packed part of column J of U.
-C     It is not altered by the subroutine.
-C B is an array that must be set to the vector b.
-C     It is not altered.
-C X is an array that need not be set on entry. On return, it holds the
-C    solution x.
-C W is a work array of length max(M,N).
-C INFO need not be set on entry. On exit, it holds the following:
-C    INFO(1) A nonzero value will indicate an error return. Possible
-C      nonzero values are:
-C      -1  M < 1 or N < 1
-\end{verbatim}
 
 
 

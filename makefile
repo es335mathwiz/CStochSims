@@ -49,8 +49,11 @@ STOCHSIMSLIB= -L./ -lstochSims
 	nuweb $(NUWEBFLAGS)  stackC.w
 	$(FC) $(FCFLAGS) -c $*.f
 
-
-
+.PHONY: Build
+	
+Build: stochRun
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)
+	
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
 	$(CC) $(FCFLAGS) -c myNewt.c
