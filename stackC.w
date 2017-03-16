@@ -349,8 +349,6 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 @}
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{evensumC}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{cmats}}}\Tcircle{oddsumC}}}
 
 \vspace{1.0cm}
 
@@ -386,8 +384,6 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{evensumD}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{dmats}}}\Tcircle{oddsumD}}}
 
 \vspace{1.0cm}
 
@@ -402,9 +398,9 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @d multiply d matrices by appropriate s matrix and subtract
 @{
 
-amub_(rowDim,aOne,aOne,ao,jao,iao,
+sparseMult(rowDim,aOne,nzmax,iw,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
@@ -415,10 +411,9 @@ bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
 
-aplb_(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
+sparseAdd(rowDim,aOne,nzmax,iw,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
-evenSumDA,evenSumDJA,evenSumDIA,
-nzmax,iw,ierr);
+evenSumDA,evenSumDJA,evenSumDIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
@@ -437,8 +432,6 @@ evenSumDA=tmp;evenSumDJA=jtmp;evenSumDIA=itmp;
 
 
 
-% \psset{arrows=<-}
-% \pstree[treemode=U]{\Tcircle{oddsumC}}{\pstree{\Treebox{APLB\_}}{\Tcircle{evensumC}\pstree{\Tcircle{b}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{smats}}}}}
 % \psset{arrows=<-}
 % \pstree[treemode=U]{\Tcircle{oddsumD}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{evensumD}\Tcircle{fvec}}}
 
@@ -529,7 +522,7 @@ evenSumCA,evenSumCJA,evenSumCIA,
 nr,nc,
 b,jb,ib);
 
-csrdns_(rowDim,aOne,b,jb,ib,
+csrToDns(rowDim,aOne,b,jb,ib,
 nsSumC,rowDim,ierr);
 
 ma50cd_(rowDim,rowDim,icntl,oddSumCIA,np,trans,
@@ -553,10 +546,10 @@ bump(cmatsExtent);
 
 aSmallDouble=DBL_EPSILON;
 filter_(cColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
-csrcsc_(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
+csrToCsc(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
-csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+csrToDns(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(*rowDim);
 /*code should use info from previous call to set lfact
@@ -896,9 +889,9 @@ void oneStepBack(@<oneStepBack argument list@>)
 @<oneStepBack variable allocations@>
 /*cmat non zero then multiply else product is zero*/
 if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
-  amub_(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
+  sparseMult(rowDim,aOne,rowDim,iw,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
-  rcy,rcyj,rcyi,rowDim,iw,ierr);
+  rcy,rcyj,rcyi,ierr);
 pathNewtAssert(*ierr == 0);
 
 aSmallDouble=DBL_EPSILON;
@@ -907,11 +900,10 @@ filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
 pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
-  aplb_(rowDim,aOne,aOne,
+  sparseAdd(rowDim,aOne,nzmax,iw,aOne,
   dmatsA[0],dmatsJA[0],dmatsIA[0],
   rcy,rcyj,rcyi,
-  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],
-  nzmax,iw,ierr);
+  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],ierr);
 pathNewtAssert(*ierr == 0);
 } else {
   for(i=0;i<*rowDim;i++)
@@ -983,11 +975,12 @@ impactPart1=calloc(numberOfEquations*leads,sizeof(double));
 impactPart2=calloc(numberOfEquations*leads,sizeof(double));
 /*xxxxxxxxx add code for deviations*/
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,expansionPoint,rvec,termConstr,termConstrj,termConstri);
-amux_(&rowDim,expansionPoint,impactPart1+(numberOfEuations*lags),
-impactr,impactrj,impactri);
-amux_(&rowDim,impactPart1,impactPart2,
-impactr,impactrj,impactri);
+
+sparseMatTimesVec(&rowDim,termConstr,termConstrj,termConstri,expansionPoint,rvec);
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,expansionPoint,impactPart1+(numberOfEuations*lags));
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,impactPart1,impactPart2);
 for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
 }
 free(impactPart1);
@@ -1067,7 +1060,7 @@ printf("chkDrv:beginning\n");
 #endif
 
 
-amux_(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
+sparseMatTimesVec(&n,fdrv,fdrvj,fdrvi,delxvec,fvals);
 for(i=0;i<n;i++){
 if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
 #ifdef DEBUG 
@@ -1156,8 +1149,8 @@ fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
 for(i=0;i<numberOfEquations* (lags+ leads);i++){
 deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
-termConstr,termConstrj,termConstri);
+sparseMatTimesVec(&rowDim,
+termConstr,termConstrj,termConstri,deviations,fvec+(numberOfEquations*(lags+pathLength)));
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
 free(ignore);
 free(fvecj);
@@ -1512,13 +1505,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*capT;i++){
-csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
+csrToDns(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
 if(*leads>0){
-csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
+csrToDns(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
@@ -1777,13 +1770,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*lags+1;i++){
-csrdns_(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
+csrToDns(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
 updateDirection+(( i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 
 
 }
-csrdns_(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
+csrToDns(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
 updateDirection+((*lags+1 ) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 
@@ -1905,7 +1898,7 @@ smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
-amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
+sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
@@ -1946,7 +1939,7 @@ void applySparseReducedForm(@<applySparseReducedForm argument list@>)
 @<applySparseReducedForm declarations@>
 @<applySparseReducedForm allocations@>
 for(i=0;i<colDim;i++){deviations[i]=initialX[i]-fp[i%rowDim];}
-amux_(&rowDim,deviations,resultX,bmat,bmatj,bmati);
+sparseMatTimesVec(&rowDim,bmat,bmatj,bmati,deviations,resultX);
 for(i=0;i<rowDim;i++){resultX[i]=resultX[i]+fp[i%rowDim];}
 @<applySparseReducedForm frees@>
 }
@@ -2177,7 +2170,7 @@ qmat,qmatj,qmati,
 &nr,&nc,
 b,jb,ib);
 
-csrdns_(&qrows,&aOne,b,jb,ib,
+csrToDns(&qrows,&aOne,b,jb,ib,
 nsSumC,&qrows,&ierr);
 
 ma50cd_(&qrows,&qrows,icntl,qrmati,np,&trans,
@@ -2195,7 +2188,7 @@ cmatsExtent=itb[i+1]-1;
 }
 aSmallDouble=DBL_EPSILON;
 filter_(&cColumns,&aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,&nzmax,&ierr);
-csrcsc_(&cColumns,&aOne,&aOne,tb,jtb,itb,bmat,bmatj,bmati);
+csrToCsc(&cColumns,&aOne,&aOne,tb,jtb,itb,bmat,bmatj,bmati);
 /*change sign*/
 for(i=0;i<bmati[qrows]-bmati[0];i++)bmat[i]=(-1)*bmat[i];
 @}
@@ -2884,7 +2877,7 @@ free(deviations);free(fullfvec);\
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]-fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations * *lags),numberOfEquations,ierr);
 /* modification end */
 	test=0.0;
@@ -2937,13 +2930,13 @@ for(i=0;i<n;i++)x[i]=x[i]-p[i];
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]+fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations**lags),
         numberOfEquations,ierr);
 
-        amux_(numberOfEquations,fvec,
-        g+(*numberOfEquations * *lags),
-        smats[0],smatsj[0],smatsi[0]);
+        sparseMatTimesVec(numberOfEquations,
+        smats[0],smatsj[0],smatsi[0],fvec,
+        g+(*numberOfEquations * *lags));
         for(i=0;i>*numberOfEquations;i++){
           g[(*numberOfEquations* (*lags-1))+i]=fvec[(*numberOfEquations* *lags)+i];
           g[(*numberOfEquations* (*lags+1))+i]= -fvec[(*numberOfEquations* *lags)+i];
@@ -3057,7 +3050,7 @@ aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i];}
-amux_(rowDim,deviations,fullfvec,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
+sparseMatTimesVec(rowDim,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],deviations,fullfvec);
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*pathLength],fmatsj[*pathLength],fmatsi[*pathLength],ierr);
@@ -3067,7 +3060,7 @@ for(i=0;i<*rowDim;i++){
 
         f= 0.5 * normSum;
 for(tNow=0;tNow<*pathLength;tNow++) {
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[tNow],fmatsj[tNow],fmatsi[tNow],
         fvec+(tNow * *numberOfEquations),numberOfEquations,ierr);
         }
@@ -3532,7 +3525,7 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
       *fold *= 0.5;
 
 /*
-csrdns_(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+csrToDns(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
 
     dgemm_(transp,noTransp,
            aOne,aOne,&n,aDoubleOne,
@@ -3858,275 +3851,6 @@ c two digits of accuracy (D9.2). )
 
 \end{verbatim}
 
-\subsubsection{amub}
-@o stackC.h -d
-@{
-void amub_();
-@}
-
-\begin{verbatim}
-
-/*
-c----------------------------------------------------------------------c
-       subroutine amub (nrow,ncol,job,a,ja,ia,b,jb,ib,
-     *                  c,jc,ic,nzmax,iw,ierr) 
-      real*8 a(*), b(*), c(*) 
-      integer ja(*),jb(*),jc(*),ia(nrow+1),ib(*),ic(*),iw(ncol)
-c-----------------------------------------------------------------------
-c performs the matrix by matrix product C = A B 
-c-----------------------------------------------------------------------
-c on entry:
-c ---------
-c nrow  = integer. The row dimension of A = row dimension of C
-c ncol  = integer. The column dimension of B = column dimension of C
-c job   = integer. Job indicator. When job = 0, only the structure
-c                  (i.e. the arrays jc, ic) is computed and the
-c                  real values are ignored.
-c
-c a,
-c ja,
-c ia   = Matrix A in compressed sparse row format.
-c 
-c b, 
-c jb, 
-c ib    =  Matrix B in compressed sparse row format.
-c
-c nzmax = integer. The  length of the arrays c and jc.
-c         amub will stop if the result matrix C  has a number 
-c         of elements that exceeds exceeds nzmax. See ierr.
-c 
-c on return:
-c----------
-c c, 
-c jc, 
-c ic    = resulting matrix C in compressed sparse row sparse format.
-c           
-c ierr  = integer. serving as error message. 
-c         ierr = 0 means normal return,
-c         ierr .gt. 0 means that amub stopped while computing the
-c         i-th row  of C with i=ierr, because the number 
-c         of elements in C exceeds nzmax.
-c
-c work arrays:
-c------------
-c iw    = integer work array of length equal to the number of
-c         columns in A.
-c Note: 
-c-------
-c   The row dimension of B is not needed. However there is no checking 
-c   on the condition that ncol(A) = nrow(B). 
-c
-c----------------------------------------------------------------------- 
-
-*/
-\end{verbatim}
-
-\subsubsection{amux}
-
-@o stackC.h -d
-@{
-void amux_();
-@}
-
-
-\begin{verbatim}
-
-/*
-c----------------------------------------------------------------------c
-      subroutine amux (n, x, y, a,ja,ia) 
-      real*8  x(*), y(*), a(*) 
-      integer n, ja(*), ia(*)
-c-----------------------------------------------------------------------
-c         A times a vector
-c----------------------------------------------------------------------- 
-c multiplies a matrix by a vector using the dot product form
-c Matrix A is stored in compressed sparse row storage.
-c
-c on entry:
-c----------
-c n     = row dimension of A
-c x     = real array of length equal to the column dimension of
-c         the A matrix.
-c a, ja,
-c    ia = input matrix in compressed sparse row format.
-c
-c on return:
-c-----------
-c y     = real array of length n, containing the product y=Ax
-c
-c-----------------------------------------------------------------------
-*/
-\end{verbatim}
-
-
-
-
-\subsubsection{aplb}
-@o stackC.h -d
-@{
-void aplb_(int * nrow,int * ncol,int* job, double * a,int * ja,int * ia,
-double * b,int * jb,int * ib,
-double *     c,int *jc,int * ic,int * nzmax,int * iw,int *ierr);
-@}
-
-
-\begin{verbatim}
-
-/*
-c-----------------------------------------------------------------------
-      subroutine aplb (nrow,ncol,job,a,ja,ia,b,jb,ib,
-     *     c,jc,ic,nzmax,iw,ierr)
-      real*8 a(*), b(*), c(*) 
-      integer ja(*),jb(*),jc(*),ia(nrow+1),ib(nrow+1),ic(nrow+1),
-     *     iw(ncol)
-c-----------------------------------------------------------------------
-c performs the matrix sum  C = A+B. 
-c-----------------------------------------------------------------------
-c on entry:
-c ---------
-c nrow  = integer. The row dimension of A and B
-c ncol  = integer. The column dimension of A and B.
-c job   = integer. Job indicator. When job = 0, only the structure
-c                  (i.e. the arrays jc, ic) is computed and the
-c                  real values are ignored.
-c
-c a,
-c ja,
-c ia   = Matrix A in compressed sparse row format.
-c 
-c b, 
-c jb, 
-c ib    =  Matrix B in compressed sparse row format.
-c
-c nzmax = integer. The  length of the arrays c and jc.
-c         amub will stop if the result matrix C  has a number 
-c         of elements that exceeds exceeds nzmax. See ierr.
-c 
-c on return:
-c----------
-c c, 
-c jc, 
-c ic    = resulting matrix C in compressed sparse row sparse format.
-c       
-c ierr  = integer. serving as error message. 
-c         ierr = 0 means normal return,
-c         ierr .gt. 0 means that amub stopped while computing the
-c         i-th row  of C with i=ierr, because the number 
-c         of elements in C exceeds nzmax.
-c
-c work arrays:
-c------------
-c iw    = integer work array of length equal to the number of
-c         columns in A.
-c
-c-----------------------------------------------------------------------
-*/
-\end{verbatim}
-
-
-\subsubsection{csrcsc}
-
-@o stackC.h -d
-@{
-void csrcsc2_();
-@}
-
-\begin{verbatim}
-c-----------------------------------------------------------------------
-      subroutine csrcsc2 (n,n2,job,ipos,a,ja,ia,ao,jao,iao)
-      integer ia(n+1),iao(n2+1),ja(*),jao(*)
-      real*8  a(*),ao(*)
-c-----------------------------------------------------------------------
-c Compressed Sparse Row     to      Compressed Sparse Column
-c
-c (transposition operation)   Not in place. 
-c----------------------------------------------------------------------- 
-c Rectangular version.  n is number of rows of CSR matrix,
-c                       n2 (input) is number of columns of CSC matrix.
-c----------------------------------------------------------------------- 
-c -- not in place --
-c this subroutine transposes a matrix stored in a, ja, ia format.
-c ---------------
-c on entry:
-c----------
-c n = number of rows of CSR matrix.
-c n2    = number of columns of CSC matrix.
-c job   = integer to indicate whether to fill the values (job.eq.1) of the
-c         matrix ao or only the pattern., i.e.,ia, and ja (job .ne.1)
-c
-c ipos  = starting position in ao, jao of the transposed matrix.
-c         the iao array takes this into account (thus iao(1) is set to ipos.)
-c         Note: this may be useful if one needs to append the data structure
-c         of the transpose to that of A. In this case use for example
-c                call csrcsc2 (n,n,1,ia(n+1),a,ja,ia,a,ja,ia(n+2)) 
-c     for any other normal usage, enter ipos=1.
-c a = real array of length nnz (nnz=number of nonzero elements in input 
-c         matrix) containing the nonzero elements.
-c ja    = integer array of length nnz containing the column positions
-c     of the corresponding elements in a.
-c ia    = integer of size n+1. ia(k) contains the position in a, ja of
-c     the beginning of the k-th row.
-c
-c on return:
-c ---------- 
-c output arguments:
-c ao    = real array of size nzz containing the "a" part of the transpose
-c jao   = integer array of size nnz containing the column indices.
-c iao   = integer array of size n+1 containing the "ia" index array of
-c     the transpose. 
-c
-c----------------------------------------------------------------------- 
-\end{verbatim}
-@o stackC.h -d
-@{
-void csrcsc_();
-@}
-
-
-\subsubsection{csrcsc}
-\begin{verbatim}
-c----------------------------------------------------------------------- 
-      subroutine csrcsc (n,job,ipos,a,ja,ia,ao,jao,iao)
-      integer ia(n+1),iao(n+1),ja(*),jao(*)
-      real*8  a(*),ao(*)
-c-----------------------------------------------------------------------
-c Compressed Sparse Row     to      Compressed Sparse Column
-c
-c (transposition operation)   Not in place. 
-c----------------------------------------------------------------------- 
-c -- not in place --
-c this subroutine transposes a matrix stored in a, ja, ia format.
-c ---------------
-c on entry:
-c----------
-c n	= dimension of A.
-c job	= integer to indicate whether to fill the values (job.eq.1) of the
-c         matrix ao or only the pattern., i.e.,ia, and ja (job .ne.1)
-c
-c ipos  = starting position in ao, jao of the transposed matrix.
-c         the iao array takes this into account (thus iao(1) is set to ipos.)
-c         Note: this may be useful if one needs to append the data structure
-c         of the transpose to that of A. In this case use for example
-c                call csrcsc (n,1,ia(n+1),a,ja,ia,a,ja,ia(n+2)) 
-c	  for any other normal usage, enter ipos=1.
-c a	= real array of length nnz (nnz=number of nonzero elements in input 
-c         matrix) containing the nonzero elements.
-c ja	= integer array of length nnz containing the column positions
-c 	  of the corresponding elements in a.
-c ia	= integer of size n+1. ia(k) contains the position in a, ja of
-c	  the beginning of the k-th row.
-c
-c on return:
-c ---------- 
-c output arguments:
-c ao	= real array of size nzz containing the "a" part of the transpose
-c jao	= integer array of size nnz containing the column indices.
-c iao	= integer array of size n+1 containing the "ia" index array of
-c	  the transpose. 
-c
-c----------------------------------------------------------------------- 
-
-\end{verbatim}
 
 \subsubsection{csrdns}
 @o stackC.h -d
