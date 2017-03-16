@@ -365,9 +365,10 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 
 @d multiply c matrices by appropriate s matrix and subtract
 @{
-amub_(rowDim,cColumns,aOne,ao,jao,iao,
+sparseMult(rowDim,cColumns,nzmax,iw,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
+
 pathNewtAssert(*ierr == 0);
 bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
@@ -378,9 +379,8 @@ bump(ib[*rowDim]-ib[0]);
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
 
-aplb_(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
-b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
-nzmax,iw,ierr);
+sparseAdd(rowDim,cColumns,nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
+b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
@@ -579,14 +579,14 @@ pathNewtAssert(*ierr == 0);
 @{
 int maxElementsEncountered=0;
 /*void * calloc(unsigned amt,int size);*/
-double * evenSumCA;int * evenSumCJA;int * evenSumCIA;
-double * evenSumDA;int * evenSumDJA;int * evenSumDIA;
-double * oddSumCA;int * oddSumCJA;int * oddSumCIA;
-double * oddSumDA;int * oddSumDJA;int * oddSumDIA;
+double * evenSumCA;unsigned int * evenSumCJA;unsigned int * evenSumCIA;
+double * evenSumDA;unsigned int * evenSumDJA;unsigned int * evenSumDIA;
+double * oddSumCA;unsigned int * oddSumCJA;unsigned int * oddSumCIA;
+double * oddSumDA;unsigned int * oddSumDJA;unsigned int * oddSumDIA;
 double  *ao;int *jao,*iao;
 double *b;int *jb,*ib;
 double *tb;int *jtb,*itb;
-double *tmp;int *jtmp,*itmp;
+double *tmp;unsigned int *jtmp,*itmp;
 int *firstColumn,*lastColumn,*nr,*nc;
 int *iw,*ierr,*nzmax,*nonZeroNow;int cmatsExtent;int *nzmaxLeft;
 int i;
