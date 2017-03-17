@@ -107,7 +107,7 @@ the page numbers of the component's definition.}
 @o stochRun.c -d
 @{
 @<defines and includes@>
-/*int  dtime(double * userSystemTime);*/
+/*unsigned int  dtime(double * userSystemTime);*/
 
 
 int main(int argc, char * argv[])
@@ -156,54 +156,54 @@ julliard.c.
 #define DATA 50
 void julMod(double * xvec,double * pvec,
 double * alhs,
-int * jalhs,
-int * ialhs
+unsigned int * jalhs,
+unsigned int * ialhs
 );
 void julModDerivative(double * xvec,double * pvec,
 double * alhs,
-int * jalhs,
-int * ialhs);
-void FPnewt(int * numberOfEquations,int * lags, int * leads,
+unsigned int * jalhs,
+unsigned int * ialhs);
+void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (* func)(),void (* dfunc)(),double * params,
 double x[],
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,
-int *check);
-void julModData(int t,double * vectorOfVals);
-void julModShocks(int t,double * vectorOfVals);
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+unsigned int *check);
+void julModData(unsigned int t,double * vectorOfVals);
+void julModShocks(unsigned int t,double * vectorOfVals);
 void julModPeriodicPointGuesser
-(double * parameters,int period,
+(double * parameters,unsigned int period,
 	double *);
 
-void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
-int * iarray);
+void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
+unsigned int * iarray);
 void altComputeAsymptoticQMatrix(
-int * numberOfEquations,int * lags, int * leads,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (* func)(),void (* dfunc)(),double * params,
-double canadaFP[],int * pthLngth,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,
-double * qMat,int * qMatj,int * qMati,
-int * ierr
+double canadaFP[],unsigned int * pthLngth,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * ierr
 );
 void stochSim(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-int * replications,
-int * t0,int * tf,int * permVecs,
-double * shockTable,int * shocksAvailable,
-double * dataTable,int * dataAvailable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,
 double x[],
-int *failedQ);
-void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName);
+unsigned int *failedQ);
+void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName);
 
-void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName);
+void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName);
 
 
 
@@ -235,26 +235,26 @@ integer variables.
 @d main variable declarations
 @{
 
-int numberOfData[1]={DATA};
-int numberOfShocks[1]={SHOCKS};
-int numberOfEquations[1]={julNEQS};
-int lags[1]={julNLAGS};
-int leads[1]={julNLEADS};
-int pathLength[1]={PATHLENGTH};
-int t0[1]={0};
-int tf[1]={0};
-int replications[1]={1};
+unsigned int numberOfData[1]={DATA};
+unsigned int numberOfShocks[1]={SHOCKS};
+unsigned int numberOfEquations[1]={julNEQS};
+unsigned int lags[1]={julNLAGS};
+unsigned int leads[1]={julNLEADS};
+unsigned int pathLength[1]={PATHLENGTH};
+unsigned int t0[1]={0};
+unsigned int tf[1]={0};
+unsigned int replications[1]={1};
 double totalTime[1];
 double userSystemTime[2];
-/*int shockIndex[1];*/
-/*void * calloc(unsigned num,int amt);*/
+/*unsigned int shockIndex[1];*/
+/*void * calloc(unsigned num,unsigned int amt);*/
 @| numberOfEquations lags leads
 @}
 
 
 @d main scalar variable initializations
 @{
-/*int  dtime(double * userSystemTime);*/
+/*unsigned int  dtime(double * userSystemTime);*/
 
 /**totalTime=dtime(userSystemTime);*/
 printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
@@ -349,17 +349,17 @@ printf("done generating perm vec\n");
 
 @o stochRunHide.c
 @{
-void fPrintMathDbl(FILE * file,int length,double * matrix,char *  matrixName)
+void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName)
 {
-int i;
+unsigned int i;
 fprintf(file,"%s={",matrixName);
 for(i=0;(i<length-1);i++){
 fprintf(file,"%30.20f,",matrix[i]);}
 fprintf(file,"%30.20f};\n",matrix[length-1]);
 }
-void fPrintMathInt(FILE * file,int length,int * matrix,char *  matrixName)
+void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName)
 {
-int i;
+unsigned int i;
 fprintf(file,"%s={",matrixName);
 for(i=0;(i<length-1);i++){
 fprintf(file,"%d,",matrix[i]);}
@@ -392,8 +392,8 @@ fPrintMathDbl(outFile,(julNEQS*(SHOCKS)),julliardShocks,"julModShocks");
 @d main variable declarations
 @{
 double atof();
-int pl;
-/*int vbl;*/
+unsigned int pl;
+/*unsigned int vbl;*/
 /*double val;*/
 @}
 
@@ -522,7 +522,7 @@ argv[2]);} else {vbl = i;}
 The limits the size of sparse matrices to the amount specified on the argument list.
 @d main variable declarations
 @{
-int maxNumberElements[1]={MAXELEMENTS};
+unsigned int maxNumberElements[1]={MAXELEMENTS};
 @}
 
 
@@ -531,17 +531,17 @@ The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during
 @{
 
 FILE * outFile;
-int stochasticPathLength=1;
-int * julliardPermVec;
+unsigned int stochasticPathLength=1;
+unsigned int * julliardPermVec;
 double * julliardShocks;
 double * julliardData;
 double * julliardFP;
 double julParam[2]={0.5,0.6};
 double * julliardPathQ;
-double **fmats;int  **fmatsj;int  **fmatsi;
-double **smats;int  **smatsj;int  **smatsi;
+double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
+double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
 static char flnm[50] = "stochOut.m";
-int i/*,j*/;
+unsigned int i/*,j*/;
 
 @<define names array@> 
 @}
@@ -553,32 +553,32 @@ int i/*,j*/;
 @}
 @d main storage allocations determined at run time
 @{
-failedQ=(int *)calloc(*replications,sizeof(int));
+failedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
 for(i=0;i<*replications;i++)failedQ[i]=0;
 *tf=(*t0)+stochasticPathLength-1;
 
-julliardPermVec=(int *)calloc(
-     (stochasticPathLength)*(*replications),sizeof(int));
+julliardPermVec=(unsigned int *)calloc(
+     (stochasticPathLength)*(*replications),sizeof(unsigned int));
 julliardPathQ=(double *)calloc(
     *replications*
     julNEQS*(julNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
 fmats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-fmatsj =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-fmatsi =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+fmatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+fmatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
 smats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-smatsj =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-smatsi =(int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+smatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+smatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
 for(i=0;i<(*pathLength)+julNLAGS+1;i++){
 fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
-fmatsj[i] =(int *)calloc(MAXELEMENTS,sizeof(int));
-fmatsi[i] =(int *)calloc(
-     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(int));
+fmatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
+fmatsi[i] =(unsigned int *)calloc(
+     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(unsigned int));
 smats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
-smatsj[i] =(int *)calloc(MAXELEMENTS,sizeof(int));
-smatsi[i] =(int *)calloc(
-     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(int));
+smatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
+smatsi[i] =(unsigned int *)calloc(
+     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(unsigned int));
 }
 
 
@@ -594,11 +594,11 @@ julliardFP=(double *)calloc(
      julNEQS*(julNLAGS+julNLEADS+1),sizeof(double));
 AMqMatrix=(double *)
    calloc(MAXELEMENTS,sizeof(double));
-AMqMatrixj=(int *)
-   calloc(MAXELEMENTS,sizeof(int));
-AMqMatrixi=(int *)
+AMqMatrixj=(unsigned int *)
+   calloc(MAXELEMENTS,sizeof(unsigned int));
+AMqMatrixi=(unsigned int *)
    calloc((julNEQS*(julNLEADS+julNLAGS)),
-        sizeof(int));
+        sizeof(unsigned int));
 @}
 
 
@@ -634,8 +634,8 @@ chk returns 0 for success 1 if the routine may not have converged.
 
 @d main variable declarations
 @{
-int * failedQ;
-int chk[1]={0};
+unsigned int * failedQ;
+unsigned int chk[1]={0};
 @}
 @d obtain fixed point for terminal constraint
 @{
@@ -665,14 +665,14 @@ printf("computed FP solution\n");
 
 @d main variable declarations
 @{
-/*int * hColumns;*/
+/*unsigned int * hColumns;*/
 @}
 
 @d main variable declarations
 @{
 double * AMqMatrix;
-int * AMqMatrixj;
-int * AMqMatrixi;
+unsigned int * AMqMatrixj;
+unsigned int * AMqMatrixi;
 /*double * asymptoticLinearization;*/
 @|
 asymptoticLinearization AMqMatrix
@@ -698,7 +698,7 @@ printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTim
 
 @d process command line
 @{
-/*int  dtime(double * userSystemTime);*/
+/*unsigned int  dtime(double * userSystemTime);*/
 
 /**totalTime=dtime(userSystemTime);*/
 printf("after processing command lines\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
