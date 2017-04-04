@@ -386,7 +386,7 @@ printf("odd\n");
 cPrintSparse(*rowDim,oddSumCA,oddSumCJA,oddSumCIA);
 printf("b\n");
 cPrintSparse(*rowDim,b,jb,ib);
-sparseAdd(rowDim,cColumns,nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
+sparseAdd(rowDim,cColumns,&nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
 b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,ierr);
 printf("after sparseAdd\n");
 pathNewtAssert(*ierr == 0);
@@ -745,9 +745,9 @@ jtb = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
 tb = (double *)calloc(*maxNumberHElements,sizeof(double));
 
 
-/*evenSumCIA = (unsigned int *)calloc(( *rowDim * *leadss)+1,sizeof(unsigned int));
+evenSumCIA = (unsigned int *)calloc(( *rowDim * *leadss)+1,sizeof(unsigned int));
 evenSumCJA = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
-evenSumCA = (double *)calloc(*maxNumberHElements,sizeof(double));*/
+evenSumCA = (double *)calloc(*maxNumberHElements,sizeof(double));
 
 
 /*larger than necessary now so that can use for transpose in csrcsc */
@@ -771,7 +771,7 @@ jao = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
 ao = (double *)calloc(*maxNumberHElements,sizeof(double));
 
 /*work array needs elements equal to number of columns of matrix*/
-iw = (unsigned int *)calloc(*rowDim * (*leadss + *lagss + 3),sizeof(unsigned int));
+iw = (unsigned int *)calloc(*rowDim * (*leadss + *lagss + 1),sizeof(unsigned int));
 w = (double *)calloc(*rowDim * (*leadss + *lagss + 3),sizeof(double));/*MLK*/@|
 oddSumCA 
 oddSumCJA 
