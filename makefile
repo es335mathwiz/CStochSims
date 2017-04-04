@@ -6,21 +6,27 @@ SPAMADIR=../sparseAMA
 ifeq ($(UNAME),Linux)
 #compilers
 CC = gcc
-FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ 
-FCFLAGS = -c -g -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include 
+FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
+FCFLAGS = -c -g -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
 #lapack
 LAPACKLIBS=   -L /msu/res5/software/ARPACK96forCluster -larpack_linux -L/msu/res5/software/lapackGithubForCluster -llapack -lrefblas
-CUNITLIBS= -L /msu/res5/software/myUsr/lib/ -l cunit
+CUNITLIBS= -L/msu/res5/software/myUsr/lib/ -l cunit
+MATIOLIBS= -L/msu/res1/Software/matio-1.5.1/src/.libs/ -lmatio  -lhdf5
+
 endif
 
 ifeq ($(UNAME),Darwin)
 #compilers
 CC = gcc-6
-FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ 
-FCFLAGS = -c -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ 
+FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
+-I /usr/local/Cellar/libmatio/1.5.10/include
+FCFLAGS = -c -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
+-I /usr/local/Cellar/libmatio/1.5.10/include
 #lapack
 LAPACKLIBS=  -L /Users/garyanderson/ARPACK96/  -larpack_MACOS -L /Users/garyanderson/lapack-release/ -llapack -lrefblas
 CUNITLIBS= -L /Users/garyanderson/myUsr/lib -l cunit
+MATIOLIBS= -L/usr/local/Cellar/libmatio/1.5.10/lib -lmatio 
+
 endif
 
 echo:
@@ -50,10 +56,10 @@ STOCHSIMSLIB= -L./ -lstochSims
 	$(FC) $(FCFLAGS) -c $*.f
 
 .PHONY: Build
-	
+
 Build: stochRun
-	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)
-	
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
 	$(CC) $(FCFLAGS) -c myNewt.c
@@ -63,7 +69,7 @@ juillard.o:	juillard.c
 
 
 stochRun:	stochRun.o  juillard.o libstochSims.a
-	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o

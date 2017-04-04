@@ -974,8 +974,8 @@ double atof();
 
 
 
-unsigned int intControlParameters[widthIntControlInfo];
-double doubleControlParameters[widthDoubleControlInfo];
+//unsigned int intControlParameters[widthIntControlInfo];
+//double doubleControlParameters[widthDoubleControlInfo];
 /* unsigned int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
 double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
 
@@ -991,14 +991,14 @@ double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
 
 
 /*workspace*/
-double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
-double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
+//double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
+//double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
 /*success indicators for stochSims*/
 
 /*csr q matrix*/
-double * AMqMatrix;
+/*double * AMqMatrix;
 unsigned int * AMqMatrixj;
-unsigned int * AMqMatrixi;
+unsigned int * AMqMatrixi;*/
 /*csr b matrix*/
 /*double * AMbMatrix;
 unsigned int * AMbMatrixj;

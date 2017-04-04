@@ -564,12 +564,13 @@ julliardPathQ=(double *)calloc(
     julNEQS*(julNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
+unsigned int ** ptrToPtrToInt = NULL;
 fmats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-fmatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-fmatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+fmatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
+fmatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
 smats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-smatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-smatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
+smatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
+smatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
 for(i=0;i<(*pathLength)+julNLAGS+1;i++){
 fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 fmatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
