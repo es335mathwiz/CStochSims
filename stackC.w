@@ -2334,9 +2334,6 @@ testStack:   testStack.o    stackC.o testStackModel.o
 	f77 -o testStack -g  testStack.o stackC.o testStackModel.o \
 	$(SPARSELIB) $(LINKFLAGS) $(AIMLIB)
 
-pureStackView:   testStack
-      purify -windows=no -log-file=stackViewPurify f77 -o pureStack testStack.o stackC.o testStackModel.o ma50ad.o $(SPARSELIB) $(LINKFLAGS)  $(AIMLIB)
-      pureStack
 
 @}
 

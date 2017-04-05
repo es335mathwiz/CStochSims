@@ -1,6 +1,6 @@
 %	$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $	
 \documentclass[html]{article}
-
+\usepackage{moreverb}
 \begin{document}
 
 \title{``C'' Program Calling stochSim()
@@ -149,7 +149,7 @@ julliard.c.
 #include<stdlib.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
-#define julNLAGS 1
+#define genericNLAGS 1
 #define julNLEADS 5
 #define julNEQS 5
 #define SHOCKS 30
@@ -238,7 +238,7 @@ integer variables.
 unsigned int numberOfData[1]={DATA};
 unsigned int numberOfShocks[1]={SHOCKS};
 unsigned int numberOfEquations[1]={julNEQS};
-unsigned int lags[1]={julNLAGS};
+unsigned int lags[1]={genericNLAGS};
 unsigned int leads[1]={julNLEADS};
 unsigned int pathLength[1]={PATHLENGTH};
 unsigned int t0[1]={0};
@@ -344,9 +344,6 @@ printf("done generating perm vec\n");
 
 @}
 
-
-
-
 @o stochRunHide.c
 @{
 void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName)
@@ -374,12 +371,12 @@ fprintf(file,"%d};\n",matrix[length-1]);
 
 printf("saving values for variable in file named %s\n",flnm);
 fprintf(outFile,"julModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
-    julNEQS,julNLAGS,julNLEADS,
+    julNEQS,genericNLAGS,julNLEADS,
      *pathLength,*t0,stochasticPathLength,*replications);
 fPrintMathInt(outFile,*replications,failedQ,"julModFailedQ");
 fPrintMathInt(outFile,*replications * (stochasticPathLength),
       julliardPermVec,"julModPermVec");
-fPrintMathDbl(outFile,(*replications * julNEQS*(stochasticPathLength+julNLAGS)),
+fPrintMathDbl(outFile,(*replications * julNEQS*(stochasticPathLength+genericNLAGS)),
       julliardPathQ,"julModResults");
 fPrintMathDbl(outFile,(julNEQS*(DATA)),julliardData,"julModData");
 fPrintMathDbl(outFile,(julNEQS*(SHOCKS)),julliardShocks,"julModShocks");
@@ -438,9 +435,9 @@ unsigned int pl;
        *t0=DATA;
        printf("setting initial t0 to maximum number of data elements=%d\n",*t0);
        } else { *t0 = pl;}
-     if(pl<julNLAGS)
+     if(pl<genericNLAGS)
 	 {
-       *t0=julNLAGS+1;
+       *t0=genericNLAGS+1;
        printf("setting initial t0 to one more than number of lags=%d\n",*t0);
        } else { *t0 = pl;}
 	 argc--;argv++;
@@ -483,7 +480,7 @@ unsigned int pl;
 /*vbl=0;*//*hack so that if shock irrelevant variable if no other variables shocked*/
 *pathLength=1;
 *replications=1;
-*t0=julNLAGS+1;
+*t0=genericNLAGS+1;
 stochasticPathLength=1;
 printf("default values:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,stochasticPathLength);
 
@@ -561,25 +558,25 @@ julliardPermVec=(unsigned int *)calloc(
      (stochasticPathLength)*(*replications),sizeof(unsigned int));
 julliardPathQ=(double *)calloc(
     *replications*
-    julNEQS*(julNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
+    julNEQS*(genericNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
 unsigned int ** ptrToPtrToInt = NULL;
-fmats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-fmatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
-fmatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
-smats =(double **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToDouble));
-smatsj =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
-smatsi =(unsigned int **)calloc((*pathLength)+julNLAGS+1,sizeof(ptrToPtrToInt));
-for(i=0;i<(*pathLength)+julNLAGS+1;i++){
+fmats =(double **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToDouble));
+fmatsj =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+fmatsi =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+smats =(double **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToDouble));
+smatsj =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+smatsi =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
 fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 fmatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
 fmatsi[i] =(unsigned int *)calloc(
-     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(unsigned int));
+     julNEQS*(genericNLAGS+julNLEADS)+1,sizeof(unsigned int));
 smats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 smatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
 smatsi[i] =(unsigned int *)calloc(
-     julNEQS*(julNLAGS+julNLEADS)+1,sizeof(unsigned int));
+     julNEQS*(genericNLAGS+julNLEADS)+1,sizeof(unsigned int));
 }
 
 
@@ -592,13 +589,13 @@ julliardShocks=(double *)calloc(
 julliardData=(double *)calloc(
      julNEQS*(DATA),sizeof(double));
 julliardFP=(double *)calloc(
-     julNEQS*(julNLAGS+julNLEADS+1),sizeof(double));
+     julNEQS*(genericNLAGS+julNLEADS+1),sizeof(double));
 AMqMatrix=(double *)
    calloc(MAXELEMENTS,sizeof(double));
 AMqMatrixj=(unsigned int *)
    calloc(MAXELEMENTS,sizeof(unsigned int));
 AMqMatrixi=(unsigned int *)
-   calloc((julNEQS*(julNLEADS+julNLAGS)),
+   calloc((julNEQS*(julNLEADS+genericNLAGS)),
         sizeof(unsigned int));
 @}
 
@@ -614,7 +611,7 @@ free(julliardData);
 free(julliardPermVec);
 free(julliardFP);
 free(julliardPathQ);
-for(i=0;i<(*pathLength)+julNLAGS+1;i++){
+for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
 free(smats[i]);
 free(smatsj[i]);
 free(smatsi[i]);
@@ -715,6 +712,472 @@ printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 
 @}
 
+
+
+@o stochSimsUnitTests.c -d
+@{
+
+#include <stdio.h>
+#include <string.h>
+#include "CUnit/Basic.h"
+#include<stdlib.h>
+#include "useSparseAMA.h"
+#define genericModPeriodicPointGuesser julModPeriodicPointGuesser
+#define genericModDerivative julModDerivative
+#define genericMod julMod
+#define genericModData julModData
+#define genericModShocks julModShocks
+#define genericNLAGS 1
+#define julNLEADS 5
+#define julNEQS 5
+#define SHOCKS 30
+#define DATA 50
+
+
+int init_genericsuite1(void)
+{
+return(0);
+}
+int clean_genericsuites(void)
+{
+return(0);
+}
+
+
+
+/* The main() function for setting up and running the tests.
+ * Returns a CUE_SUCCESS on successful running, another
+ * CUnit error code on failure.
+ */
+@<generic defines and includes@>
+
+int main(int argc, char * argv[])
+{
+@<generic main variable declarations@>
+@<generic main storage allocations determined at compile time@>
+@<process command line@>
+@<generic main scalar variable initializations@>
+
+@<generic main storage allocations determined at run time@>
+@<generic obtain fixed point for terminal constraint@>
+@<generic obtain shocks and data@>
+@<generic generate shock indices@>
+@<generic carryout stochastic sims@>
+@<generic report results@>
+@<generic main storage deallocations@> 
+
+
+
+   CU_pSuite pSuite = NULL;
+
+   /* initialize the CUnit test registry */
+   if (CUE_SUCCESS != CU_initialize_registry())
+      return CU_get_error();
+
+
+
+  /* add another suite to the registry */
+   pSuite = CU_add_suite("Genericsuite_1", init_genericsuite1, clean_genericsuites);
+   if (NULL == pSuite) {
+     CU_cleanup_registry();
+    return CU_get_error();
+  }
+
+
+   /* add the tests to the suite 
+   if ((NULL == CU_add_test(pSuite, "test of oneEquationZeroLead()", oneEquationZeroLead)))
+   {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+*/
+
+
+   /* Run all tests using the CUnit Basic interface */
+   CU_basic_set_mode(CU_BRM_VERBOSE);
+   CU_basic_run_tests();
+   CU_cleanup_registry();
+   return CU_get_error();
+}
+
+@}
+@d generic obtain fixed point for terminal constraint
+@{
+printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
+
+genericModPeriodicPointGuesser(genericParam,1,genericFP);
+
+FPnewt(numberOfEquations,lags,leads,
+genericMod,genericModDerivative,genericParam,
+genericFP,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+maxNumberElements,
+chk);
+
+/*
+if(chk[0])
+{  printf("problems computing  FP solution\n");return(1);}
+else {printf("computed FP solution\n");}
+*/
+
+printf("computed FP solution\n");
+
+
+@}
+@d generic obtain shocks and data
+@{
+
+
+for(i=0;i<DATA;i++){genericModData(i,genericData+(i*genericNEQS));}
+for(i=0;i<SHOCKS;i++){genericModShocks(i,genericShocks+(i*genericNEQS));}
+@}
+
+@d generic obtain fixed point for terminal constraint
+@{
+/**totalTime=dtime(userSystemTime);*/
+printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
+*totalTime,*userSystemTime,*(userSystemTime+1));
+@}
+
+@d generic generate shock indices
+@{
+
+printf("generating perm vec\n");
+ generateDraws(1,(stochasticPathLength),(*replications),SHOCKS,genericPermVec);
+printf("done generating perm vec\n");
+
+
+
+@}
+@d generic carryout stochastic sims
+@{
+
+
+
+altComputeAsymptoticQMatrix(
+numberOfEquations,lags,leads,
+genericMod,genericModDerivative,genericParam,
+genericFP,pathLength,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+maxNumberElements,
+AMqMatrix,AMqMatrixj,AMqMatrixi,
+chk
+);
+/*
+if(chk[0])
+{  printf("problems computing  Q matrix\n");return(1);}
+else {printf("computed Q matrix\n");}
+*/
+printf("computed Q matrix\n");
+for(i=0;i<*pathLength;i++){
+genericModPeriodicPointGuesser(genericParam,1,
+genericPathQ+(i *genericNEQS));}
+/**totalTime=dtime(userSystemTime);*/
+printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
+*totalTime,*userSystemTime,*(userSystemTime+1));
+printf("using q matrix\n");
+cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
+
+
+stochSim(numberOfEquations,lags,leads,pathLength,
+genericMod,genericModDerivative,genericParam,
+replications,t0,tf,genericPermVec,
+genericShocks,numberOfShocks,
+genericData,numberOfData,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
+genericFP,
+genericPathQ,
+failedQ);
+@|setgm sval
+@}
+@d generic carryout stochastic sims
+@{
+/**totalTime=dtime(userSystemTime);*/
+printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
+*totalTime,*userSystemTime,*(userSystemTime+1));
+
+@}
+@d generic main storage deallocations
+@{
+free(failedQ);
+free(AMqMatrix);
+free(AMqMatrixj);
+free(AMqMatrixi);
+free(genericShocks);
+free(genericData);
+free(genericPermVec);
+free(genericFP);
+free(genericPathQ);
+for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
+free(smats[i]);
+free(smatsj[i]);
+free(smatsi[i]);
+free(fmats[i]);
+free(fmatsj[i]);
+free(fmatsi[i]);
+}
+free(fmats);
+free(fmatsj);
+free(fmatsi);
+free(smats);
+free(smatsj);
+free(smatsi);
+@}
+
+
+@d generic report results
+@{
+
+printf("saving values for variable in file named %s\n",flnm);
+fprintf(outFile,"genericModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
+    genericNEQS,genericNLAGS,genericNLEADS,
+     *pathLength,*t0,stochasticPathLength,*replications);
+fPrintMathInt(outFile,*replications,failedQ,"genericModFailedQ");
+fPrintMathInt(outFile,*replications * (stochasticPathLength),
+      genericPermVec,"genericModPermVec");
+fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
+      genericPathQ,"genericModResults");
+fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericData,"genericModData");
+fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocks,"genericModShocks");
+     fclose(outFile);
+
+
+@}
+
+
+@d generic main storage allocations determined at run time
+@{
+failedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
+for(i=0;i<*replications;i++)failedQ[i]=0;
+*tf=(*t0)+stochasticPathLength-1;
+
+genericPermVec=(unsigned int *)calloc(
+     (stochasticPathLength)*(*replications),sizeof(unsigned int));
+genericPathQ=(double *)calloc(
+    *replications*
+    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+stochasticPathLength),
+sizeof(double));
+double ** ptrToPtrToDouble = NULL;
+unsigned int ** ptrToPtrToInt = NULL;
+fmats =(double **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToDouble));
+fmatsj =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+fmatsi =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+smats =(double **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToDouble));
+smatsj =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+smatsi =(unsigned int **)calloc((*pathLength)+genericNLAGS+1,sizeof(ptrToPtrToInt));
+for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
+fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
+fmatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
+fmatsi[i] =(unsigned int *)calloc(
+     genericNEQS*(genericNLAGS+genericNLEADS)+1,sizeof(unsigned int));
+smats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
+smatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
+smatsi[i] =(unsigned int *)calloc(
+     genericNEQS*(genericNLAGS+genericNLEADS)+1,sizeof(unsigned int));
+}
+
+
+@}
+
+
+@d generic main scalar variable initializations
+@{
+/*unsigned int  dtime(double * userSystemTime);*/
+
+/**totalTime=dtime(userSystemTime);*/
+printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
+*totalTime,*userSystemTime,*(userSystemTime+1));
+
+@}
+
+@d generic defines and includes
+@{
+/*#include <string>*/
+#include<string.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include "useSparseAMA.h"
+#include "stackC.h"
+#define genericNLAGS 1
+#define genericNLEADS 5
+#define genericNEQS 5
+#define SHOCKS 30
+#define DATA 50
+void genericMod(double * xvec,double * pvec,
+double * alhs,
+unsigned int * jalhs,
+unsigned int * ialhs
+);
+void genericModDerivative(double * xvec,double * pvec,
+double * alhs,
+unsigned int * jalhs,
+unsigned int * ialhs);
+void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void (* func)(),void (* dfunc)(),double * params,
+double x[],
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+unsigned int *check);
+void genericModData(unsigned int t,double * vectorOfVals);
+void genericModShocks(unsigned int t,double * vectorOfVals);
+void genericModPeriodicPointGuesser
+(double * parameters,unsigned int period,
+	double *);
+
+void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
+unsigned int * iarray);
+void altComputeAsymptoticQMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void (* func)(),void (* dfunc)(),double * params,
+double canadaFP[],unsigned int * pthLngth,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * ierr
+);
+void stochSim(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,
+double x[],
+unsigned int *failedQ);
+void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName);
+
+void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName);
+
+
+
+@}
+
+@d generic defines and includes
+@{
+#define MAXELEMENTS 20000
+#define PATHLENGTH 25
+#define REPLICATIONS 5000
+
+
+@}
+
+
+
+
+@d generic main storage allocations determined at compile time
+@{
+/**totalTime=dtime(userSystemTime);*/
+printf("Hello World!!  after compile time determined storage allocations\n totalTime=%f,userSystemTime=%f,systemTime=%f\n",
+     *totalTime,*userSystemTime,*(userSystemTime+1));
+
+@}
+
+@d generic main variable declarations
+@{
+
+unsigned int numberOfData[1]={DATA};
+unsigned int numberOfShocks[1]={SHOCKS};
+unsigned int numberOfEquations[1]={julNEQS};
+unsigned int lags[1]={genericNLAGS};
+unsigned int leads[1]={julNLEADS};
+unsigned int pathLength[1]={PATHLENGTH};
+unsigned int t0[1]={0};
+unsigned int tf[1]={0};
+unsigned int replications[1]={1};
+double totalTime[1];
+double userSystemTime[2];
+/*unsigned int shockIndex[1];*/
+/*void * calloc(unsigned num,unsigned int amt);*/
+@| numberOfEquations lags leads
+@}
+
+
+@d generic main variable declarations
+@{
+double atof();
+unsigned int pl;
+/*unsigned int vbl;*/
+/*double val;*/
+@}
+@d generic main variable declarations
+@{
+unsigned int maxNumberElements[1]={MAXELEMENTS};
+@}
+
+@d generic main variable declarations
+@{
+
+FILE * outFile;
+unsigned int stochasticPathLength=1;
+unsigned int * genericPermVec;
+double * genericShocks;
+double * genericData;
+double * genericFP;
+double genericParam[2]={0.5,0.6};
+double * genericPathQ;
+double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
+double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
+static char flnm[50] = "stochOut.m";
+unsigned int i/*,j*/;
+
+@<define names array@> 
+@}
+@d generic main variable declarations
+@{
+unsigned int * failedQ;
+unsigned int chk[1]={0};
+@}
+
+@d generic main storage allocations determined at compile time
+@{
+genericShocks=(double *)calloc(
+     genericNEQS*(SHOCKS),sizeof(double));
+genericData=(double *)calloc(
+     genericNEQS*(DATA),sizeof(double));
+genericFP=(double *)calloc(
+     genericNEQS*(genericNLAGS+genericNLEADS+1),sizeof(double));
+AMqMatrix=(double *)
+   calloc(MAXELEMENTS,sizeof(double));
+AMqMatrixj=(unsigned int *)
+   calloc(MAXELEMENTS,sizeof(unsigned int));
+AMqMatrixi=(unsigned int *)
+   calloc((genericNEQS*(genericNLEADS+genericNLAGS)),
+        sizeof(unsigned int));
+@}
+
+
+
+@d generic main variable declarations
+@{
+double * AMqMatrix;
+unsigned int * AMqMatrixj;
+unsigned int * AMqMatrixi;
+/*double * asymptoticLinearization;*/
+@|
+asymptoticLinearization AMqMatrix
+@}
+
+@o stochSimsUnitTests.c -d
+@{
+
+
+
+@}
+
+
+
+
 \appendix
 
 
@@ -735,6 +1198,89 @@ printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 
 \section{Makefile}
 \label{sec:makefile}
+
+@o makefile -t
+@{
+#identify operating system
+UNAME= $(shell uname)
+NUWEBFLAGS = -t
+SPAMADIR=../sparseAMA
+
+ifeq ($(UNAME),Linux)
+#compilers
+CC = gcc
+FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
+FCFLAGS = -c -g -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
+#lapack
+LAPACKLIBS=   -L /msu/res5/software/ARPACK96forCluster -larpack_linux -L/msu/res5/software/lapackGithubForCluster -llapack -lrefblas
+CUNITLIBS= -L/msu/res5/software/myUsr/lib/ -l cunit
+MATIOLIBS= -L/msu/res1/Software/matio-1.5.1/src/.libs/ -lmatio  -lhdf5
+
+endif
+
+ifeq ($(UNAME),Darwin)
+#compilers
+CC = gcc-6
+FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
+-I /usr/local/Cellar/libmatio/1.5.10/include
+FCFLAGS = -c -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
+-I /usr/local/Cellar/libmatio/1.5.10/include
+#lapack
+LAPACKLIBS=  -L /Users/garyanderson/ARPACK96/  -larpack_MACOS -L /Users/garyanderson/lapack-release/ -llapack -lrefblas
+CUNITLIBS= -L /Users/garyanderson/myUsr/lib -l cunit
+MATIOLIBS= -L/usr/local/Cellar/libmatio/1.5.10/lib -lmatio 
+
+endif
+
+
+#compilers
+FC = gfortran
+SPARSEAMALIB= -L../sparseAMA -lsparseAMA
+STOCHSIMSLIB= -L./ -lstochSims
+.w.c:
+	nuweb $(NUWEBFLAGS) $*
+
+.w.o:
+	make $*.c
+	make $*.o
+
+.c.o:
+	$(CC) $(FCFLAGS) -c $*.c
+
+.f.o:
+	$(FC) $(FCFLAGS) -c $*.f
+
+.PHONY: Build
+
+Build: stochRun stochSimsUnitTests
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+
+myNewt.o:			 stackC.w
+		nuweb $(NUWEBFLAGS)  stackC.w
+	$(CC) $(FCFLAGS) -c myNewt.c
+
+juillard.o:	juillard.c
+	$(CC) $(FCFLAGS) -c juillard.c
+
+
+stochRun:	stochRun.o  juillard.o libstochSims.a
+	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+
+stochSimsUnitTests:	stochSimsUnitTests.o  juillard.o libstochSims.a
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+
+libstochSims.a:	myNewt.o \
+		stackC.o stochProto.o ranlib.o
+	ar -cvq libstochSims.a myNewt.o \
+		stackC.o stochProto.o ranlib.o
+
+
+clean: 
+	rm -f *.o stochRun libstochSims.a
+
+@}
+
 
 \listinginput{1}{makeStochTry}
 

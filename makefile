@@ -1,3 +1,4 @@
+
 #identify operating system
 UNAME= $(shell uname)
 NUWEBFLAGS = -t
@@ -29,8 +30,6 @@ MATIOLIBS= -L/usr/local/Cellar/libmatio/1.5.10/lib -lmatio
 
 endif
 
-echo:
-	@echo $(FCFLAGS)
 
 #compilers
 FC = gfortran
@@ -44,21 +43,16 @@ STOCHSIMSLIB= -L./ -lstochSims
 	make $*.o
 
 .c.o:
-	nuweb $(NUWEBFLAGS)  stochProto.w
-	nuweb $(NUWEBFLAGS)  stochRun.w
-	nuweb $(NUWEBFLAGS)  stackC.w
 	$(CC) $(FCFLAGS) -c $*.c
 
 .f.o:
-	nuweb $(NUWEBFLAGS)  stochProto.w
-	nuweb $(NUWEBFLAGS)  stochRun.w
-	nuweb $(NUWEBFLAGS)  stackC.w
 	$(FC) $(FCFLAGS) -c $*.f
 
 .PHONY: Build
 
-Build: stochRun
+Build: stochRun stochSimsUnitTests
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
@@ -71,6 +65,9 @@ juillard.o:	juillard.c
 stochRun:	stochRun.o  juillard.o libstochSims.a
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
+stochSimsUnitTests:	stochSimsUnitTests.o  juillard.o libstochSims.a
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+
 libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o
 	ar -cvq libstochSims.a myNewt.o \
@@ -79,3 +76,4 @@ libstochSims.a:	myNewt.o \
 
 clean: 
 	rm -f *.o stochRun libstochSims.a
+
