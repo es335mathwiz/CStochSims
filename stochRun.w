@@ -106,11 +106,11 @@ the page numbers of the component's definition.}
 
 @o stochRun.c -d
 @{
-#define genericModPeriodicPointGuesser julModPeriodicPointGuesser
-#define genericModDerivative julModDerivative
-#define genericMod julMod
-#define genericModData julModData
-#define genericModShocks julModShocks
+#define genericPeriodicPointGuesser julModPeriodicPointGuesser
+#define genericDerivative julModDerivative
+#define generic julMod
+#define genericData julModData
+#define genericShocks julModShocks
 #define genericNLAGS 1
 #define genericNLEADS 5
 #define genericNEQS 5
@@ -164,17 +164,12 @@ julliard.c.
 #include<stdlib.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
-#define genericNLAGS 1
-#define genericNLEADS 5
-#define genericNEQS 5
-#define SHOCKS 30
-#define DATA 50
-void genericMod(double * xvec,double * pvec,
+void generic(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs
 );
-void genericModDerivative(double * xvec,double * pvec,
+void genericDerivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs);
@@ -185,9 +180,9 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check);
-void genericModData(unsigned int t,double * vectorOfVals);
-void genericModShocks(unsigned int t,double * vectorOfVals);
-void genericModPeriodicPointGuesser
+void genericData(unsigned int t,double * vectorOfVals);
+void genericShocks(unsigned int t,double * vectorOfVals);
+void genericPeriodicPointGuesser
 (double * parameters,unsigned int period,
 	double *);
 
@@ -303,7 +298,7 @@ stochSim routine.
 
 altComputeAsymptoticQMatrix(
 numberOfEquations,lags,leads,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 genericFP,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
@@ -318,7 +313,7 @@ else {printf("computed Q matrix\n");}
 */
 printf("computed Q matrix\n");
 for(i=0;i<*pathLength;i++){
-genericModPeriodicPointGuesser(genericParam,1,
+genericPeriodicPointGuesser(genericParam,1,
 genericPathQ+(i *genericNEQS));}
 /**totalTime=dtime(userSystemTime);*/
 printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
@@ -328,10 +323,10 @@ cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
 
 
 stochSim(numberOfEquations,lags,leads,pathLength,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 replications,t0,tf,genericPermVec,
-genericShocks,numberOfShocks,
-genericData,numberOfData,
+genericShocksArray,numberOfShocks,
+genericDataArray,numberOfData,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
@@ -345,8 +340,8 @@ failedQ);
 @{
 
 
-for(i=0;i<DATA;i++){genericModData(i,genericData+(i*genericNEQS));}
-for(i=0;i<SHOCKS;i++){genericModShocks(i,genericShocks+(i*genericNEQS));}
+for(i=0;i<DATA;i++){genericData(i,genericDataArray+(i*genericNEQS));}
+for(i=0;i<SHOCKS;i++){genericShocks(i,genericShocksArray+(i*genericNEQS));}
 @}
 @d generate shock indices
 @{
@@ -385,16 +380,16 @@ fprintf(file,"%d};\n",matrix[length-1]);
 @{
 
 printf("saving values for variable in file named %s\n",flnm);
-fprintf(outFile,"genericModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
+fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
     genericNEQS,genericNLAGS,genericNLEADS,
      *pathLength,*t0,stochasticPathLength,*replications);
-fPrintMathInt(outFile,*replications,failedQ,"genericModFailedQ");
+fPrintMathInt(outFile,*replications,failedQ,"genericFailedQ");
 fPrintMathInt(outFile,*replications * (stochasticPathLength),
-      genericPermVec,"genericModPermVec");
+      genericPermVec,"genericPermVec");
 fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
-      genericPathQ,"genericModResults");
-fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericData,"genericModData");
-fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocks,"genericModShocks");
+      genericPathQ,"genericResults");
+fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericDataArray,"genericDataArray");
+fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksArray");
      fclose(outFile);
 
 
@@ -545,8 +540,8 @@ The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during
 FILE * outFile;
 unsigned int stochasticPathLength=1;
 unsigned int * genericPermVec;
-double * genericShocks;
-double * genericData;
+double * genericShocksArray;
+double * genericDataArray;
 double * genericFP;
 double genericParam[2]={0.5,0.6};
 double * genericPathQ;
@@ -599,9 +594,9 @@ smatsi[i] =(unsigned int *)calloc(
 
 @d main storage allocations determined at compile time
 @{
-genericShocks=(double *)calloc(
+genericShocksArray=(double *)calloc(
      genericNEQS*(SHOCKS),sizeof(double));
-genericData=(double *)calloc(
+genericDataArray=(double *)calloc(
      genericNEQS*(DATA),sizeof(double));
 genericFP=(double *)calloc(
      genericNEQS*(genericNLAGS+genericNLEADS+1),sizeof(double));
@@ -621,8 +616,8 @@ free(failedQ);
 free(AMqMatrix);
 free(AMqMatrixj);
 free(AMqMatrixi);
-free(genericShocks);
-free(genericData);
+free(genericShocksArray);
+free(genericDataArray);
 free(genericPermVec);
 free(genericFP);
 free(genericPathQ);
@@ -654,10 +649,10 @@ unsigned int chk[1]={0};
 @{
 printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
 
-genericModPeriodicPointGuesser(genericParam,1,genericFP);
+genericPeriodicPointGuesser(genericParam,1,genericFP);
 
 FPnewt(numberOfEquations,lags,leads,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 genericFP,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
@@ -737,11 +732,11 @@ printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 #include "CUnit/Basic.h"
 #include<stdlib.h>
 #include "useSparseAMA.h"
-#define genericModPeriodicPointGuesser julModPeriodicPointGuesser
-#define genericModDerivative julModDerivative
-#define genericMod julMod
-#define genericModData julModData
-#define genericModShocks julModShocks
+#define genericPeriodicPointGuesser julModPeriodicPointGuesser
+#define genericDerivative julModDerivative
+#define generic julMod
+#define genericData julModData
+#define genericShocks julModShocks
 #define genericNLAGS 1
 #define genericNLEADS 5
 #define genericNEQS 5
@@ -821,10 +816,10 @@ int main(int argc, char * argv[])
 @{
 printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
 
-genericModPeriodicPointGuesser(genericParam,1,genericFP);
+genericPeriodicPointGuesser(genericParam,1,genericFP);
 
 FPnewt(numberOfEquations,lags,leads,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 genericFP,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
@@ -845,8 +840,8 @@ printf("computed FP solution\n");
 @{
 
 
-for(i=0;i<DATA;i++){genericModData(i,genericData+(i*genericNEQS));}
-for(i=0;i<SHOCKS;i++){genericModShocks(i,genericShocks+(i*genericNEQS));}
+for(i=0;i<DATA;i++){genericData(i,genericDataArray+(i*genericNEQS));}
+for(i=0;i<SHOCKS;i++){genericShocks(i,genericShocksArray+(i*genericNEQS));}
 @}
 
 @d generic obtain fixed point for terminal constraint
@@ -873,7 +868,7 @@ printf("done generating perm vec\n");
 
 altComputeAsymptoticQMatrix(
 numberOfEquations,lags,leads,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 genericFP,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
@@ -888,7 +883,7 @@ else {printf("computed Q matrix\n");}
 */
 printf("computed Q matrix\n");
 for(i=0;i<*pathLength;i++){
-genericModPeriodicPointGuesser(genericParam,1,
+genericPeriodicPointGuesser(genericParam,1,
 genericPathQ+(i *genericNEQS));}
 /**totalTime=dtime(userSystemTime);*/
 printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
@@ -898,10 +893,10 @@ cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
 
 
 stochSim(numberOfEquations,lags,leads,pathLength,
-genericMod,genericModDerivative,genericParam,
+generic,genericDerivative,genericParam,
 replications,t0,tf,genericPermVec,
-genericShocks,numberOfShocks,
-genericData,numberOfData,
+genericShocksArray,numberOfShocks,
+genericDataArray,numberOfData,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
@@ -923,8 +918,8 @@ free(failedQ);
 free(AMqMatrix);
 free(AMqMatrixj);
 free(AMqMatrixi);
-free(genericShocks);
-free(genericData);
+free(genericShocksArray);
+free(genericDataArray);
 free(genericPermVec);
 free(genericFP);
 free(genericPathQ);
@@ -949,16 +944,16 @@ free(smatsi);
 @{
 
 printf("saving values for variable in file named %s\n",flnm);
-fprintf(outFile,"genericModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
+fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
     genericNEQS,genericNLAGS,genericNLEADS,
      *pathLength,*t0,stochasticPathLength,*replications);
-fPrintMathInt(outFile,*replications,failedQ,"genericModFailedQ");
+fPrintMathInt(outFile,*replications,failedQ,"genericFailedQ");
 fPrintMathInt(outFile,*replications * (stochasticPathLength),
-      genericPermVec,"genericModPermVec");
+      genericPermVec,"genericPermVec");
 fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
-      genericPathQ,"genericModResults");
-fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericData,"genericModData");
-fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocks,"genericModShocks");
+      genericPathQ,"genericResults");
+fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericDataArray,"genericDataArray");
+fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksArray");
      fclose(outFile);
 
 
@@ -1023,12 +1018,12 @@ printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n"
 #define genericNEQS 5
 #define SHOCKS 30
 #define DATA 50
-void genericMod(double * xvec,double * pvec,
+void generic(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs
 );
-void genericModDerivative(double * xvec,double * pvec,
+void genericDerivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs);
@@ -1039,9 +1034,9 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check);
-void genericModData(unsigned int t,double * vectorOfVals);
-void genericModShocks(unsigned int t,double * vectorOfVals);
-void genericModPeriodicPointGuesser
+void genericData(unsigned int t,double * vectorOfVals);
+void genericShocks(unsigned int t,double * vectorOfVals);
+void genericPeriodicPointGuesser
 (double * parameters,unsigned int period,
 	double *);
 
@@ -1136,8 +1131,8 @@ unsigned int maxNumberElements[1]={MAXELEMENTS};
 FILE * outFile;
 unsigned int stochasticPathLength=1;
 unsigned int * genericPermVec;
-double * genericShocks;
-double * genericData;
+double * genericShocksArray;
+double * genericDataArray;
 double * genericFP;
 double genericParam[2]={0.5,0.6};
 double * genericPathQ;
@@ -1156,9 +1151,9 @@ unsigned int chk[1]={0};
 
 @d generic main storage allocations determined at compile time
 @{
-genericShocks=(double *)calloc(
+genericShocksArray=(double *)calloc(
      genericNEQS*(SHOCKS),sizeof(double));
-genericData=(double *)calloc(
+genericDataArray=(double *)calloc(
      genericNEQS*(DATA),sizeof(double));
 genericFP=(double *)calloc(
      genericNEQS*(genericNLAGS+genericNLEADS+1),sizeof(double));
