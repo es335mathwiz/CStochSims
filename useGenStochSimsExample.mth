@@ -1,5 +1,5 @@
 $toGit="../";
-$toggleDirLoc=FileNameJoin[{Directory[],"/"},OperatingSystem->$OperatingSystem];
+$toggleDirLoc=FileNameJoin[{Directory[],"/"},OperatingSystem->$OperatingSystem]<>"/";
 $fmtPath=$toGit<>"paperProduction/FormatOptimize/";
 (*$Path=PrependTo[$Path,$toGit<>"experFRBUSMPS"];*)
 $Path=PrependTo[$Path,$toGit<>"mathAMA/AMAModel"];
@@ -28,7 +28,7 @@ Needs["GenStochSimsExample`"]
 Print["executing code for rbcChk.in.xml example"]
 xmlFileRBC=StringReplace[
 "file:///"<>FileNameJoin[{Directory[],"/rbcChk.in.xml"},
-OperatingSystem->"Unix"],"\\"->"/"]
+OperatingSystem->$OperatingSystem],"\\"->"/"]
 
 
 caRBC=getCoeffs[xmlFileRBC];
