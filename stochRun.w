@@ -106,7 +106,22 @@ the page numbers of the component's definition.}
 
 @o stochRun.c -d
 @{
+#define genericModPeriodicPointGuesser julModPeriodicPointGuesser
+#define genericModDerivative julModDerivative
+#define genericMod julMod
+#define genericModData julModData
+#define genericModShocks julModShocks
+#define genericNLAGS 1
+#define genericNLEADS 5
+#define genericNEQS 5
+#define SHOCKS 30
+#define DATA 50
+
+
+
 @<defines and includes@>
+
+
 /*unsigned int  dtime(double * userSystemTime);*/
 
 
@@ -150,16 +165,16 @@ julliard.c.
 #include "useSparseAMA.h"
 #include "stackC.h"
 #define genericNLAGS 1
-#define julNLEADS 5
-#define julNEQS 5
+#define genericNLEADS 5
+#define genericNEQS 5
 #define SHOCKS 30
 #define DATA 50
-void julMod(double * xvec,double * pvec,
+void genericMod(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs
 );
-void julModDerivative(double * xvec,double * pvec,
+void genericModDerivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs);
@@ -170,9 +185,9 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check);
-void julModData(unsigned int t,double * vectorOfVals);
-void julModShocks(unsigned int t,double * vectorOfVals);
-void julModPeriodicPointGuesser
+void genericModData(unsigned int t,double * vectorOfVals);
+void genericModShocks(unsigned int t,double * vectorOfVals);
+void genericModPeriodicPointGuesser
 (double * parameters,unsigned int period,
 	double *);
 
@@ -237,9 +252,9 @@ integer variables.
 
 unsigned int numberOfData[1]={DATA};
 unsigned int numberOfShocks[1]={SHOCKS};
-unsigned int numberOfEquations[1]={julNEQS};
+unsigned int numberOfEquations[1]={genericNEQS};
 unsigned int lags[1]={genericNLAGS};
-unsigned int leads[1]={julNLEADS};
+unsigned int leads[1]={genericNLEADS};
 unsigned int pathLength[1]={PATHLENGTH};
 unsigned int t0[1]={0};
 unsigned int tf[1]={0};
@@ -288,8 +303,8 @@ stochSim routine.
 
 altComputeAsymptoticQMatrix(
 numberOfEquations,lags,leads,
-julMod,julModDerivative,julParam,
-julliardFP,pathLength,
+genericMod,genericModDerivative,genericParam,
+genericFP,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
@@ -303,8 +318,8 @@ else {printf("computed Q matrix\n");}
 */
 printf("computed Q matrix\n");
 for(i=0;i<*pathLength;i++){
-julModPeriodicPointGuesser(julParam,1,
-julliardPathQ+(i *julNEQS));}
+genericModPeriodicPointGuesser(genericParam,1,
+genericPathQ+(i *genericNEQS));}
 /**totalTime=dtime(userSystemTime);*/
 printf("after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 *totalTime,*userSystemTime,*(userSystemTime+1));
@@ -313,15 +328,15 @@ cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
 
 
 stochSim(numberOfEquations,lags,leads,pathLength,
-julMod,julModDerivative,julParam,
-replications,t0,tf,julliardPermVec,
-julliardShocks,numberOfShocks,
-julliardData,numberOfData,
+genericMod,genericModDerivative,genericParam,
+replications,t0,tf,genericPermVec,
+genericShocks,numberOfShocks,
+genericData,numberOfData,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
-julliardFP,
-julliardPathQ,
+genericFP,
+genericPathQ,
 failedQ);
 @|setgm sval
 @}
@@ -330,14 +345,14 @@ failedQ);
 @{
 
 
-for(i=0;i<DATA;i++){julModData(i,julliardData+(i*julNEQS));}
-for(i=0;i<SHOCKS;i++){julModShocks(i,julliardShocks+(i*julNEQS));}
+for(i=0;i<DATA;i++){genericModData(i,genericData+(i*genericNEQS));}
+for(i=0;i<SHOCKS;i++){genericModShocks(i,genericShocks+(i*genericNEQS));}
 @}
 @d generate shock indices
 @{
 
 printf("generating perm vec\n");
- generateDraws(1,(stochasticPathLength),(*replications),SHOCKS,julliardPermVec);
+ generateDraws(1,(stochasticPathLength),(*replications),SHOCKS,genericPermVec);
 printf("done generating perm vec\n");
 
 
@@ -370,16 +385,16 @@ fprintf(file,"%d};\n",matrix[length-1]);
 @{
 
 printf("saving values for variable in file named %s\n",flnm);
-fprintf(outFile,"julModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
-    julNEQS,genericNLAGS,julNLEADS,
+fprintf(outFile,"genericModRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
+    genericNEQS,genericNLAGS,genericNLEADS,
      *pathLength,*t0,stochasticPathLength,*replications);
-fPrintMathInt(outFile,*replications,failedQ,"julModFailedQ");
+fPrintMathInt(outFile,*replications,failedQ,"genericModFailedQ");
 fPrintMathInt(outFile,*replications * (stochasticPathLength),
-      julliardPermVec,"julModPermVec");
-fPrintMathDbl(outFile,(*replications * julNEQS*(stochasticPathLength+genericNLAGS)),
-      julliardPathQ,"julModResults");
-fPrintMathDbl(outFile,(julNEQS*(DATA)),julliardData,"julModData");
-fPrintMathDbl(outFile,(julNEQS*(SHOCKS)),julliardShocks,"julModShocks");
+      genericPermVec,"genericModPermVec");
+fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
+      genericPathQ,"genericModResults");
+fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericData,"genericModData");
+fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocks,"genericModShocks");
      fclose(outFile);
 
 
@@ -509,8 +524,8 @@ printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength
 @d find variable name match
 @{
 i=0;
-while( (i <julNEQS) &&(strcmp(argv[2],julNamesArray[i])))i++;
-if(i==julNEQS){
+while( (i <genericNEQS) &&(strcmp(argv[2],genericNamesArray[i])))i++;
+if(i==genericNEQS){
 vbl=0;/*shock something that's irrelevant*/
 printf("i don't know the variable %s: ignoring this variable value pair\n",
 argv[2]);} else {vbl = i;}
@@ -529,12 +544,12 @@ The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during
 
 FILE * outFile;
 unsigned int stochasticPathLength=1;
-unsigned int * julliardPermVec;
-double * julliardShocks;
-double * julliardData;
-double * julliardFP;
-double julParam[2]={0.5,0.6};
-double * julliardPathQ;
+unsigned int * genericPermVec;
+double * genericShocks;
+double * genericData;
+double * genericFP;
+double genericParam[2]={0.5,0.6};
+double * genericPathQ;
 double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
 double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
 static char flnm[50] = "stochOut.m";
@@ -544,7 +559,7 @@ unsigned int i/*,j*/;
 @}
 @d define names array
 @{
-/*char * julNamesArray[] =  
+/*char * genericNamesArray[] =  
 {"ey","pdot","rr","rs","y"};*/
 
 @}
@@ -554,11 +569,11 @@ failedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
 for(i=0;i<*replications;i++)failedQ[i]=0;
 *tf=(*t0)+stochasticPathLength-1;
 
-julliardPermVec=(unsigned int *)calloc(
+genericPermVec=(unsigned int *)calloc(
      (stochasticPathLength)*(*replications),sizeof(unsigned int));
-julliardPathQ=(double *)calloc(
+genericPathQ=(double *)calloc(
     *replications*
-    julNEQS*(genericNLAGS+julNLEADS+(*pathLength)+stochasticPathLength),
+    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+stochasticPathLength),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
 unsigned int ** ptrToPtrToInt = NULL;
@@ -572,11 +587,11 @@ for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
 fmats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 fmatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
 fmatsi[i] =(unsigned int *)calloc(
-     julNEQS*(genericNLAGS+julNLEADS)+1,sizeof(unsigned int));
+     genericNEQS*(genericNLAGS+genericNLEADS)+1,sizeof(unsigned int));
 smats[i] =(double *)calloc(MAXELEMENTS,sizeof(double));
 smatsj[i] =(unsigned int *)calloc(MAXELEMENTS,sizeof(unsigned int));
 smatsi[i] =(unsigned int *)calloc(
-     julNEQS*(genericNLAGS+julNLEADS)+1,sizeof(unsigned int));
+     genericNEQS*(genericNLAGS+genericNLEADS)+1,sizeof(unsigned int));
 }
 
 
@@ -584,18 +599,18 @@ smatsi[i] =(unsigned int *)calloc(
 
 @d main storage allocations determined at compile time
 @{
-julliardShocks=(double *)calloc(
-     julNEQS*(SHOCKS),sizeof(double));
-julliardData=(double *)calloc(
-     julNEQS*(DATA),sizeof(double));
-julliardFP=(double *)calloc(
-     julNEQS*(genericNLAGS+julNLEADS+1),sizeof(double));
+genericShocks=(double *)calloc(
+     genericNEQS*(SHOCKS),sizeof(double));
+genericData=(double *)calloc(
+     genericNEQS*(DATA),sizeof(double));
+genericFP=(double *)calloc(
+     genericNEQS*(genericNLAGS+genericNLEADS+1),sizeof(double));
 AMqMatrix=(double *)
    calloc(MAXELEMENTS,sizeof(double));
 AMqMatrixj=(unsigned int *)
    calloc(MAXELEMENTS,sizeof(unsigned int));
 AMqMatrixi=(unsigned int *)
-   calloc((julNEQS*(julNLEADS+genericNLAGS)),
+   calloc((genericNEQS*(genericNLEADS+genericNLAGS)),
         sizeof(unsigned int));
 @}
 
@@ -606,11 +621,11 @@ free(failedQ);
 free(AMqMatrix);
 free(AMqMatrixj);
 free(AMqMatrixi);
-free(julliardShocks);
-free(julliardData);
-free(julliardPermVec);
-free(julliardFP);
-free(julliardPathQ);
+free(genericShocks);
+free(genericData);
+free(genericPermVec);
+free(genericFP);
+free(genericPathQ);
 for(i=0;i<(*pathLength)+genericNLAGS+1;i++){
 free(smats[i]);
 free(smatsj[i]);
@@ -639,11 +654,11 @@ unsigned int chk[1]={0};
 @{
 printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
 
-julModPeriodicPointGuesser(julParam,1,julliardFP);
+genericModPeriodicPointGuesser(genericParam,1,genericFP);
 
 FPnewt(numberOfEquations,lags,leads,
-julMod,julModDerivative,julParam,
-julliardFP,
+genericMod,genericModDerivative,genericParam,
+genericFP,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
@@ -728,8 +743,8 @@ printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 #define genericModData julModData
 #define genericModShocks julModShocks
 #define genericNLAGS 1
-#define julNLEADS 5
-#define julNEQS 5
+#define genericNLEADS 5
+#define genericNEQS 5
 #define SHOCKS 30
 #define DATA 50
 
@@ -1088,9 +1103,9 @@ printf("Hello World!!  after compile time determined storage allocations\n total
 
 unsigned int numberOfData[1]={DATA};
 unsigned int numberOfShocks[1]={SHOCKS};
-unsigned int numberOfEquations[1]={julNEQS};
+unsigned int numberOfEquations[1]={genericNEQS};
 unsigned int lags[1]={genericNLAGS};
-unsigned int leads[1]={julNLEADS};
+unsigned int leads[1]={genericNLEADS};
 unsigned int pathLength[1]={PATHLENGTH};
 unsigned int t0[1]={0};
 unsigned int tf[1]={0};
@@ -1184,8 +1199,8 @@ asymptoticLinearization AMqMatrix
 \section{Non Linear Model Definition} 
 \label{sec:def}
 
-\subsection{Julliard Model}
-\label{sec:julmod}
+\subsection{Generic Model}
+\label{sec:genericmod}
 
 
 \listinginput{1}{/mq/home4/m1gsa00/aim/nonLinearModels/julliard/julliardModel.m}
