@@ -65,8 +65,8 @@ juillard.o:	juillard.c
 stochRun:	stochRun.o  juillard.o libstochSims.a
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
-stochSimsUnitTests:	stochSimsUnitTests.o  juillard.o libstochSims.a
-	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+stochSimsUnitTests:	stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o libstochSims.a
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o
@@ -75,5 +75,5 @@ libstochSims.a:	myNewt.o \
 
 
 clean: 
-	rm -f *.o stochRun libstochSims.a
+	rm -f *.o stochRun stochSimsUnitTests libstochSims.a
 

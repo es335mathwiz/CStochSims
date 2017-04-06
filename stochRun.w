@@ -732,14 +732,14 @@ printf("after using Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
 #include "CUnit/Basic.h"
 #include<stdlib.h>
 #include "useSparseAMA.h"
-#define genericPeriodicPointGuesser julModPeriodicPointGuesser
-#define genericDerivative julModDerivative
-#define generic julMod
-#define genericData julModData
-#define genericShocks julModShocks
+#define genericPeriodicPointGuesser rbcExamplePeriodicPointGuesser
+#define genericDerivative rbcExampleDerivative
+#define generic rbcExample
+#define genericData rbcExampleData
+#define genericShocks rbcExampleShocks
 #define genericNLAGS 1
-#define genericNLEADS 5
-#define genericNEQS 5
+#define genericNLEADS 1
+#define genericNEQS 4
 #define SHOCKS 30
 #define DATA 50
 
@@ -1013,11 +1013,6 @@ printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n"
 #include<stdlib.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
-#define genericNLAGS 1
-#define genericNLEADS 5
-#define genericNEQS 5
-#define SHOCKS 30
-#define DATA 50
 void generic(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
@@ -1277,8 +1272,8 @@ juillard.o:	juillard.c
 stochRun:	stochRun.o  juillard.o libstochSims.a
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
-stochSimsUnitTests:	stochSimsUnitTests.o  juillard.o libstochSims.a
-	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+stochSimsUnitTests:	stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o libstochSims.a
+	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o
@@ -1287,7 +1282,7 @@ libstochSims.a:	myNewt.o \
 
 
 clean: 
-	rm -f *.o stochRun libstochSims.a
+	rm -f *.o stochRun stochSimsUnitTests libstochSims.a
 
 @}
 
