@@ -804,6 +804,12 @@ pathTwo02=aimType2[testModel,1,0.25*plugT00][[-1]];
 #define widthDoubleControlInfo 50
 #define widthIntOutputInfo 20
 #define widthDoubleOutputInfo 10
+unsigned int intControlParameters[widthIntControlInfo];
+double doubleControlParameters[widthDoubleControlInfo];
+unsigned int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
+double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];
+
+
 #define useStackQ intControlParameters[0]
 #define useLnsrchQ intControlParameters[1]
 #define numberOfDebugPairs intControlParameters[2]
@@ -852,7 +858,6 @@ pathTwo02=aimType2[testModel,1,0.25*plugT00][[-1]];
 #define ICnumberOfShocks intControlParameters[61]
 #define ICnumberExog intControlParameters[62]
 #define ignoreFailQ intControlParameters[63]
-
 
 #define tolxInput doubleControlParameters[0]
 #define tolfInput doubleControlParameters[1]
@@ -974,10 +979,6 @@ double atof();
 
 
 
-//unsigned int intControlParameters[widthIntControlInfo];
-//double doubleControlParameters[widthDoubleControlInfo];
-/* unsigned int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
-double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
 
 
 /*unsigned int qRows=0;
