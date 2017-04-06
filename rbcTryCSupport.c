@@ -3,7 +3,7 @@
 
 /*Mathematica Creation Date{2017, 4, 5, 13, 12, 18.919406}*/
 /*rbc example model*/
-#include "/a/msulx1/lcl/msu/home/m1gsa00/git/CStochSims/lagLead.h"
+#include "lagLead.h"
 #include <math.h>
 //staticf double maxarg1,maxarg2;
 #include <math.h>
