@@ -267,6 +267,7 @@ MA50CD operates on the transpose.
 void nxtCDmats(@<nxtCDmats argument list@>){
 #include "useSparseAMA.h"
 #include "stackC.h"
+#include "stochProto.h"
 @<nxtCDmats variable declarations@>
 @<nxtCDmats scalar variable allocations@>
 @<nxtCDmats array variable allocations@>
@@ -894,6 +895,7 @@ void oneStepBack(@<oneStepBack argument list@>);
 @d oneStepBack definition
 @{
 #include "stackC.h"
+#include "stochProto.h"
 void oneStepBack(@<oneStepBack argument list@>)
 {
 @<oneStepBack variable definitions@>
@@ -1054,7 +1056,14 @@ double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,unsigned int ihomotopy,
 unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
+@o stackC.h
+@{
+#define addOneToFEvals (intOutputInfo[2])++
+#define homotopyAlpha (doubleControlParameters+10)
+#define addOneToFDrvEvals (intOutputInfo[3])++
+#define maxNumberStackElements intControlParameters[5]
 
+@}
 
 @d chkDrv definition
 @{
@@ -1085,10 +1094,6 @@ printf("chkDrv:done\n");
 #endif
 
 }
-#define addOneToFEvals (intOutputInfo[2])++
-#define homotopyAlpha (doubleControlParameters+10)
-#define addOneToFDrvEvals (intOutputInfo[3])++
-#define maxNumberStackElements intControlParameters[5]
 void constructFdrv(@<constructFdrv argument list@>)
 {
 double * deviations;
@@ -2805,33 +2810,52 @@ __LINE__);
 @{
 void FPnewt(@<FPNewt argument list@>);
 @}
-
+o
 
 @d FPNewt argument list
 @{
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (* func)(),void (* dfunc)(),double * params,
-double x[],
+double x[],double * linPt,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
-unsigned int *check
+unsigned int *check,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
 
 
 @o myNewt.c -d 
 @{
+#include "stackC.h"
+#include "stochProto.h"
 @<FPnewt defines@>
 void FPnewt(@<FPNewt argument list@>)
 {
 @<FPnewt declarations@>
+*check=0;done=0;
+for(ihomotopy=0;(ihomotopy<numberAlphas)&&(!(*check));ihomotopy++){
+#ifdef DEBUG 
+printf("%d-th homotopy -- %f\n",ihomotopy,*(homotopyAlpha+ihomotopy));
+#endif
 @<evaluate func and find max element@>
 for (its=1;its<=MAXITS;its++) {
 @<get newton update@>
 @<evaluate func update norm@>
 @<check for convergence@>
 	}
-	printf("MAXITS exceeded in FPnewt");FREERETURN
+if(!done){
+*check=1;
+addOneToFailedQ;
+	printf("MAXITS=%d exceeded in FPNewt\n",(maxitsInput));}
+done=0;
+}
+if(ignoreFailQ){
+if(*check==1){subOneFromFailedQ;}
+*check=0;
+printf("IGNORING FAILED CONVERGENCE!!!!!!!!\n");
+}FREERETURN
 }
 @}
 @d FPnewt defines
@@ -2840,6 +2864,7 @@ for (its=1;its<=MAXITS;its++) {
 #include <math.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
+#include "stochProto.h"
 #define NRANSI
 /*#include "./nrutil.h"*/
 
@@ -2873,12 +2898,9 @@ free(deviations);free(fullfvec);\
 
 @d FPnewt declarations
 @{
-    unsigned int n;/*double * xdel;*/
+    unsigned int n;/*double * xdel;*/unsigned int done;unsigned int ihomotopy;/* double realAlpha;*/
 /*	double fmin(double x[]);*/
-	void lnsrch(unsigned int n,unsigned int np,unsigned int reps,
-    double xold[], double   * fold, double g[], double p[],double * params,
-		 double * shockVec,double * f, double stpmax, unsigned int *check, 
-         void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*),double *x);
+
 	void lubksb(double **a, unsigned int n, unsigned int *indx, double b[]);
 	void ludcmp(double **a, unsigned int n, unsigned int *indx, double *d);
 	unsigned int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
@@ -2940,7 +2962,9 @@ cPrintMatrixNonZero(n,1,x);
 
 
 		lnsrch(n,*numberOfEquations,1,
-        xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x);
+        xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x,ihomotopy,linPt,
+intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
 
 /*
 printf("here is check=%d, and f=%f and x after\n",*check,f);
@@ -3007,32 +3031,76 @@ for(i=0;i<n;i++)x[i]=x[i]-p[i];
 \subsection{pathNewt}
 \label{sec:pathNewt}
 
-
-
-
-@o myNewt.c -d 
+@o stackC.h
 @{
-void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void pathNewt(@<pathNewt argument list@>);
+@}
+
+@d pathNewt argument list
+@{unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
  unsigned int * maxNumberElements,double * qMat, unsigned int * qMatj, unsigned int * qMati,
 double * fixedPoint,
-double x[],
- unsigned int *check)
+double x[],double * linPt,
+ unsigned int *check,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+@}
+
+
+@o myNewt.c -d 
+@{
+void pathNewt(@<pathNewt argument list@>)
 {
 @<pathNewt declarations@>
 @<pathNewt initializations@>
+*check=0;done=0;
+for(ihomotopy=0;(ihomotopy<numberAlphas)&&(!(*check));ihomotopy++){
+#ifdef DEBUG 
+printf("%d-th homotopy -- %f\n",ihomotopy,*(homotopyAlpha+ihomotopy));
+#endif
+
+
 @<q terminal constraint computation@>
-@<pathNewt check for convergence @>
-	for (its=1;its<=MAXITS;its++) {
+its=0;
+	for (its=1;(its<=(maxitsInput))&&(!done);its++) {
+if(*check == 0){
 @<pathNewt update path@>
 @<q terminal constraint computation@>
-@<pathNewt check for convergence@>
-		for (i=0;i<n;i++) xold[i]=x[i];
+@<another pn check for convergence@>
 	}
- printf("MAXITS exceeded in pathNewt");PFREERETURN
 }
+
+if(!done){
+*check=1;
+addOneToFailedQ;
+ printf("MAXITS=%d exceeded in pathNewt\n",(maxitsInput));}
+done=0;
+}
+if(ignoreFailQ){
+if(*check==1){/*subOneFromFailedQ;*/
+printf("IGNORING FAILED CONVERGENCE!!!!!!!!\n");
+}
+*check=0;
+
+}
+PFREERETURN
+}
+
+@}
+
+@d another pn check for convergence
+@{
+#ifdef DEBUG 
+printf("pathNewt:another testing for convergence\n");
+#endif
+
+
+@<pathNewt check for convergence@>
+
+
 @}
 
 
@@ -3414,7 +3482,9 @@ cPrintMatrixNonZero(n,1,x);
 
 if(*pathLength)  {
 		lnsrch(n,*numberOfEquations,*pathLength,
-        xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x);
+        xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x,
+ihomotopy,linPt,intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
         } else {
 for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 }
@@ -3454,14 +3524,10 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 
 @}
 @d pathNewt declarations
-@{    unsigned int  n; 
-    unsigned int tNow;unsigned int * rowDim;unsigned int * qColumns;
+@{    unsigned int  n; int ihomotopy;
+    unsigned int tNow;unsigned int * rowDim;unsigned int * qColumns;int done=0;
     double * deviations;double * fullfvec;
 /*	double fmin(double x[]);*/
-	void lnsrch(unsigned int  n, unsigned int np,unsigned int reps,double xold[], double  *fold, double g[], double p[],double * params,double * shockVec,
-		 double * f, double stpmax, unsigned int *check, void (*func)(),double * x);
-
-
 	unsigned int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
 	double /*d,*/den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,*xoldls,*xdel,normSum;
 @}
@@ -3469,6 +3535,19 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 
 \subsection{lnsrch}
 \label{sec:lnsrch}
+@o stackC.h
+@{
+void lnsrch(@<lnsrch argument list@>);
+
+@}
+@d lnsrch argument list
+@{unsigned int  n,unsigned int np,unsigned int reps,
+double xold[], double * fold, double g[], double p[], 
+		 double * params,double * shockVec,double * f,double stpmax, unsigned int *check,
+			void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*,double * x,double * alinPt),double * x,unsigned int ihomotopy,double * linPt,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+@}
 
 @o myNewt.c -d
 @{
@@ -3486,15 +3565,15 @@ double *deviationsFromPeriodicPath,unsigned int *BMatrixColumns2,
 double *aZero,
 double *pathNow,
 unsigned int *BMatrixRows2);
-
+#include "stackC.h"
+#include "stochProto.h"
 
 extern double  dnrm2_();
 #include <string.h>
+#include "stackC.h"
+#include "stochProto.h"
 
-void lnsrch(unsigned int  n,unsigned int np,unsigned int reps,
-double xold[], double * fold, double g[], double p[], 
-		 double * params,double * shockVec,double * f,double stpmax, unsigned int *check,
-			void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*),double * x)
+void lnsrch(@<lnsrch argument list@>)
 {
 @< lnsrch declarations@>
 @< lnsrch preloop@>
@@ -3508,18 +3587,18 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 /* (C) Copr. 1986-92 Numerical Recipes Software '>9m_L31.. */
 
 @}
-
 @d lnsrch declarations
 @{
-	unsigned int i;
+	unsigned int i;double * zeroShockVec;/*unsigned int resetFailedQ;*/
+
 	double a,alam,alam2,alamin,b,disc,f2,fold2,rhs1,rhs2,slope,sum,temp,
 		test,tmplam;
-	unsigned int * aOne;unsigned int * aTwo,*ierr,*aZero;
+	unsigned int* aOne;unsigned int* aTwo,*ierr,*aZero;
 	double * fnow,*fvec/*,*fnorm*/, *xorig,*aDoubleZero;
-    unsigned int * fvecj;
+    unsigned int* fvecj;
     double *dir,*aDoubleOne;
     char * transp, *noTransp;
-	unsigned int * fveci;
+	unsigned int* fveci;
     transp = (char *)calloc(2,sizeof(char));
     strcpy(transp,"T");
     noTransp = (char *)calloc(2,sizeof(char));
@@ -3530,15 +3609,16 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
     fnow=(double *)calloc(n,sizeof(double));
     aDoubleZero=(double *)calloc(1,sizeof(double));
     *aDoubleZero=0.0;
-	ierr=(unsigned int *)calloc(1,sizeof(unsigned int));
-	fveci=(unsigned int *)calloc(n+1,sizeof(unsigned int));
-	aOne=(unsigned int *)calloc(1,sizeof(unsigned int));
+	ierr=(unsigned int*)calloc(1,sizeof(unsigned int));
+	fveci=(unsigned int*)calloc(n+1,sizeof(unsigned int));
+	aOne=(unsigned int*)calloc(1,sizeof(unsigned int));
 	*aOne=1;
-	aZero=(unsigned int *)calloc(1,sizeof(unsigned int));
+	aZero=(unsigned int*)calloc(1,sizeof(unsigned int));
 	*aOne=0;
-	aTwo=(unsigned int *)calloc(1,sizeof(unsigned int));
+	aTwo=(unsigned int*)calloc(1,sizeof(unsigned int));
 	*aTwo=2;
 	fvec=(double *)calloc(n,sizeof(double));
+	zeroShockVec=(double *)calloc(n,sizeof(double));
 	xorig=(double *)calloc(n,sizeof(double));
 	fvecj=(unsigned int *)calloc(n,sizeof(double));
 
@@ -3552,15 +3632,24 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 */
 
 *fold=0;
-		for(i=0;i<reps;i++){
-((*func)(xold+(i*np),params,shockVec,fvec,fvecj,fveci));
-        useCNRMS(&np,aZero,fvec,fvecj,fveci,xorig);
+{/* use shock for first only*/
+addOneToFEvals;
+(*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
+		for(i=1;i<reps;i++){
+addOneToFEvals;
+(*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+        *fold += xorig[0];
+        }
+
       *fold *= 0.5;
 
 /*
-csrToDns(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+csrdns_(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+pathNewtAssert(ierr == 0);
 
     dgemm_(transp,noTransp,
            aOne,aOne,&n,aDoubleOne,
@@ -3572,6 +3661,7 @@ if(*dir<0)
 
 for (i=0;i<n;i++) p[i]= (-p[i]);
 
+//resetFailedQ;
 	*check=0;
 	for (sum=0.0,i=0;i<n;i++) sum += p[i]*p[i];
 	sum=sqrt(sum);
@@ -3582,44 +3672,84 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 	test=0.0;
 	for (i=0;i<n;i++) {
 		temp=fabs(p[i])/FMAX(fabs(xold[i]),1.0);
-		if (temp > test) test=temp;
+		if (temp > test) (test=temp);
 	}
-	if(test!=0){alamin=TOLX/test;} else {alamin=1.0e16;}
+	if(test>tolxInput){alamin=1e-5*tolxInput/test;} else {alamin=(alaminInput);}
 	alam=1.0;
 @}
 @d lnsrch free storage
 @{
 
-			free(transp);
-            free(ierr);
-			free(noTransp);
-			free(dir);
-			free(aDoubleZero);
-			free(aDoubleOne);
-			free(fnow);
-			free(xorig);
-			free(fvec);
-			free(fvecj);
-			free(fveci);
-			free(aOne);
-			free(aZero);
-			free(aTwo);
+			cfree(transp);
+            cfree(ierr);
+			cfree(noTransp);
+			cfree(dir);
+			cfree(aDoubleZero);
+			cfree(aDoubleOne);
+			cfree(fnow);
+			cfree(xorig);
+			cfree(zeroShockVec);
+			cfree(fvec);
+			cfree(fvecj);
+			cfree(fveci);
+			cfree(aOne);
+			cfree(aZero);
+			cfree(aTwo);
 @}
 
 @d lnsrch loop
 @{
 	for (;;) {
 		for (i=0;i<n;i++) x[i]=xold[i]+alam*p[i];
-		for(i=0;i<1;i++)((*func)(x+(i*np),params,shockVec,fvec,fvecj,fveci));
-        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);*f = xorig[0] *  0.5;
-/*printf("fnormvals %f\n",*f);*/
-		if (alam < alamin) {
-		  /*			for (i=0;i<n;i++) x[i]=xold[i];*/
-			*check=1;
+
+
+*f=0;
+{/*use shock first period only*/
+addOneToFEvals;
+(*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+        *f += xorig[0];
+        }
+		for(i=1;i<reps;i++){
+addOneToFEvals;
+(*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+        *f += xorig[0];
+        }
+
+      *f *= 0.5;
+
+#define DEBUG 1
+#ifdef DEBUG 
+printf("lnsrch:f %f\n",*f);
+printf("lnsrch:fold %f\n",*fold);
+printf("lnsrch:alam %f\n",alam);
+printf("lnsrch:alamin %f\n",alamin);
+#endif
+
+		if (alam < NEGLIGIBLEDOUBLE ) {
+		  			for (i=0;i<n;i++) x[i]=xold[i]+p[i];
+			 /**check=1;*/
 @<lnsrch free storage@>
+printf("lnsrch:alam<NEGLIGIBLEDOUBLE, just do full newton step\n");
+#ifdef DEBUG 
+printf("lnsrch:alam<NEGLIGIBLEDOUBLE, just do full newton step\n");
+#endif
 			return;
-		} else if (*f <= *fold+ALF*alam*slope) {
+		} else 	if (alam < alamin) {
+		  			for (i=0;i<n;i++) x[i]=xold[i]+p[i];
+printf("lnsrch:alam<alamin, just do full newton step\n");
+			/* *check=1;*/
 @<lnsrch free storage@>
+#ifdef DEBUG 
+printf("lnsrch:alam<alamin, just do full newton step\n");
+#endif
+			return;
+		} else if (*f < *fold+(alfInput)*alam*slope) {
+@<lnsrch free storage@>
+#ifdef DEBUG 
+printf("lnsrch:*f < *fold+(alfInput)*alam*slope return\n,slope=%e,alam=%e\n,*fold=%e,f=%e\n",slope,alam,*fold,*f);
+#endif
 		  return;}
 		else {
 			if (alam == 1.0)
@@ -3649,6 +3779,22 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 @d lnsrch postloop
 @{
 @<lnsrch free storage@>
+@}
+
+
+@o validArrayElements.c
+@{
+@<define assert bump@>
+int validArrayElements(int elements,double * mata)
+{
+int result,allPositive,allFiniteNumbers;
+result=(elements >0);
+      allFiniteNumbers=TRUE;
+      for(i=0;i<elements;i++){
+        allFiniteNumbers=(finite(mata[i])&&allFiniteNumbers);}
+      result=(result &&  allFiniteNumbers);
+      return(result);
+}
 @}
 
 

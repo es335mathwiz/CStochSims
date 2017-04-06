@@ -173,13 +173,7 @@ void genericDerivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs);
-void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double x[],
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-unsigned int *check);
+
 void genericData(unsigned int t,double * vectorOfVals);
 void genericShocks(unsigned int t,double * vectorOfVals);
 void genericPeriodicPointGuesser
@@ -651,13 +645,19 @@ printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
 
 genericPeriodicPointGuesser(genericParam,1,genericFP);
 
+unsigned int * inIntControl={0};
+double * inDoubleControl={0};
+unsigned int * outIntControl={0};
+double * outDoubleControl={0};
+
+
 FPnewt(numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
 genericFP,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
-chk);
+ckh,inIntControl,inDoubleControl,outIntControl,outDoubleControl);
 
 /*
 if(chk[0])
@@ -818,13 +818,19 @@ printf("$Id: stochRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $\n");
 
 genericPeriodicPointGuesser(genericParam,1,genericFP);
 
+unsigned int * inIntControl={0};
+double * inDoubleControl={0};
+unsigned int * outIntControl={0};
+double * outDoubleControl={0};
+double * linearizationPoint={0};
+
 FPnewt(numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
-genericFP,
+genericFP,linearizationPoint,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
-chk);
+chk,inIntControl,inDoubleControl,outIntControl,outDoubleControl);
 
 /*
 if(chk[0])
@@ -1022,13 +1028,6 @@ void genericDerivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs);
-void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double x[],
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-unsigned int *check);
 void genericData(unsigned int t,double * vectorOfVals);
 void genericShocks(unsigned int t,double * vectorOfVals);
 void genericPeriodicPointGuesser

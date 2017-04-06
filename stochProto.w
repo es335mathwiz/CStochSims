@@ -1042,8 +1042,8 @@ double*impact;unsigned int*impactj;unsigned int*impacti;*/
 @{
 
 
-double FMAX(double a,double b);
-double FMIN(double a,double b);
+//double FMAX(double a,double b);
+//double FMIN(double a,double b);
 double FABS(double a);
 double doRightSmaller(double a,double b);
 double doSign(double a);
