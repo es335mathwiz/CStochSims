@@ -40,3 +40,5 @@ double * rbcExampleEasyPathQ;
 double * rbcExampleTargetPathQ;
 double * rbcExamplePathQ;
 double * rbcExampleZeroPathQ;
+void rbcExampleData(int t,double * vectorOfVals);
+void rbcExampleShocks(int t,double * vectorOfVals);

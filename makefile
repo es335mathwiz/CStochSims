@@ -50,10 +50,10 @@ STOCHSIMSLIB= -L./ -lstochSims
 
 .PHONY: Build
 
-Build: stochRun stochSimsUnitTests runrbcTryC
-	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
-	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
-	$(FC) -o runrbcTryc -g  runrbcTryC.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+Build: stochRun runrbcTryC
+#	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+#	$(FC) -o runrbcTryC -g  runrbcTryC.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+#	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
@@ -68,6 +68,9 @@ stochRun:	stochRun.o  juillard.o libstochSims.a
 
 stochSimsUnitTests:	stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o libstochSims.a
 	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+
+runrbcTryC:	runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o libstochSims.a
+	$(FC) -o runrbcTryC -g  runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 libstochSims.a:	myNewt.o \
 		stackC.o stochProto.o ranlib.o

@@ -1057,15 +1057,33 @@ double doSign(double a);
 
 @o stochProto.h -d
 @{
+
+#ifdef __APPLE__
+#include<strings.h>
+#endif
+#ifdef __linux__
+#include<string.h>
+#endif
+/* */
+
+void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
+			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2);
+
+void modDataAbs(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
+			unsigned  int vbl,unsigned int t0,unsigned int tf,double val1,double val2);
+/* */
+
+
+
 void stochSim(@<stochSim argument list@>);
 void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
 unsigned int * iarray);
-void processCommandLine(int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
+
+void processCommandLine(unsigned int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
 double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
 unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-unsigned int *  intControlParameters,double* doubleControlParameters,char * flnm);
-void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName);
-void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName);
+unsigned int * intControlParameters,double* doubleControlParameters,char * flnm);
+
 @}
 
 @o stochProto.c -d
@@ -1077,7 +1095,7 @@ void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char * 
 #include<string.h>
 #endif
 /* */
-/*#include "stochProto.h"*/
+
 void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
 			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2)
 {
@@ -1103,7 +1121,7 @@ dataVals[t*numberOfEquations+vbl]= (val2+val1)/2;} else {
 
 
 
-void processCommandLine(int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
+void processCommandLine(unsigned int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
 double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
 unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
 unsigned int * intControlParameters,double* doubleControlParameters,char * flnm)
@@ -1351,7 +1369,6 @@ for(i=0;(i<length-1);i++){
 fprintf(file,"%d,",matrix[i]);}
 fprintf(file,"%d};\n",matrix[length-1]);
 }
-
 
 @}
 

@@ -2,6 +2,10 @@
 /*declare prototypes for functions*/
 float  dtime_(float * userSystemTime);
 double atof();
+#define rbcNEQS 4
+#define rbcNLAGS 1
+#define rbcNLEADS 1
+#define PATHLENGTH 1000
 
 
 FILE * outFile;
@@ -11,26 +15,26 @@ static char flnm[50] = "stochOut.m";
 int i;/*int j;*/
 /*modelDimensions call determines these*/
 int  numberOfEquations[1]={rbcNEQS};
-int  lags[1]={rbcNLAGS};
-int  leads[1]={rbcNLEADS};
-int pathLength[1]={PATHLENGTH};
-int stochasticPathLength[1]={PATHLENGTH};
-int t0[1]={0};
-int tf[1]={0};
-int replications[1]={1};
+unsigned int  lags[1]={rbcNLAGS};
+unsigned int  leads[1]={rbcNLEADS};
+unsigned int pathLength[1]={PATHLENGTH};
+unsigned int stochasticPathLength[1]={PATHLENGTH};
+unsigned int t0[1]={0};
+unsigned int tf[1]={0};
+unsigned int replications[1]={1};
 double totalTime[1];
 double userSystemTime[2];
 /*int shockIndex[1];*/
-int  numberOfParameters;
+unsigned int  numberOfParameters;
 /*int  numberOfDataValues;*/
-int  numberOfShocks;
+unsigned int  numberOfShocks;
 /*int  numberExog;*/
 
 
-int intControlParameters[widthIntControlInfo];
-double doubleControlParameters[widthDoubleControlInfo];
+//int intControlParameters[widthIntControlInfo];
+//double doubleControlParameters[widthDoubleControlInfo];
 /* int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
-double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
+//double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];*/
 
 
 /*int qRows=0;

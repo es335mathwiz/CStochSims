@@ -5,32 +5,34 @@
 /*Mathematica Creation Date{2017, 4, 5, 13, 12, 18.919406}*/
 /*rbc example model*/
 #include <stdlib.h>
-#include "runItExternalDefs.h"
+#include <stdio.h>
+#include "stochProto.h"
+
+// not needed #include "runItExternalDefs.h"
 
 
 
-#define PATHLENGTH 1000
 
-int numberOfEquations=4;
-char * namesArray[] =  {"aDummy", "cc", "kk", "theta"};
-char * paramNamesArray[] = {};
-int numberOfParameters=0;
-int * parameters[]={};
-int numDATA=500;
-int numSHOCKS=500;
+//char * namesArray[] =  {"aDummy", "cc", "kk", "theta"};
+//char * paramNamesArray[] = {};
+unsigned int Parameters=0;
+//int * parameters[]={};
+unsigned int numDATA=500;
+unsigned int numSHOCKS=500;
 double * theData;
 
-main(int argc, char * argv[])
-{
 #include "runItInvariantLocalDefs.h"
 #include "runrbcTryCLocalDefs.h"
+
+int main(int argc, char * argv[])
+{
 printf(" runIt.mc, 2016 m1gsa00 \n");
 
-rbcExampleDataVals=(double *)calloc(numberOfEquations*numDATA,sizeof(double));
-for(i=0;i<numDATA;i++){rbcExampleData(i,rbcExampleDataVals+(i*numberOfEquations));}
+rbcExampleDataVals=(double *)calloc((*numberOfEquations)*numDATA,sizeof(double));
+for(i=0;i<numDATA;i++){rbcExampleData(i,rbcExampleDataVals+(i*(*numberOfEquations)));}
 
-rbcExampleShockVals=(double *)calloc(numberOfEquations*numSHOCKS,sizeof(double));
-for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,rbcExampleShockVals+(i*numberOfEquations));}
+rbcExampleShockVals=(double *)calloc((*numberOfEquations)*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,rbcExampleShockVals+(i*(*numberOfEquations)));}
 
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
@@ -42,7 +44,7 @@ intControlParameters,doubleControlParameters,flnm);
 /*
 rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
 
-FPnewt(numberOfEquations,lags,leads,
+FPnewt((*numberOfEquations),lags,leads,
 rbcExample,rbcExampleDerivative,parameters,
 rbcExampleFP,
 fmats,fmatsj,fmatsi,
@@ -51,6 +53,8 @@ maxNumberElements,
 failedQ);
 
 */
+return(0);
+
 }
 
 #include "runItOther.h"
