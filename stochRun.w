@@ -124,6 +124,7 @@ the page numbers of the component's definition.}
 
 /*unsigned int  dtime(double * userSystemTime);*/
 
+#include "stochProto.h"
 
 int main(int argc, char * argv[])
 {
@@ -222,8 +223,8 @@ The driver program uses these to allocate  space for the computations.
 @d defines and includes
 @{
 #define MAXELEMENTS 20000
-#define PATHLENGTH 25
-#define REPLICATIONS 5000
+//#define PATHLENGTH 25
+//#define REPLICATIONS 5000
 
 
 @}
@@ -238,10 +239,14 @@ nonlinear system through ``FORTRAN'' style
 integer variables.
 @d main variable declarations
 @{
+char * paramNamesArray[] = {};
 
-unsigned int numberOfData[1]={DATA};
-unsigned int numberOfShocks[1]={SHOCKS};
-unsigned int numberOfEquations[1]={genericNEQS};
+double  parameters[0]={};
+char * namesArray[] =  {"aDummy", "cc", "kk", "theta"};
+unsigned int numberOfParameters=0;
+unsigned int numberOfData=DATA;
+unsigned int numberOfShocks=SHOCKS;
+unsigned int numberOfEquations=genericNEQS;
 unsigned int lags[1]={genericNLAGS};
 unsigned int leads[1]={genericNLEADS};
 unsigned int pathLength[1]={PATHLENGTH};
@@ -249,9 +254,20 @@ unsigned int t0[1]={0};
 unsigned int tf[1]={0};
 unsigned int replications[1]={1};
 double totalTime[1];
+unsigned int numDATA=500;
+unsigned int numSHOCKS=500;
 double userSystemTime[2];
 /*unsigned int shockIndex[1];*/
 /*void * calloc(unsigned num,unsigned int amt);*/
+
+double *julModDataVals=(double *)calloc(numberOfEquations*numDATA,sizeof(double));
+unsigned int i;
+for(i=0;i<numDATA;i++){julModData(i,julModDataVals+(i*numberOfEquations));}
+
+double *julModShockVals=(double *)calloc(numberOfEquations*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){julModShocks(i,julModShockVals+(i*numberOfEquations));}
+
+
 @| numberOfEquations lags leads
 @}
 
@@ -393,91 +409,9 @@ fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksAr
 @d main variable declarations
 @{
 double atof();
-unsigned int pl;
-/*unsigned int vbl;*/
-/*double val;*/
 @}
 
 
-@d command line pathlength 
-@{
-   case 'l':
-	 pl=atoi(argv[2]);
-     printf("got %d for path length\n",pl);
-     if(pl>PATHLENGTH)
-	 {
-       *pathLength=PATHLENGTH;
-       printf("setting pathlength to maximum=%d\n",PATHLENGTH);
-       } else   if(pl<1){
-       *pathLength=1;
-       printf("setting pathlength to 1\n");
-       } else 
-     {*pathLength=pl;}
-	 argc--;argv++;
-	 break;
-@}
-@d command line replications 
-@{
-   case 'r':
-	 pl=atoi(argv[2]);
-     printf("got %d for replications\n",pl);
-     if(pl>REPLICATIONS)
-	 {
-       *replications=REPLICATIONS;
-       printf("setting repetitions to maximum=%d\n",REPLICATIONS);
-       } else { *replications = pl;}
-	 argc--;argv++;
-	 break;
-@}
-@d command line t0
-@{
-   case 'a':
-	 pl=atoi(argv[2]);
-     printf("got %d for t0\n",pl);
-     if(pl>DATA)
-	 {
-       *t0=DATA;
-       printf("setting initial t0 to maximum number of data elements=%d\n",*t0);
-       } else { *t0 = pl;}
-     if(pl<genericNLAGS)
-	 {
-       *t0=genericNLAGS+1;
-       printf("setting initial t0 to one more than number of lags=%d\n",*t0);
-       } else { *t0 = pl;}
-	 argc--;argv++;
-	 break;
-@}
-@d command line stochasticPathLength
-@{
-   case 's':
-	 stochasticPathLength=atoi(argv[2]);
-     printf("got %d for stochasticPathLength\n",stochasticPathLength);
-     if(stochasticPathLength<1)
-	 {
-       stochasticPathLength=1;
-       printf("setting tf to 1\n");
-       }
-	 argc--;argv++;
-	 break;
-@}
-@d command line file
-@{
-   case 'f':
-	 strcpy(flnm,argv[2]);
-	 printf("got %s for filename \n",flnm);
-	 argc--;argv++;
-	 argc--;argv++;
-	 break;
-@}
-@d command line variable
-@{
-   case 'v':
-	 val=(double)atof(argv[3]);
-	 printf("got %d for vbl and %f for val\n",vbl,val);
-	 argc--;argv++;
-	 argc--;argv++;
-	 break;
-@}
 
 @d process command line
 @{
@@ -485,28 +419,15 @@ unsigned int pl;
 *pathLength=1;
 *replications=1;
 *t0=genericNLAGS+1;
-stochasticPathLength=1;
-printf("default values:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,stochasticPathLength);
+*stochasticPathLength=1;
+printf("default values:(pathLength=%u,replications=%u,t0=%u,stochasticPathLength=%u)\n",*pathLength,*replications,*t0,*stochasticPathLength);
 
+processCommandLine(argc,argv,namesArray,numberOfEquations,
+paramNamesArray,numberOfParameters,parameters,
+	julModDataVals,numDATA,numSHOCKS,
+	pathLength,replications,t0,stochasticPathLength,
+intControlParameters,doubleControlParameters,flnm);
 
-while(argc>1&&argv[1][0] == '-')
-{
-printf("processing command line args\n");
- switch(argv[1][1]){
-@<command line pathlength@>
-@<command line replications@>
-@<command line t0@>
-@<command line stochasticPathLength@>
-@<command line file@>
- default:
-   printf("%s: unknown arg %s-- not processing any more args\n",
-      argv[0],argv[1]);
- }
-argc--;argv++;
- }
-     outFile=fopen(flnm,"w");
-
-printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,stochasticPathLength);
 
 @}
 
@@ -531,8 +452,7 @@ The routines will need $L(\tau+\theta+1)$ doubles to hold the fixed point during
 @d main variable declarations
 @{
 
-FILE * outFile;
-unsigned int stochasticPathLength=1;
+unsigned int stochasticPathLength[1]={1};
 unsigned int * genericPermVec;
 double * genericShocksArray;
 double * genericDataArray;
@@ -542,7 +462,7 @@ double * genericPathQ;
 double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
 double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
 static char flnm[50] = "stochOut.m";
-unsigned int i/*,j*/;
+
 
 @<define names array@> 
 @}
@@ -556,13 +476,13 @@ unsigned int i/*,j*/;
 @{
 failedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
 for(i=0;i<*replications;i++)failedQ[i]=0;
-*tf=(*t0)+stochasticPathLength-1;
+*tf=(*t0)+(*stochasticPathLength)-1;
 
 genericPermVec=(unsigned int *)calloc(
-     (stochasticPathLength)*(*replications),sizeof(unsigned int));
+     (*stochasticPathLength)*(*replications),sizeof(unsigned int));
 genericPathQ=(double *)calloc(
     *replications*
-    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+stochasticPathLength),
+    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+(*stochasticPathLength)),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
 unsigned int ** ptrToPtrToInt = NULL;
@@ -705,15 +625,6 @@ printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTim
 @}
 
 
-@d process command line
-@{
-/*unsigned int  dtime(double * userSystemTime);*/
-
-/**totalTime=dtime(userSystemTime);*/
-printf("after processing command lines\ntotalTime=%f,userSystemTime=%f,systemTime=%f\n",
-*totalTime,*userSystemTime,*(userSystemTime+1));
-
-@}
 
 @d carryout stochastic sims
 @{
@@ -862,7 +773,7 @@ printf("after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTim
 @{
 
 printf("generating perm vec\n");
- generateDraws(1,(stochasticPathLength),(*replications),SHOCKS,genericPermVec);
+ generateDraws(1,(*stochasticPathLength),(*replications),SHOCKS,genericPermVec);
 printf("done generating perm vec\n");
 
 
@@ -953,11 +864,11 @@ free(smatsi);
 printf("saving values for variable in file named %s\n",flnm);
 fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
     genericNEQS,genericNLAGS,genericNLEADS,
-     *pathLength,*t0,stochasticPathLength,*replications);
+     *pathLength,*t0,*stochasticPathLength,*replications);
 fPrintMathInt(outFile,*replications,failedQ,"genericFailedQ");
-fPrintMathInt(outFile,*replications * (stochasticPathLength),
+fPrintMathInt(outFile,*replications * (*stochasticPathLength),
       genericPermVec,"genericPermVec");
-fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
+fPrintMathDbl(outFile,(*replications * genericNEQS*(*stochasticPathLength+genericNLAGS)),
       genericPathQ,"genericResults");
 fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericDataArray,"genericDataArray");
 fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksArray");
@@ -971,13 +882,13 @@ fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksAr
 @{
 failedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
 for(i=0;i<*replications;i++)failedQ[i]=0;
-*tf=(*t0)+stochasticPathLength-1;
+*tf=(*t0)+(*stochasticPathLength)-1;
 
 genericPermVec=(unsigned int *)calloc(
-     (stochasticPathLength)*(*replications),sizeof(unsigned int));
+     (*stochasticPathLength)*(*replications),sizeof(unsigned int));
 genericPathQ=(double *)calloc(
     *replications*
-    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+stochasticPathLength),
+    genericNEQS*(genericNLAGS+genericNLEADS+(*pathLength)+(*stochasticPathLength)),
 sizeof(double));
 double ** ptrToPtrToDouble = NULL;
 unsigned int ** ptrToPtrToInt = NULL;
@@ -1124,7 +1035,7 @@ unsigned int maxNumberElements[1]={MAXELEMENTS};
 @{
 
 FILE * outFile;
-unsigned int stochasticPathLength=1;
+unsigned int stochasticPathLength[1]={1};
 unsigned int * genericPermVec;
 double * genericShocksArray;
 double * genericDataArray;

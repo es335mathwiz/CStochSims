@@ -80,46 +80,6 @@ Map[iterFunc,shockSeqList]
    horizon>0 && replications>0&&((expType == tMinusOne)||(expType == t)))
 
 @}
-@o stochProtoHide.c -d
-@{
-include "stochProto.h
-
-void processCommandLine(int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
-double * dataValues,unsigned int numberDataValues,unsigned int numberShockValues,
-unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-unsigned int* intControlParameters,double * doubleControlParameters,char * flnm);
-void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName);
-void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName);
-
-
-
-/*void cfree();*/
-/*void * calloc(unsigned num,unsigned int amt);*/
-void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPath,double * unsigned intercept,double * linearizationPoint,
-unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double x[],
-unsigned int *check,double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * pathNewtMa50bdJob,
-unsigned int * pathNewtMa50bdIq,
-double * pathNewtMa50bdFact,
-unsigned int * pathNewtMa50bdIrnf,
-unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru
-);
-long ignuin(long low,long high);
-void phrtsd(char* phrase,long* seed1,long* seed2);
-void setall(long iseed1,long iseed2);
-
-void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
-unsigned int * iarray);
-
-@}
 
 
 
