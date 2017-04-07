@@ -264,10 +264,12 @@ MA50CD operates on the transpose.
 
 @d nxtCDmats definition
 @{
-void nxtCDmats(@<nxtCDmats argument list@>){
 #include "useSparseAMA.h"
 #include "stackC.h"
 #include "stochProto.h"
+
+
+void nxtCDmats(@<nxtCDmats argument list@>){
 @<nxtCDmats variable declarations@>
 @<nxtCDmats scalar variable allocations@>
 @<nxtCDmats array variable allocations@>
@@ -3680,21 +3682,21 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 @d lnsrch free storage
 @{
 
-			cfree(transp);
-            cfree(ierr);
-			cfree(noTransp);
-			cfree(dir);
-			cfree(aDoubleZero);
-			cfree(aDoubleOne);
-			cfree(fnow);
-			cfree(xorig);
-			cfree(zeroShockVec);
-			cfree(fvec);
-			cfree(fvecj);
-			cfree(fveci);
-			cfree(aOne);
-			cfree(aZero);
-			cfree(aTwo);
+			free(transp);
+            free(ierr);
+			free(noTransp);
+			free(dir);
+			free(aDoubleZero);
+			free(aDoubleOne);
+			free(fnow);
+			free(xorig);
+			free(zeroShockVec);
+			free(fvec);
+			free(fvecj);
+			free(fveci);
+			free(aOne);
+			free(aZero);
+			free(aTwo);
 @}
 
 @d lnsrch loop
