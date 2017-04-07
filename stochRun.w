@@ -649,15 +649,16 @@ unsigned int * inIntControl={0};
 double * inDoubleControl={0};
 unsigned int * outIntControl={0};
 double * outDoubleControl={0};
+double * linearizationPoint={0};
 
 
 FPnewt(numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
-genericFP,
+genericFP,linearizationPoint,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
-ckh,inIntControl,inDoubleControl,outIntControl,outDoubleControl);
+chk ,inIntControl,inDoubleControl,outIntControl,outDoubleControl);
 
 /*
 if(chk[0])
@@ -1256,9 +1257,10 @@ STOCHSIMSLIB= -L./ -lstochSims
 
 .PHONY: Build
 
-Build: stochRun stochSimsUnitTests
+Build: stochRun stochSimsUnitTests runrbcTryC
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+	$(FC) -o runrbcTryc -g  runrbcTryC.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w

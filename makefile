@@ -50,9 +50,10 @@ STOCHSIMSLIB= -L./ -lstochSims
 
 .PHONY: Build
 
-Build: stochRun stochSimsUnitTests
+Build: stochRun stochSimsUnitTests runrbcTryC
 	$(FC) -o stochRun -g  stochRun.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o juillard.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
+	$(FC) -o runrbcTryc -g  runrbcTryC.o $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS) $(CUNITLIBS) $(MATIOLIBS)
 
 myNewt.o:			 stackC.w
 		nuweb $(NUWEBFLAGS)  stackC.w
