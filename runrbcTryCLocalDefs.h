@@ -35,6 +35,7 @@ double * rbcExampleZeroShock;
 double * rbcExampleShockVals;
 double * rbcExampleDataVals;
 double * rbcExampleFP;
+double * rbcExampleFailedQ;
 double * rbcExampleIntercept;
 double * rbcExampleEasyPathQ;
 double * rbcExampleTargetPathQ;
@@ -42,3 +43,9 @@ double * rbcExamplePathQ;
 double * rbcExampleZeroPathQ;
 void rbcExampleData(int t,double * vectorOfVals);
 void rbcExampleShocks(int t,double * vectorOfVals);
+//void rbcExamplePeriodicPointGuesser
+//(double * parameters,int period,
+//	double guessVector[3][4]);
+void rbcExamplePeriodicPointGuesser
+(double * parameters,int period,
+	double guessVector[12]);

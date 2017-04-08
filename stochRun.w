@@ -388,6 +388,8 @@ fprintf(file,"%d};\n",matrix[length-1]);
 
 @d report results
 @{
+FILE * outFile;
+outFile=fopen(flnm,"w");
 
 printf("saving values for variable in file named %s\n",flnm);
 fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
@@ -860,7 +862,7 @@ free(smatsi);
 
 @d generic report results
 @{
-
+FILE outFile=fopen(flnm,"w");
 printf("saving values for variable in file named %s\n",flnm);
 fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
     genericNEQS,genericNLAGS,genericNLEADS,

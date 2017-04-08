@@ -6,6 +6,7 @@
 /*rbc example model*/
 #include <stdlib.h>
 #include <stdio.h>
+#include "stackC.h"
 #include "stochProto.h"
 
 // not needed #include "runItExternalDefs.h"
@@ -17,6 +18,9 @@
 //char * paramNamesArray[] = {};
 unsigned int Parameters=0;
 //int * parameters[]={};
+unsigned int NEQS=4;
+unsigned int NLAGS=1;
+unsigned int NLEADS=1;
 unsigned int numDATA=500;
 unsigned int numSHOCKS=500;
 double * theData;
@@ -41,18 +45,54 @@ paramNamesArray,numberOfParameters,parameters,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
 
-/*
-rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
 
-FPnewt((*numberOfEquations),lags,leads,
+
+unsigned int * rbcExampleFailedQ;
+rbcExampleFailedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
+unsigned int maxNumberElements=100;
+double ** fmats, ** smats;
+unsigned int ** fmatsj, ** smatsj,** fmatsi, **smatsi;
+allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
+&rbcExampleFP,&rbcExampleIntercept,
+&fmats,&fmatsj,&fmatsi,
+&smats,&smatsj,&smatsi);
+
+rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
+FPnewt(numberOfEquations,&NLAGS,&NLEADS,
 rbcExample,rbcExampleDerivative,parameters,
-rbcExampleFP,
+rbcExampleFP,rbcExampleIntercept,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
-maxNumberElements,
-failedQ);
+&maxNumberElements,
+rbcExampleFailedQ,intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
 
+FILE * outFile;
+outFile=fopen(flnm,"w");
+
+printf("saving values for variable in file named %s\n",flnm);
+fprintf(outFile,"RunParams={%d,%d,%d,%d,%d,%d,%d};\n",
+    NEQS,NLAGS,NLEADS,
+     *pathLength,*t0,*stochasticPathLength,*replications);
+
+
+freeFPNewt(NLAGS,*pathLength,
+&rbcExampleFP,&rbcExampleIntercept,
+&fmats,&fmatsj,&fmatsi,
+&smats,&smatsj,&smatsi);
+
+/*
+fPrintMathInt(outFile,*replications,rbcExampleFailedQ,"rbcExampleFailedQ");
+fPrintMathInt(outFile,*replications * (*stochasticPathLength),
+      rbcExamplePermVec,"rbcExamplePermVec");
+fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
+      rbcExamplePathQ,"Results");
+fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,"dataArray");
+fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
 */
+
+     fclose(outFile);
+
 return(0);
 
 }

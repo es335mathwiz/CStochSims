@@ -2349,17 +2349,29 @@ testStack:   testStack.o    stackC.o testStackModel.o
 \subsection{array allocation program}
 \label{sec:allocarray}
 
-@o stackC.c -d
+
+@d allocMa50 argument list
 @{
-#include "stochProto.h"
-void allocMa50(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int pathLength,unsigned int maxElements,
 unsigned int **ma50bdIptru,
 unsigned int **ma50bdIptrl,
 unsigned int **ma50bdIrnf,
 double **ma50bdFact,
 unsigned int **ma50bdIq,
-unsigned int **ma50bdJob)
+unsigned int **ma50bdJob
+@}
+
+@o stackC.h
+@{
+void allocMa50(@<allocMa50 argument list@>);
+@}
+
+
+@o stackC.c -d
+@{
+#include "stochProto.h"
+void allocMa50(@<allocMa50 argument list@>)
 {
 unsigned int sysDim;
 sysDim= numberOfEquations*(lags+pathLength+leads);
@@ -2370,13 +2382,55 @@ sysDim= numberOfEquations*(lags+pathLength+leads);
 *ma50bdIq = (unsigned int *)calloc(sysDim,sizeof(unsigned int));
 *ma50bdJob = (unsigned int *)calloc(1,sizeof(unsigned int));
 }
+@}
 
-void allocFPNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+@d freeMa50 argument list
+@{
+unsigned int **ma50bdIptru,
+unsigned int **ma50bdIptrl,
+unsigned int **ma50bdIrnf,
+double **ma50bdFact,
+unsigned int **ma50bdIq,
+unsigned int **ma50bdJob
+@}
+
+@o stackC.h -d
+@{
+void freeMa50(@<freeMa50 argument list@>);
+@}
+@o stackC.c -d
+@{
+void freeMa50(@<freeMa50 argument list@>)
+{
+free(*ma50bdIptru);
+free(*ma50bdIptrl);
+free(*ma50bdIrnf);
+free(*ma50bdFact);
+free(*ma50bdIq);
+free(*ma50bdJob);
+}
+
+@}
+
+@d allocFPNewt argument list
+@{
+unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int pathLength,unsigned int maxElements,
 double ** genericFP,
 double ** genericIntercept,
 double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
-double***smats,unsigned int***smatsj,unsigned int***smatsi)
+double***smats,unsigned int***smatsj,unsigned int***smatsi
+@}
+
+@o stackC.h -d
+@{
+void allocFPNewt(@<allocFPNewt argument list@>);
+@}
+
+@o stackC.c -d
+@{
+
+void allocFPNewt(@<allocFPNewt argument list@>)
 {unsigned int i;
 if(pathLength<1)pathLength=1;
 *genericFP=(double *) calloc(numberOfEquations*(lags+leads+1+pathLength),
@@ -2400,26 +2454,24 @@ for(i=0;i<(pathLength)+lags+1;i++){
      numberOfEquations*(lags+leads)+1,sizeof(unsigned int));
 }
 }
-void freeMa50(
-unsigned int **ma50bdIptru,
-unsigned int **ma50bdIptrl,
-unsigned int **ma50bdIrnf,
-double **ma50bdFact,
-unsigned int **ma50bdIq,
-unsigned int **ma50bdJob)
-{
-free(*ma50bdIptru);
-free(*ma50bdIptrl);
-free(*ma50bdIrnf);
-free(*ma50bdFact);
-free(*ma50bdIq);
-free(*ma50bdJob);
-}
-void freeFPNewt(unsigned int lags, unsigned int pathLength,
+@}
+@d freeFPNewt argument list
+@{
+unsigned int lags, unsigned int pathLength,
 double ** genericFP,
 double ** genericIntercept,
 double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
-double***smats,unsigned int***smatsj,unsigned int***smatsi)
+double***smats,unsigned int***smatsj,unsigned int***smatsi
+@}
+
+@o stackC.h -d
+@{
+void freeFPNewt(@<freeFPNewt argument list@>);
+@}
+@o stackC.c -d
+@{
+
+void freeFPNewt(@<freeFPNewt argument list@>)
 {unsigned int i;
 free(*genericFP);
 free(*genericIntercept);
@@ -2438,6 +2490,13 @@ free(*smats);
 free(*smatsj);
 free(*smatsi);
 }
+
+@}
+@o stackC.c -d
+@{
+
+
+
 void allocAltComputeAsymptoticQ(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int maxElements,double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
 double** rootr,double**rooti)
@@ -2454,6 +2513,9 @@ double** rootr,double**rooti)
 
 }
 
+@}
+@o stackC.c -d
+@{
 
 void freeAltComputeAsymptoticQ(
 double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
@@ -2466,6 +2528,9 @@ free(*rootr);
 free(*rooti);
 }
 
+@}
+@o stackC.c -d
+@{
 
 
 void allocPhiF(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
@@ -2525,6 +2590,10 @@ double**impact,unsigned int**impactj,unsigned int**impacti
    calloc(((1+leads)*numberOfEquations+1),
         sizeof(unsigned int));
 }
+@}
+@o stackC.c -d
+@{
+
 
 void freePhiF(
 double**psiMatrix,unsigned int**psiMatrixj,unsigned int**psiMatrixi,
@@ -2555,6 +2624,9 @@ free(*impactj);
 free(*impacti);
 }
 
+@}
+@o stackC.c -d
+@{
  
 void allocLinearTerminator(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int numberExogenous,
@@ -2657,6 +2729,9 @@ double**selectZmat,unsigned int**selectZmatj,unsigned int**selectZmati
 *rootr=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
 *rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
 }
+@}
+@o stackC.c -d
+@{
 
 void freeLinearTerminator(
 double**upsilonMatrix,unsigned int**upsilonMatrixj,unsigned int**upsilonMatrixi,
@@ -2714,6 +2789,9 @@ free(*rootr);
 free(*rooti);
 }
 
+@}
+@o stackC.c -d
+@{
 
 void allocPathNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int pathLength,unsigned int replications,unsigned int stochasticPathLength,
@@ -2740,19 +2818,37 @@ double**genericTargetPath
     numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
     sizeof(double));
 }
+@}
+@o stackC.c -d
+@{
+
+
 void freePathNewt(double ** genericPath)
 {
 free(*genericPath);
 }
+@}
+@o stackC.c -d
+@{
+
+
 void allocShockVec(unsigned int numberOfEquations,double**shockVec)
 {
 *shockVec=(double *)calloc(
     numberOfEquations,sizeof(double));
 }
+@}
+@o stackC.c -d
+@{
+
 void freeShockVec(double ** shockVec)
 {
 free(*shockVec);
 }
+@}
+@o stackC.c -d
+@{
+
 void allocShocksData(unsigned int numberOfEquations,unsigned int numberOfShocks,unsigned int numberOfData,
 double**shockVec,double ** dataVec,double ** zeroShockVec)
 {
@@ -2765,6 +2861,10 @@ unsigned int i;
     numberOfEquations,sizeof(double));
 for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
 }
+@}
+@o stackC.c -d
+@{
+
 void freeShocksData(double ** shockVec,double ** dataVec,
 double ** zeroShockVec)
 {

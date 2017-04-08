@@ -12,9 +12,9 @@ FILE * outFile;
  /* char outFileName[250];*/
 static char flnm[50] = "stochOut.m";
 /*a counter*/
-int i;/*int j;*/
+unsigned int i;/*int j;*/
 /*modelDimensions call determines these*/
-int  numberOfEquations[1]={rbcNEQS};
+unsigned int  numberOfEquations[1]={rbcNEQS};
 unsigned int  lags[1]={rbcNLAGS};
 unsigned int  leads[1]={rbcNLEADS};
 unsigned int pathLength[1]={PATHLENGTH};
