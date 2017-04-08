@@ -572,11 +572,13 @@ double * inDoubleControl={0};
 unsigned int * outIntControl={0};
 double * outDoubleControl={0};
 double * linearizationPoint={0};
-
+unsigned int * exogRows={0};
+unsigned int * exogCols={0};
+unsigned int * exogenizeQ={0};
 
 FPnewt(&numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
-genericFP,linearizationPoint,
+genericFP,linearizationPoint,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
