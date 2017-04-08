@@ -307,7 +307,7 @@ stochSim routine.
 
 
 altComputeAsymptoticQMatrix(
-numberOfEquations,lags,leads,
+&numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
 genericFP,pathLength,
 fmats,fmatsj,fmatsi,
@@ -332,11 +332,11 @@ printf("using q matrix\n");
 cPrintSparse(5,AMqMatrix,AMqMatrixj,AMqMatrixi);
 
 
-stochSim(numberOfEquations,lags,leads,pathLength,
+stochSim(&numberOfEquations,lags,leads,pathLength,
 generic,genericDerivative,genericParam,
 replications,t0,tf,genericPermVec,
-genericShocksArray,numberOfShocks,
-genericDataArray,numberOfData,
+genericShocksArray,&numberOfShocks,
+genericDataArray,&numberOfData,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
@@ -357,7 +357,7 @@ for(i=0;i<SHOCKS;i++){genericShocks(i,genericShocksArray+(i*genericNEQS));}
 @{
 
 printf("generating perm vec\n");
- generateDraws(1,(stochasticPathLength),(*replications),SHOCKS,genericPermVec);
+ generateDraws(1,(*stochasticPathLength),(*replications),SHOCKS,genericPermVec);
 printf("done generating perm vec\n");
 
 
@@ -392,11 +392,11 @@ fprintf(file,"%d};\n",matrix[length-1]);
 printf("saving values for variable in file named %s\n",flnm);
 fprintf(outFile,"genericRunParams={%d,%d,%d,%d,%d,%d,%d};\n",
     genericNEQS,genericNLAGS,genericNLEADS,
-     *pathLength,*t0,stochasticPathLength,*replications);
+     *pathLength,*t0,*stochasticPathLength,*replications);
 fPrintMathInt(outFile,*replications,failedQ,"genericFailedQ");
-fPrintMathInt(outFile,*replications * (stochasticPathLength),
+fPrintMathInt(outFile,*replications * (*stochasticPathLength),
       genericPermVec,"genericPermVec");
-fPrintMathDbl(outFile,(*replications * genericNEQS*(stochasticPathLength+genericNLAGS)),
+fPrintMathDbl(outFile,(*replications * genericNEQS*(*stochasticPathLength+genericNLAGS)),
       genericPathQ,"genericResults");
 fPrintMathDbl(outFile,(genericNEQS*(DATA)),genericDataArray,"genericDataArray");
 fPrintMathDbl(outFile,(genericNEQS*(SHOCKS)),genericShocksArray,"genericShocksArray");
@@ -572,7 +572,7 @@ double * outDoubleControl={0};
 double * linearizationPoint={0};
 
 
-FPnewt(numberOfEquations,lags,leads,
+FPnewt(&numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
 genericFP,linearizationPoint,
 fmats,fmatsj,fmatsi,
