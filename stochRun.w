@@ -124,6 +124,7 @@ the page numbers of the component's definition.}
 
 /*unsigned int  dtime(double * userSystemTime);*/
 
+#include "stackC.h"
 #include "stochProto.h"
 
 int main(int argc, char * argv[])
@@ -225,6 +226,8 @@ The driver program uses these to allocate  space for the computations.
 #define MAXELEMENTS 20000
 //#define PATHLENGTH 25
 //#define REPLICATIONS 5000
+#include "stackC.h"
+#include "stochProto.h"
 
 
 @}
@@ -572,11 +575,13 @@ double * inDoubleControl={0};
 unsigned int * outIntControl={0};
 double * outDoubleControl={0};
 double * linearizationPoint={0};
-
+unsigned int * exogRows={0};
+unsigned int * exogCols={0};
+unsigned int * exogenizeQ={0};
 
 FPnewt(&numberOfEquations,lags,leads,
 generic,genericDerivative,genericParam,
-genericFP,linearizationPoint,
+genericFP,linearizationPoint,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,
@@ -933,6 +938,8 @@ printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n"
 #include<stdlib.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
+#include "stackC.h"
+#include "stochProto.h"
 void generic(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,

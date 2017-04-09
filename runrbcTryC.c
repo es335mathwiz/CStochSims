@@ -44,7 +44,9 @@ paramNamesArray,numberOfParameters,parameters,
 	rbcExampleDataVals,numDATA,numSHOCKS,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
-
+unsigned int exogRows[0];
+unsigned int exogCols[0];
+unsigned int exogenizeQ[1]={0};
 
 
 unsigned int * rbcExampleFailedQ;
@@ -60,7 +62,7 @@ allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
 rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
 FPnewt(numberOfEquations,&NLAGS,&NLEADS,
 rbcExample,rbcExampleDerivative,parameters,
-rbcExampleFP,rbcExampleIntercept,
+rbcExampleFP,rbcExampleIntercept,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,
