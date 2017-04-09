@@ -84,37 +84,37 @@ aMat[9]=1.;
 
 aMat[10]=1.;
 
-jaMat[0]=1.;
+iaMat[0]=1.;
 
-jaMat[1]=5.;
+iaMat[1]=5.;
 
-jaMat[2]=9.;
+iaMat[2]=9.;
 
-jaMat[3]=11.;
+iaMat[3]=11.;
 
-jaMat[4]=12.;
+iaMat[4]=12.;
 
-iaMat[0]=6.;
+jaMat[0]=6.;
 
-iaMat[1]=7.;
+jaMat[1]=7.;
 
-iaMat[2]=8.;
+jaMat[2]=8.;
 
-iaMat[3]=10.;
+jaMat[3]=10.;
 
-iaMat[4]=3.;
+jaMat[4]=3.;
 
-iaMat[5]=6.;
+jaMat[5]=6.;
 
-iaMat[6]=7.;
+jaMat[6]=7.;
 
-iaMat[7]=8.;
+jaMat[7]=8.;
 
-iaMat[8]=4.;
+jaMat[8]=4.;
 
-iaMat[9]=8.;
+jaMat[9]=8.;
 
-iaMat[10]=5.;
+jaMat[10]=5.;
 
 } else {
 double okay1;
@@ -174,23 +174,23 @@ aMat[2]=okay25-pow(okay39,0.95)-0.95*pow(okay39,-0.050000000000000044)*\
 
 aMat[3]=aDummy(0);
 
-jaMat[0]=1.;
-
-jaMat[1]=2.;
-
-jaMat[2]=3.;
-
-jaMat[3]=4.;
-
-jaMat[4]=5.;
-
 iaMat[0]=1.;
 
-iaMat[1]=1.;
+iaMat[1]=2.;
 
-iaMat[2]=1.;
+iaMat[2]=3.;
 
-iaMat[3]=1.;
+iaMat[3]=4.;
+
+iaMat[4]=5.;
+
+jaMat[0]=1.;
+
+jaMat[1]=1.;
+
+jaMat[2]=1.;
+
+jaMat[3]=1.;
 
 /*initialize cMat to zero sparse matrix*/
 for(i=0;i<=4+1;i++){icMat[i]=1;}
@@ -263,23 +263,23 @@ y46,0.95)-pow(okay48,0.95);
 
 aMat[3]=0.;
 
-jaMat[0]=1.;
-
-jaMat[1]=2.;
-
-jaMat[2]=3.;
-
-jaMat[3]=4.;
-
-jaMat[4]=5.;
-
 iaMat[0]=1.;
 
-iaMat[1]=1.;
+iaMat[1]=2.;
 
-iaMat[2]=1.;
+iaMat[2]=3.;
 
-iaMat[3]=1.;
+iaMat[3]=4.;
+
+iaMat[4]=5.;
+
+jaMat[0]=1.;
+
+jaMat[1]=1.;
+
+jaMat[2]=1.;
+
+jaMat[3]=1.;
 
 for(i=0;i<11;i++){cMat[i]=cMat[i]*(*homotopyAlpha);};
 }

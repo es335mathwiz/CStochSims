@@ -44,23 +44,23 @@ aMat[2]=okay7-pow(theta(tMaOne),0.95);
 aMat[3]=aDummy(0);
 
 /*for(i=0;i<4-0;i++){aMat[i]=aMat[i]+shockVec[i];};*/
-jaMat[0]=1.;
-
-jaMat[1]=2.;
-
-jaMat[2]=3.;
-
-jaMat[3]=4.;
-
-jaMat[4]=5.;
-
 iaMat[0]=1.;
 
-iaMat[1]=1.;
+iaMat[1]=2.;
 
-iaMat[2]=1.;
+iaMat[2]=3.;
 
-iaMat[3]=1.;
+iaMat[3]=4.;
+
+iaMat[4]=5.;
+
+jaMat[0]=1.;
+
+jaMat[1]=1.;
+
+jaMat[2]=1.;
+
+jaMat[3]=1.;
 
 } else {
 double okay1;
@@ -121,23 +121,23 @@ aMat[2]=okay25-pow(okay39,0.95)-0.95*pow(okay39,-0.050000000000000044)*\
 aMat[3]=aDummy(0);
 
 /*for(i=0;i<4-0;i++){aMat[i]=aMat[i]+shockVec[i];};*/
-jaMat[0]=1.;
-
-jaMat[1]=2.;
-
-jaMat[2]=3.;
-
-jaMat[3]=4.;
-
-jaMat[4]=5.;
-
 iaMat[0]=1.;
 
-iaMat[1]=1.;
+iaMat[1]=2.;
 
-iaMat[2]=1.;
+iaMat[2]=3.;
 
-iaMat[3]=1.;
+iaMat[3]=4.;
+
+iaMat[4]=5.;
+
+jaMat[0]=1.;
+
+jaMat[1]=1.;
+
+jaMat[2]=1.;
+
+jaMat[3]=1.;
 
 if(*homotopyAlpha>0.0) {
 double okay1;
@@ -207,23 +207,23 @@ y46,0.95)-pow(okay48,0.95);
 
 aMat[3]=0.;
 
-jaMat[0]=1.;
-
-jaMat[1]=2.;
-
-jaMat[2]=3.;
-
-jaMat[3]=4.;
-
-jaMat[4]=5.;
-
 iaMat[0]=1.;
 
-iaMat[1]=1.;
+iaMat[1]=2.;
 
-iaMat[2]=1.;
+iaMat[2]=3.;
 
-iaMat[3]=1.;
+iaMat[3]=4.;
+
+iaMat[4]=5.;
+
+jaMat[0]=1.;
+
+jaMat[1]=1.;
+
+jaMat[2]=1.;
+
+jaMat[3]=1.;
 
 for(i=0;i<4;i++){aMat[i]=aMat[i]+(*homotopyAlpha*bMat[i]);};
 }
