@@ -5182,8 +5182,8 @@ unsigned int i,allFiniteNumbers;
 unsigned int printed=0;
       allFiniteNumbers=TRUE;
       for(i=0;i<numRows;i++){
-        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
-        if(!finite(vec[i])) {
+        allFiniteNumbers=(isfinite(vec[i])&&allFiniteNumbers);
+        if(!isfinite(vec[i])) {
 if(printed<2) {
 printf("<lclValidVectorNew:problem with i=%d,vec[i]=%e,with numRows=%d>",i,vec[i],numRows);printed++;} else 
 {printf(".");}
@@ -5211,8 +5211,8 @@ unsigned int i,allFiniteNumbers;
 unsigned int printed=0;
       allFiniteNumbers=TRUE;
       for(i=0;i<numRows;i++){
-        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
-        if(!finite(vec[i])) {
+        allFiniteNumbers=(isfinite(vec[i])&&allFiniteNumbers);
+        if(!isfinite(vec[i])) {
 if(printed<1) {
 printf("<lclValidVectorVerbose:problem with eqn i=%d in block=%d,vec[i]=%e,with numRows=%d>",i%forMod+1,i/forMod,vec[i],numRows);printed++;
 badArgs(i,x,ja,ia,skipRows,forMod);} else 
@@ -5442,7 +5442,7 @@ unsigned int result,allPositive,allFiniteNumbers;
 result=(elements >0);
       allFiniteNumbers=TRUE;
       for(i=0;i<elements;i++){
-        allFiniteNumbers=(finite(mata[i])&&allFiniteNumbers);}
+        allFiniteNumbers=(isfinite(mata[i])&&allFiniteNumbers);}
       result=(result &&  allFiniteNumbers);
       return(result);
 }
