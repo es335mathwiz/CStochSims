@@ -206,6 +206,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 
 
+
 \subsection{nxtCDmats Definition}
 \label{sec:nxtCDmats}
 
@@ -264,11 +265,6 @@ MA50CD operates on the transpose.
 
 @d nxtCDmats definition
 @{
-#include "useSparseAMA.h"
-#include "stackC.h"
-#include "stochProto.h"
-
-
 void nxtCDmats(@<nxtCDmats argument list@>){
 @<nxtCDmats variable declarations@>
 @<nxtCDmats scalar variable allocations@>
@@ -289,13 +285,19 @@ for(i=0;i<*lagss; i++){
 
 @d nxtCDmats argument list
 @{
-unsigned int * numberOfEquations, unsigned int * lagss, unsigned int * leadss,
-unsigned int * rowDim,
-unsigned int * maxNumberHElements,
-double * smatsA,unsigned int * smatsJA,unsigned int * smatsIA,
-double * fvecA,unsigned int * fvecJA,unsigned int * fvecIA,
-double ** cmatsA,unsigned int **cmatsJA,unsigned int **cmatsIA,
-double **dmatsA,unsigned int **dmatsJA,unsigned int **dmatsIA
+int * numberOfEquations, int * lagss, int * leadss,
+int * rowDim,
+int * maxNumberHElements,
+double * smatsA,int * smatsJA,int * smatsIA,
+double * fvecA,int * fvecJA,int * fvecIA,
+double ** cmatsA,int **cmatsJA,int **cmatsIA,
+double **dmatsA,int **dmatsJA,int **dmatsIA,
+int * ma50bdJob,
+int * ma50bdIq,
+double * ma50bdFact,
+int * ma50bdIrnf,
+int * ma50bdIptrl,
+int * ma50bdIptru
 @| numberOfEquations lagss leadss 
 smatsA smatsJA smatsIA 
 fvecA fvecJA fvecIA 
@@ -352,6 +354,8 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 @}
 
 
+% \psset{arrows=<-}
+% \pstree[treemode=U]{\Tcircle{evensumC}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{cmats}}}\Tcircle{oddsumC}}}
 
 \vspace{1.0cm}
 
@@ -366,37 +370,29 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 
 @d multiply c matrices by appropriate s matrix and subtract
 @{
-printf("rowDim=%u,cColumns=%u,nzmax=%u,a=\n",*rowDim,*cColumns,*nzmax);
-cPrintSparse(*rowDim,ao,jao,iao);
-printf("rowDim=%u,cColumns=%u,nzmax=%u,a=\n",*rowDim,*cColumns,*nzmax);
-printf("timeOffset=%d\n",timeOffset);
-cPrintSparse(*rowDim,(cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]));
-sparseMult(rowDim,cColumns,nzmax,iw,aOne,ao,jao,iao,
+sparseMult(rowDim,cColumns,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
-b,jb,ib,ierr);
-
+b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
-dropSmallElements(rowDim,aOne,&aSmallDouble,nzmax,b,jb,ib,b,jb,ib,ierr);
+dropSmallElements(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1 also need to shift right*/
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
 
-printf("odd\n");
-cPrintSparse(*rowDim,oddSumCA,oddSumCJA,oddSumCIA);
-printf("b\n");
-cPrintSparse(*rowDim,b,jb,ib);
-sparseAdd(rowDim,cColumns,&nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
-b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,ierr);
-printf("after sparseAdd\n");
+sparseAdd(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
+b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
+nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
 
 
+% \psset{arrows=<-}
+% \pstree[treemode=U]{\Tcircle{evensumD}}{\pstree{\Treebox{APLB\_}}{\pstree[treemode=U]{\Tcircle{b}}{\pstree{\Treebox{AMUB\_}}{\Tcircle{ao}\Tcircle{dmats}}}\Tcircle{oddsumD}}}
 
 \vspace{1.0cm}
 
@@ -411,22 +407,23 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @d multiply d matrices by appropriate s matrix and subtract
 @{
 
-sparseMult(rowDim,aOne,nzmax,iw,aOne,ao,jao,iao,
+sparseMult(rowDim,aOne,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
-b,jb,ib,ierr);
+b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
-dropSmallElements(rowDim,aOne,&aSmallDouble,nzmax,b,jb,ib,b,jb,ib,ierr);
+dropSmallElements(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
 
-sparseAdd(rowDim,aOne,nzmax,iw,aOne,oddSumDA,oddSumDJA,oddSumDIA,
+sparseAdd(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
-evenSumDA,evenSumDJA,evenSumDIA,ierr);
+evenSumDA,evenSumDJA,evenSumDIA,
+nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
@@ -445,6 +442,8 @@ evenSumDA=tmp;evenSumDJA=jtmp;evenSumDIA=itmp;
 
 
 
+% \psset{arrows=<-}
+% \pstree[treemode=U]{\Tcircle{oddsumC}}{\pstree{\Treebox{APLB\_}}{\Tcircle{evensumC}\pstree{\Tcircle{b}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{smats}}}}}
 % \psset{arrows=<-}
 % \pstree[treemode=U]{\Tcircle{oddsumD}}{\pstree{\Treebox{SUBMAT\_}}{\Tcircle{evensumD}\Tcircle{fvec}}}
 
@@ -475,7 +474,7 @@ for(i=0;i<*maxNumberHElements;i++)
 {evenSumCA[i]=oddSumCA[i];evenSumCJA[i]=oddSumCJA[i];}
 for(i=0;i<*rowDim +1;i++)
 {evenSumCIA[i]=oddSumCIA[i];}
-printf("at line 466\n");cPrintSparse(*rowDim,evenSumCA,evenSumCJA,evenSumCIA);
+
 *firstColumn=(*numberOfEquations* *lagss)+1;
 *lastColumn=*firstColumn + *rowDim-1;
 extractSubmatrix(rowDim,aOne,aOne,rowDim,
@@ -483,26 +482,35 @@ firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
-cPrintSparse(*rowDim,oddSumCA,oddSumCJA,oddSumCIA);
+
 useMA50ID(cntl,icntl);
 useMA50AD(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 /*wordybump(info[3]);*/
 pathNewtAssert(info[0]>=0);
-/* restore odd since ad is destructive*/
-extractSubmatrix(rowDim,aOne,aOne,rowDim,
-firstColumn,lastColumn,
-evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
-oddSumCA,oddSumCJA,jcn);
 
 @}
 
 
 @d factorize matrix
 @{
-useMA50BD(rowDim,rowDim,nonZeroNow,aOne,
+/* restore odd since ad is destructive*/
+extractSubmatrix(rowDim,aOne,aOne,rowDim,
+firstColumn,lastColumn,
+evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
+oddSumCA,oddSumCJA,jcn);
+if(*ma50bdJob==1){
+useMA50BD(rowDim,rowDim,nonZeroNow,ma50bdJob,
 oddSumCA,oddSumCJA,jcn,
-cntl,icntl,ip,oddSumCIA,np,lfact,fact,irnf,iptrl,iptru,
+cntl,icntl,ip,oddSumCIA,np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+for(i=0;i<*rowDim+1;i++){ma50bdIq[i]=oddSumCIA[i];}
+} else {
+useMA50BD(rowDim,rowDim,nonZeroNow,ma50bdJob,
+oddSumCA,oddSumCJA,jcn,
+cntl,icntl,ip,ma50bdIq,np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
 /*wordybump(info[3]);*/
 pathNewtAssert(info[0]>=0);
@@ -524,10 +532,10 @@ MA50CD applies the factoriation to solve
 /*expand sum of c's use transpose since c colum major order */
 
 itb[0]=1;cmatsExtent=0;
-for(i=0;i<*cColumns;i++){
+for(i=0;i<*balColumns;i++){
 
 
-*lastColumn = *firstColumn=(1+i+*numberOfEquations *(1+*lagss));
+*lastColumn = *firstColumn=(1+i+ *rowDim +*numberOfEquations *(*lagss));
 
 extractSubmatrix(rowDim,aOne,
 aOne,rowDim,firstColumn,lastColumn,
@@ -535,18 +543,19 @@ evenSumCA,evenSumCJA,evenSumCIA,
 nr,nc,
 b,jb,ib);
 
-csrToDns(rowDim,aOne,b,jb,ib,
+csrdns_(rowDim,aOne,b,jb,ib,
 nsSumC,rowDim,ierr);
-
-useMA50CD(rowDim,rowDim,icntl,oddSumCIA,np,trans,
-lfact,fact,irnf,iptrl,iptru,
+pathNewtAssert(*ierr == 0);
+bump(ib[*rowDim]-ib[0]);
+useMA50CD(rowDim,rowDim,icntl,ma50bdIq,np,trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 nsSumC,x,
 w,info);
 bump(info[3]);
 pathNewtAssert(info[0]>=0);
 
 *nzmaxLeft= *nzmax-cmatsExtent-1;
-dnsToCsr(aOne,rowDim,nzmaxLeft,x,
+dnscsr_(aOne,rowDim,nzmaxLeft,x,
 aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 ierr);
 pathNewtAssert(*ierr == 0);
@@ -558,24 +567,27 @@ cmatsExtent=itb[i+1]-1;
 bump(cmatsExtent);
 
 aSmallDouble=DBL_EPSILON;
-dropSmallElements(cColumns,aOne,&aSmallDouble,nzmax,tb,jtb,itb,tb,jtb,itb,ierr);
-csrToCsc(cColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
+dropSmallElements(balColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
+pathNewtAssert(*ierr == 0);
+csrcsc_(balColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
-csrToDns(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(*rowDim);
 /*code should use info from previous call to set lfact
 also can avoid calls to ma50ad once pattern settles down*/
 
-useMA50CD(rowDim,rowDim,icntl,oddSumCIA,np,
-trans,lfact,fact,irnf,iptrl,iptru,nsSumD,x,w,info);
-
-dnsToCsr(rowDim,aOne,rowDim,x,
+useMA50CD(rowDim,rowDim,icntl,ma50bdIq,np,
+trans,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,nsSumD,x,w,info);
+pathNewtAssert(info[0]>=0);
+dnscsr_(rowDim,aOne,rowDim,x,
 rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
 /*wordybump(info[3]);*/
 pathNewtAssert(*ierr == 0);
 @}
+
+
 
 \subsection{nxtCDmats Variable Declarations}
 \label{sec:nxtcddeclarations}
@@ -1003,9 +1015,6 @@ free(impactPart2);
 }
 @}
 
-
-
-
 \subsection{nxtGuess Definition}
 \label{sec:nxtGuess}
 
@@ -1013,7 +1022,7 @@ free(impactPart2);
 @o stackC.h -d
 @{
 void nxtGuess(@<nxtGuess argument list@>);
-void newNxtGuess(@<nxtGuess argument list@>);
+void newNxtGuess(@<newNxtGuess argument list@>);
 @}
 
 
@@ -1023,25 +1032,16 @@ unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads, unsi
 double **fmats,unsigned int  **fmatsj,unsigned int  **fmatsi,
 double **smats,unsigned int  **smatsj,unsigned int  **smatsi,
 unsigned int *maxNumberHElements,
-double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double * fp,
+double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double * fp,double * intercept,
 double * initialX,
 double * shockVec,
-double * updateDirection @| termConstr fp initialX shockVec
+double * updateDirection,
+unsigned int * intControlParameters,double * doubleControlParameters
+ @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
 
-@o stackC.h -d
-@{
-void chkDrv(@<chkDrv argument list@>);
-@}
-
-@d chkDrv argument list
-@{
-unsigned int n, double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,
-double * fvec,double * delxvec
-@}
-
-@o stackC.h -d
+@o stackC.h
 @{
 void constructFdrv(@<constructFdrv argument list@>);
 @}
@@ -1058,23 +1058,17 @@ double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,unsigned int ihomotopy,
 unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
-@o stackC.h
-@{
-#define addOneToFEvals (intOutputInfo[2])++
-#define homotopyAlpha (doubleControlParameters+10)
-#define addOneToFDrvEvals (intOutputInfo[3])++
-#define maxNumberStackElements intControlParameters[5]
 
-@}
 
 @d chkDrv definition
 @{
 #include <math.h>
 #define NEGLIGIBLEDOUBLE 1.0e-9
-void chkDrv(@<chkDrv argument list@>)
+chkDrv(unsigned int n, double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,
+double * fvec,double * delxvec)
 {
 unsigned int i;
-/*unsigned int aOne=1;*/
+unsigned int aOne=1;
 double * fvals;
 fvals = (double * ) calloc(n,sizeof(double));
 #ifdef DEBUG 
@@ -1082,7 +1076,7 @@ printf("chkDrv:beginning\n");
 #endif
 
 
-sparseMatTimesVec(&n,fdrv,fdrvj,fdrvi,delxvec,fvals);
+sparseMatTimesVec(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
 for(i=0;i<n;i++){
 if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
 #ifdef DEBUG 
@@ -1090,21 +1084,22 @@ printf("chkDrv:discrepancy for %d,(%e,%e)\n",i,fvals[i],fvec[i]);
 #endif
 }
 }
-free(fvals);
+cfree(fvals);
 #ifdef DEBUG 
 printf("chkDrv:done\n");
 #endif
 
 }
+
 void constructFdrv(@<constructFdrv argument list@>)
 {
 double * deviations;
-unsigned int * ignore;/*double  dignore[1]={1.0};*/
+unsigned int * ignore;double  dignore[1]={1.0};
 unsigned int rowDim;unsigned int * fvecj;unsigned int * fveci;
 unsigned int i;unsigned int j;unsigned int soFar;double * zeroShockVec;
-ignore = (unsigned int *)calloc(numberOfEquations+1,sizeof(unsigned int));
-fvecj = (unsigned int *)calloc(numberOfEquations+1,sizeof(unsigned int));
-fveci = (unsigned int *)calloc(numberOfEquations+1,sizeof(unsigned int));
+ignore = (unsigned int *)calloc(numberOfEquations+1,sizeof(int));
+fvecj = (unsigned int *)calloc(numberOfEquations+1,sizeof(int));
+fveci = (unsigned int *)calloc(numberOfEquations+1,sizeof(int));
 deviations = (double * ) calloc(numberOfEquations*(leads+lags),sizeof(double));
 zeroShockVec = (double * ) calloc(numberOfEquations,sizeof(double));
 /*identity matrix for lagged values*/
@@ -1167,14 +1162,14 @@ fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
 for(i=0;i<numberOfEquations* (lags+ leads);i++){
 deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
 rowDim=numberOfEquations*leads;
-sparseMatTimesVec(&rowDim,
-termConstr,termConstrj,termConstri,deviations,fvec+(numberOfEquations*(lags+pathLength)));
+sparseMatTimesVec(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
+termConstr,termConstrj,termConstri);
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
-free(ignore);
-free(fvecj);
-free(fveci);
-free(deviations);
-free(zeroShockVec);
+cfree(ignore);
+cfree(fvecj);
+cfree(fveci);
+cfree(deviations);
+cfree(zeroShockVec);
 }
 @}
 
@@ -1194,7 +1189,7 @@ unsigned int * ma50bdIptru,
 unsigned int * intControlParameters,double * doubleControlParameters
 @}
 
-@d newNxtGuess definition
+@d nxtGuess definition
 @{
 #define sysDimSwitchLevel 30000
 #define ma50DropThreshold (1e-8)
@@ -1203,7 +1198,7 @@ void newNxtGuess(@<newNxtGuess argument list@>)
 {
 
 
-unsigned int i;
+//unsigned int i;
 unsigned int maxElementsEncountered=0;
 double * copychkfdrv;unsigned int * copychkfdrvj;unsigned int * copychkfdrvi;
 unsigned int * jcn;
@@ -1222,10 +1217,10 @@ unsigned int * nextc;
 unsigned int * info;
 double * rinfo;
 unsigned int *lfact;
-double * fact;
-unsigned int *irnf;
-unsigned int * iptrl;
-unsigned int * iptru;
+//double * fact;
+//unsigned int *irnf;
+//unsigned int * iptrl;
+//unsigned int * iptru;
 unsigned int *iw;
 double * w;
 unsigned int nzmax;
@@ -1233,37 +1228,37 @@ unsigned int  * aOne;
 unsigned int nonZeroNow;
 unsigned int  trans;
 @}
-@d newNxtGuess definition
+@d nxtGuess definition
 @{
 
 copychkfdrv = (double * )calloc(*maxNumberHElements,sizeof(double));
-copychkfdrvj = (unsigned int * )calloc(*maxNumberHElements,sizeof(unsigned int));
-copychkfdrvi=(unsigned int * ) calloc(*sysDim+1,sizeof(unsigned int));
-jcn = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
+copychkfdrvj = (unsigned int * )calloc(*maxNumberHElements,sizeof(int));
+copychkfdrvi=(unsigned int * ) calloc(*sysDim+1,sizeof(int));
+jcn = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
 cntl= (double *)calloc(5,sizeof(double));
-icntl= (unsigned int *)calloc(9,sizeof(unsigned int));
-ip = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-np = (unsigned int *)calloc(1,sizeof(unsigned int));
-jfirst = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-lenr = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-lastr = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-nextr = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
+icntl= (unsigned int *)calloc(9,sizeof(int));
+ip = (unsigned int *)calloc(*sysDim,sizeof(int));
+np = (unsigned int *)calloc(1,sizeof(int));
+jfirst = (unsigned int *)calloc(*sysDim,sizeof(int));
+lenr = (unsigned int *)calloc(*sysDim,sizeof(int));
+lastr = (unsigned int *)calloc(*sysDim,sizeof(int));
+nextr = (unsigned int *)calloc(*sysDim,sizeof(int));
 w = (double *)calloc(*sysDim,sizeof(double));
-iw = (unsigned int *)calloc(3**sysDim,sizeof(unsigned int));
-ifirst = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-lenc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-lastc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-nextc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-info = (unsigned int *)calloc(7,sizeof(unsigned int));
+iw = (unsigned int *)calloc(3**sysDim,sizeof(int));
+ifirst = (unsigned int *)calloc(*sysDim,sizeof(int));
+lenc = (unsigned int *)calloc(*sysDim,sizeof(int));
+lastc = (unsigned int *)calloc(*sysDim,sizeof(int));
+nextc = (unsigned int *)calloc(*sysDim,sizeof(int));
+info = (unsigned int *)calloc(7,sizeof(int));
 rinfo = (double *)calloc(1,sizeof(double));
-lfact = (unsigned int *)calloc(1,sizeof(unsigned int));
+lfact = (unsigned int *)calloc(1,sizeof(int));
 *lfact = ( *maxNumberHElements);/*pessimistic setting for filling*/
-aOne = (unsigned int *)calloc(1,sizeof(unsigned int));
+aOne = (unsigned int *)calloc(1,sizeof(int));
 *aOne=1;
 @}
-@d newNxtGuess definition
+@d nxtGuess definition
 @{
-copmat_(sysDim,fdrv,fdrvj,fdrvi,
+copyMatrix(sysDim,fdrv,fdrvj,fdrvi,
 copychkfdrv,copychkfdrvj,copychkfdrvi,aOne,aOne);
 
 useMA50ID(cntl,icntl);
@@ -1299,7 +1294,7 @@ for(i=0;i<7;i++)printf(" %d ",info[i]);
 printf("\n ma50bd info\n");
 #endif
 pathNewtAssert(info[0]>=0);
-if(*ma50bdJob=1)*ma50bdJob=1;
+if(*ma50bdJob==1)*ma50bdJob=1;
 /* if it was 1 promote 
                              to 3(ie conservative alternative)*/
 /*unless we're dropping terms with cntl[2]>0*/
@@ -1337,34 +1332,30 @@ w,info);
 *maxNumberHElements=maxElementsEncountered;
 pathNewtAssert(info[0]>=0);
 @}
-@d newNxtGuess definition
-@{
-free(aOne);
-free(jcn );
-free(cntl);
-free(icntl);
-free(ip );
-free(np );
-free(jfirst );
-free(lenr );
-free(lastr );
-free(nextr );
-free(w);
-free(iw);
-free(ifirst );
-free(lenc );
-free(lastc );
-free(nextc );
-free(info );
-free(rinfo );
-free(lfact);
-free(copychkfdrv);free(copychkfdrvj);free(copychkfdrvi);
-}
-@}
-
-
 @d nxtGuess definition
 @{
+cfree(aOne);
+cfree(jcn );
+cfree(cntl);
+cfree(icntl);
+cfree(ip );
+cfree(np );
+cfree(jfirst );
+cfree(lenr );
+cfree(lastr );
+cfree(nextr );
+cfree(w);
+cfree(iw);
+cfree(ifirst );
+cfree(lenc );
+cfree(lastc );
+cfree(nextc );
+cfree(info );
+cfree(rinfo );
+cfree(lfact);
+cfree(copychkfdrv);cfree(copychkfdrvj);cfree(copychkfdrvi);
+}
+
 void nxtGuess(@<nxtGuess argument list@>)
 {
 @<nxtGuess variable declarations@>
@@ -1380,6 +1371,7 @@ if(*leads>0){
 @<nxtGuess use terminal constraint@>
 }
 @<nxtGuess backsolve@>
+*maxNumberHElements=maxElementsEncountered;
 @<nxtGuess storage deallocations@>
 
 }
@@ -1416,13 +1408,13 @@ unsigned int * ierr;
 
 @d nxtGuess variable initializations
 @{
-aOne=(unsigned int *)calloc(1,sizeof(unsigned int));
+aOne=(unsigned int *)calloc(1,sizeof(int));
 *aOne=1;
-ierr=(unsigned int *)calloc(1,sizeof(unsigned int));
+ierr=(unsigned int *)calloc(1,sizeof(int));
 deviations=(double *)calloc(*numberOfEquations*(*lags+*leads),sizeof(double));
-hColumns=(unsigned int *)calloc(1,sizeof(unsigned int));
-qColumns=(unsigned int *)calloc(1,sizeof(unsigned int));
-rowDim=(unsigned int *)calloc(1,sizeof(unsigned int));
+hColumns=(unsigned int *)calloc(1,sizeof(int));
+qColumns=(unsigned int *)calloc(1,sizeof(int));
+rowDim=(unsigned int *)calloc(1,sizeof(int));
 *hColumns=*numberOfEquations*(*lags+1+*leads);
 *qColumns=*numberOfEquations*(*lags+*leads);
 *rowDim=*numberOfEquations* (*leads? *leads:1);
@@ -1431,42 +1423,40 @@ fullfvec=(double *)calloc(*numberOfEquations**leads,sizeof(double));
 fulldfvec=(double *)calloc(*numberOfEquations*(*lags+*leads+ 1),sizeof(double));
 fullXvec = (double *)calloc(*numberOfEquations *  (*lags+*leads+*capT),sizeof(double));
 for(i=0;i<(*lags+*leads+*capT) * *numberOfEquations ;i++){fullXvec[i]=1.0;};
-double ** ptrToPtrToDouble = NULL;
-unsigned int ** ptrToPtrToInt = NULL;
 
-cmats =(double **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToDouble));
-cmatsj =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToInt));
-cmatsi =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToInt));
-dmats =(double **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToDouble));
-dmatsj =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToInt));
-dmatsi =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(ptrToPtrToInt));
+cmats =(double **)calloc(*capT+(*lags+*leads)+1,sizeof(double *));
+cmatsj =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(unsigned int *));
+cmatsi =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(unsigned int *));
+dmats =(double **)calloc(*capT+(*lags+*leads)+1,sizeof(double *));
+dmatsj =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(unsigned int *));
+dmatsi =(unsigned int **)calloc(*capT+(*lags+*leads)+1,sizeof(unsigned int *));
 gmats =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
-gmatsj =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(unsigned int));
-gmatsi =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(unsigned int));
+gmatsj =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+gmatsi =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 ymats =(double **)calloc(*capT+(*leads+*lags)+1,sizeof(double *));
 ymatsj =(unsigned int **)calloc(*capT+(*leads+*lags)+1,sizeof(unsigned int *));
 ymatsi =(unsigned int **)calloc(*capT+(*leads+*lags)+1,sizeof(unsigned int *));
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
 ymats[i] =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
-ymatsj[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(unsigned int));
-ymatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(unsigned int));
+ymatsj[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+ymatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 cmats[i] =(double *)calloc(*maxNumberHElements,sizeof(double));
-cmatsj[i] =(unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
-cmatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(unsigned int));
+cmatsj[i] =(unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+cmatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 dmats[i] =(double *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(double));
-dmatsj[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(unsigned int));
-dmatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(unsigned int));
+dmatsj[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1),sizeof(int));
+dmatsi[i] =(unsigned int *)calloc(*numberOfEquations*(*leads?*leads:1)+1,sizeof(int));
 }
 
 @}
 @d nxtGuess storage allocations
 @{
-ma50bdIptru = (unsigned int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(unsigned int));
-ma50bdIptrl = (unsigned int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(unsigned int));
-ma50bdIrnf = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
+ma50bdIptru = (unsigned int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIptrl = (unsigned int *)calloc(*numberOfEquations* (*leads?*leads:1),sizeof(int));
+ma50bdIrnf = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
 ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
-ma50bdIq = (unsigned int *)calloc(*maxNumberHElements,sizeof(unsigned int));
-ma50bdJob = (unsigned int *)calloc(1,sizeof(unsigned int));
+ma50bdIq = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdJob = (unsigned int *)calloc(1,sizeof(int));
 @}
 @d nxtGuess initialize lagged C and d matrices
 @{
@@ -1482,36 +1472,73 @@ dmats[i][j]=0;
 cmatsi[i][*rowDim]=1;
 dmatsi[i][*rowDim]=1;
 }
-printf("at init nxtCDmats call\n");
-cPrintSparse(*rowDim,(cmats[*lags]),(cmatsj[*lags]),cmatsi[*lags]);
-
 @}
 
 @d nxtGuess obtain sparse representation and compute next C and d
 @{
-
-printf("before nxtCDmats call\n");
-cPrintSparse(*rowDim,(cmats[*lags]),(cmatsj[*lags]),cmatsi[*lags]);
-
-
 nxtCDmats(numberOfEquations,lags,leads,
 numberOfEquations,maxNumberHElements,
    smats[tNow],smatsj[tNow],smatsi[tNow],
    fmats[tNow],fmatsj[tNow],fmatsi[tNow],
    cmats+*lags+tNow,cmatsj+*lags+tNow,cmatsi+*lags+tNow,
-   dmats+*lags+tNow,dmatsj+*lags+tNow,dmatsi+*lags+tNow);
-
+   dmats+*lags+tNow,dmatsj+*lags+tNow,dmatsi+*lags+tNow,
+ma50bdJob,
+ma50bdIq,
+ma50bdFact,
+ma50bdIrnf,
+ma50bdIptrl,
+ma50bdIptru
+);
+bump(*maxNumberHElements);
 @}
 @d nxtGuess use terminal constraint
 @{
 
+
+
+
+copyMatrix(rowDim,termConstr,termConstrj,termConstri,
+smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
+
+/*xxxxxxxxx add code for deviations using gmat*/
+for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
+deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
+sparseMatTimesVec(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
+for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
+fullfvec[i]-intercept[i];}
+dnscsr_(rowDim,aOne,rowDim,fullfvec,
+aOne,
+fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
+pathNewtAssert(*ierr == 0);
+
+#ifdef DEBUG 
+/*
+printf("nxtGuess:deviations computation\n");
+printf("fullfvec={\n");
+for(i=0;i<*rowDim-1;i++){printf("%f,",fullfvec[i]);}
+printf("%f}\n",fullfvec[*rowDim]);
+printf("deviations={\n");
+for(i=0;i<*numberOfEquations* (*lags+ *leads)-1;i++){printf("%f,",deviations[i]);}
+printf("%f}\n",deviations[*numberOfEquations* (*lags+ *leads)]);
+*/
+#endif
+
+
+*ma50bdJob=1;
 nxtCDmats(numberOfEquations,lags,leads,
 rowDim,maxNumberHElements,
-smats[*capT],smatsj[*capT],smatsi[*capT],
+termConstr,termConstrj,termConstri,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],
    cmats+*lags+*capT,cmatsj+*lags+*capT,cmatsi+*lags+*capT,
-   dmats+*lags+*capT,dmatsj+*lags+*capT,dmatsi+*lags+*capT);
-
+   dmats+*lags+*capT,dmatsj+*lags+*capT,dmatsi+*lags+*capT,
+ma50bdJob,
+ma50bdIq,
+ma50bdFact,
+ma50bdIrnf,
+ma50bdIptrl,
+ma50bdIptru
+);
+bump(*maxNumberHElements);
 cmatsi[*lags+*capT+1][0]=cmatsi[*lags+*capT+1][1]=1;
 dmatsi[*lags+*capT+1][0]=dmatsi[*lags+*capT+1][1]=1;
 
@@ -1533,13 +1560,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*capT;i++){
-csrToDns(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
+csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
 if(*leads>0){
-csrToDns(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
+csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
@@ -1548,47 +1575,50 @@ bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
 @}
 @d nxtGuess storage deallocations
 @{
-free(ma50bdIptru);
-free(ma50bdIptrl);
-free(ma50bdIrnf);
-free(ma50bdFact);
-free(ma50bdIq);
-free(ma50bdJob);
-free(deviations);
-free(hColumns);
-free(qColumns);
-free(rowDim);
-free(fullXvec);
-free(fullfvec);
-free(fulldfvec);
-free(ierr);
-free(aOne);
+cfree(ma50bdIptru);
+cfree(ma50bdIptrl);
+cfree(ma50bdIrnf);
+cfree(ma50bdFact);
+cfree(ma50bdIq);
+cfree(ma50bdJob);
+cfree(deviations);
+cfree(hColumns);
+cfree(qColumns);
+cfree(rowDim);
+cfree(fullXvec);
+cfree(fullfvec);
+cfree(fulldfvec);
+cfree(ierr);
+cfree(aOne);
 
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
-free(cmats[i]);
-free(cmatsj[i]);
-free(cmatsi[i]);
-free(dmats[i]);
-free(dmatsj[i]);
-free(dmatsi[i]);
-free(ymats[i]);
-free(ymatsj[i]);
-free(ymatsi[i]);
+cfree(cmats[i]);
+cfree(cmatsj[i]);
+cfree(cmatsi[i]);
+cfree(dmats[i]);
+cfree(dmatsj[i]);
+cfree(dmatsi[i]);
+cfree(ymats[i]);
+cfree(ymatsj[i]);
+cfree(ymatsi[i]);
 }
-free(cmats);
-free(cmatsj);
-free(cmatsi);
-free(dmats);
-free(dmatsj);
-free(dmatsi);
-free(gmats);
-free(gmatsj);
-free(gmatsi);
-free(ymats);
-free(ymatsj);
-free(ymatsi);
+cfree(cmats);
+cfree(cmatsj);
+cfree(cmatsi);
+cfree(dmats);
+cfree(dmatsj);
+cfree(dmatsi);
+cfree(gmats);
+cfree(gmatsj);
+cfree(gmatsi);
+cfree(ymats);
+cfree(ymatsj);
+cfree(ymatsi);
 
 @}
+
+
+
 
 \subsection{nxtFPGuess Definition}
 \label{sec:nxtFPGuess}
@@ -1933,7 +1963,7 @@ zeroShockVec,
 copyMatrix(rowDim,aOne,termConstr,termConstrj,termConstri,aOne,
 smats[*capT],smatsj[*capT],smatsi[*capT]);
 /*
-copmat_(rowDim,termConstr,termConstrj,termConstri,
+copyMatrix(rowDim,termConstr,termConstrj,termConstri,
 smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 */
 /*xxxxxxxxx add code for deviations using gmat*/
@@ -3149,29 +3179,47 @@ done=1;
 *check=0;done=1;}
 }
 @}
+
+
 \subsection{pathNewt}
-\label{sec:pathNewt}
+\label{sec:pathNewt} 
 
-@o stackC.h
+
+
+
+@o myNewt.c -d 
 @{
-void pathNewt(@<pathNewt argument list@>);
-@}
 
-@d pathNewt argument list
-@{unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void exogenizeRow(unsigned int row, double * a, unsigned int * ja, unsigned int * ia)
+{
+/*unsigned int i; unsigned int strt;*/
+a[ia[row-1]-1]=0.0;
+}
+void exogenizeDRow(unsigned int row, unsigned int col, double * a, unsigned int * ja, unsigned int * ia)
+{
+unsigned int i; unsigned int elems; unsigned int strt; unsigned int fin;
+fin=ia[row]-1;strt=ia[row-1]-1;elems=fin-strt;
+for(i=0;i<elems;i++){
+if(ja[i+strt]==col){a[i+strt]=1.0;} else {a[i+strt]=0.0;}
+}
+}
+
+void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
- unsigned int * maxNumberElements,double * qMat, unsigned int * qMatj, unsigned int * qMati,
-double * fixedPoint,
-double x[],double * linPt,
- unsigned int *check,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo
-@}
-@o myNewt.c -d 
-@{
-void pathNewt(@<pathNewt argument list@>)
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double x[],
+unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * ma50bdJob,
+unsigned int * ma50bdIq,
+double * ma50bdFact,
+unsigned int * ma50bdIrnf,
+unsigned int * ma50bdIptrl,
+unsigned int * ma50bdIptru
+)
 {
 @<pathNewt declarations@>
 @<pathNewt initializations@>
@@ -3180,10 +3228,10 @@ for(ihomotopy=0;(ihomotopy<numberAlphas)&&(!(*check));ihomotopy++){
 #ifdef DEBUG 
 printf("%d-th homotopy -- %f\n",ihomotopy,*(homotopyAlpha+ihomotopy));
 #endif
-
-
 @<q terminal constraint computation@>
+
 its=0;
+@<pathNewt check for convergence @>
 	for (its=1;(its<=(maxitsInput))&&(!done);its++) {
 if(*check == 0){
 @<pathNewt update path@>
@@ -3208,34 +3256,175 @@ printf("IGNORING FAILED CONVERGENCE!!!!!!!!\n");
 PFREERETURN
 }
 
-@}
+void putBadHomotopy(
+unsigned int  numberOfEquations,unsigned int  lags,unsigned int leads,unsigned int pathLength,
+double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
+					double * shock, FILE * hFile);
+void homotopyPathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,double x[],
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * ma50bdJob,
+unsigned int * ma50bdIq,
+double * ma50bdFact,
+unsigned int * ma50bdIrnf,
+unsigned int * ma50bdIptrl,
+unsigned int * ma50bdIptru
+)
+{
 
-@d another pn check for convergence
-@{
+FILE * debFile;
+FILE * hFile;
+unsigned int lclMaxElems=0;
+unsigned int originalMaxElems;
+unsigned int i;
+unsigned int j;
+unsigned int lagPart;
+unsigned int vecLength;
+double * zeroShock;
+double * trialShock;
+double * trialX;
+double * lastDel;
+originalMaxElems=*maxNumberElements;
+lagPart=*numberOfEquations* *lags;
+vecLength=*numberOfEquations*( *lags + *leads + *pathLength);
+lastDel = (double *)calloc(vecLength,sizeof(double));
+trialX = (double *)calloc(vecLength,sizeof(double));
+zeroShock = (double *)calloc(vecLength,sizeof(double));
+trialShock = (double *)calloc(vecLength,sizeof(double));
+addOneToHomotopies;
+*check=0;
+for(i=0;i<numberBetas;i++){
+/* do convex linear combination for shock and for x */
+/*needs to keep endog at last value but update exog using a template*/
+/* call pathNewt */
+
+/*set endog values last x*/
+switch(homotopyXGuess){
+case useBigX:
+for(j=0;j<vecLength;j++){
+if(j<lagPart||exogQ[j%*numberOfEquations]){
+trialX[j]= (1-homotopyBeta[i])*easyX[j]  +  homotopyBeta[i]*targetX[j];}
+ else {trialX[j]= x[j];}
+}
+break;
+case useBigEasy:
+for(j=0;j<vecLength;j++){
+if(j<lagPart||exogQ[j%*numberOfEquations]){
+trialX[j]= (1-homotopyBeta[i])*easyX[j]  +  homotopyBeta[i]*targetX[j];}
+ else {trialX[j]= x[j];}
+}
+}
+
+
+
+if(*check ==0){
 #ifdef DEBUG 
-printf("pathNewt:another testing for convergence\n");
+printf("for homotopyBeta[%d]=%f\n",i,homotopyBeta[i]);
 #endif
+for(j=0;j<*numberOfEquations;j++){
+trialShock[j]= homotopyBeta[i]*shockVec[j];
+}
+*maxNumberElements=originalMaxElems;
+pathNewt(numberOfEquations,lags, leads,
+pathLength,
+vecfunc,fdjac,params,trialShock,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+maxNumberElements,qMat,qMatj,qMati,
+fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+trialX,
+check,lastDel,intControlParameters,doubleControlParameters,
+intOutputInfo,doubleOutputInfo,
+ma50bdJob,
+ma50bdIq,
+ma50bdFact,
+ma50bdIrnf,
+ma50bdIptrl,
+ma50bdIptru
+);
+if(*check==0)for(j=0;j<vecLength;j++){x[j]=trialX[j];} else {
+printf("already failed earlier homotopy attempt, ignoring %e\n", homotopyBeta[i]);}
+/*set endog values last x*/
+switch(homotopyXGuess){
+case useBigX:
+for(j=0;j<vecLength;j++){
+if(/*j<lagPart||*/exogQ[j%*numberOfEquations]){
+trialX[j]= (1-homotopyBeta[i])*easyX[j]  +  homotopyBeta[i]*targetX[j];}
+ else {trialX[j]= x[j];}
+}
+break;
+case useBigEasy:
+for(j=0;j<vecLength;j++){
+trialX[j]= (1-homotopyBeta[i])*easyX[j]  +  homotopyBeta[i]*targetX[j];}
 
+}
 
-@<pathNewt check for convergence@>
+}
+if(*check){
+addOneToHomotopyFailures;
+debFile=fopen("codeGenDebHFile","w");
+fprintf(debFile,"homotopy failing\n");
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+targetX,"hom$fail$targetX");
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+easyX,"hom$fail$easyX");
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+x,"hom$fail$x");
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+lastDel,"hom$fail$xdel");
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
+targetX,"hom$fail$fixedPt");
+fPrintMathDbl(debFile,*numberOfEquations,
+trialShock,"hom$fail$shock");
+fclose(debFile);
+}
+if(lclMaxElems<*maxNumberElements)lclMaxElems=*maxNumberElements;
 
+}
+
+if(*check){
+printf("homotopy failing, writing to codeGenHFile\n");
+hFile=fopen("codeGenHFile","w");
+putBadHomotopy(*numberOfEquations,*lags,*leads,*pathLength,
+easyX,targetX,x,lastDel,fixedPoint,shockVec,hFile);
+fclose(hFile);
+
+}
+
+*maxNumberElements=lclMaxElems;
+cfree(lastDel);
+cfree(trialX);
+cfree(zeroShock);
+cfree(trialShock);
+
+}
 
 @}
 
 
 @d q terminal constraint computation
 @{
-/* modification begin */
 
 @<compute fmats for path@>
 
 @<apply q terminal constraint@>
-/*modifications begin */
-for(tNow=0;tNow<*pathLength;tNow++) {
-      fdjac(x+(tNow* *numberOfEquations),params,
-      smats[tNow],smatsj[tNow],smatsi[tNow]);
+{/*use shock first period only*/
+addOneToFDrvEvals;
+      fdjac(x,params,shockVec,
+      smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
 }
-/*modifications end */
+for(tNow=1;tNow<*pathLength;tNow++) {
+addOneToFDrvEvals;
+      fdjac(x+(tNow* *numberOfEquations),params,zeroShockVec,
+      smats[tNow],smatsj[tNow],smatsi[tNow],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+}
 
 
 @}
@@ -3247,75 +3436,101 @@ for(tNow=0;tNow<*pathLength;tNow++) {
 @d compute fmats for path
 @{
 normSum=0.0;
-for(tNow=0;tNow<*pathLength;tNow++) {
-      vecfunc(x+(tNow* *numberOfEquations),params,shockVec,
-      fmats[tNow],fmatsj[tNow],fmatsi[tNow]);
+{/*use shock for first period only*/
+addOneToFEvals;
+      vecfunc(x,params,shockVec,
+      fmats[0],fmatsj[0],fmatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+        for (i=0;
+        i<=fmatsi[0][*numberOfEquations]-fmatsi[0][0];i++)
+            normSum += SQR(fmats[0][i]);
+}
+
+for(tNow=1;tNow<*pathLength;tNow++) {
+addOneToFEvals;
+      vecfunc(x+(tNow* *numberOfEquations),params,zeroShockVec,
+      fmats[tNow],fmatsj[tNow],fmatsi[tNow],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
         for (i=0;
         i<=fmatsi[tNow][*numberOfEquations]-fmatsi[tNow][0];i++)
             normSum += SQR(fmats[0][i]);
 }
+
+
 @}
 
 
 @d apply q terminal constraint
 @{
-
-copyMatrix(rowDim,aOne,qMat,qMatj,qMati,aOne,
-smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
-
+if(*leads>0){
 /*
-copmat_(rowDim,qMat,qMatj,qMati,
+copyMatrix(rowDim,qMat,qMatj,qMati,
 smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],
 aOne,aOne);
 */
 
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
-deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i];}
-sparseMatTimesVec(rowDim,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],deviations,fullfvec);
+deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i+*numberOfEquations];}
+/*sparseMatTimesVec(rowDim,deviations,fullfvec,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
+*/
+sparseMatTimesVec(rowDim,deviations,fullfvec,qMat,qMatj,qMati);
+for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
+fullfvec[i]-intercept[i];}
 dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*pathLength],fmatsj[*pathLength],fmatsi[*pathLength],ierr);
+pathNewtAssert(*ierr == 0);
+bump(fmatsi[*pathLength][*rowDim]-fmatsi[*pathLength][0]);
 for(i=0;i<*rowDim;i++){
   fvec[(*pathLength * *numberOfEquations)+i]=fullfvec[i];
             normSum += SQR(fullfvec[i]);}
 
         f= 0.5 * normSum;
+#ifdef DEBUG 
+/*printf("pathNewt:deviations computation\n");
+printf("fullfvec={\n");
+for(i=0;i<*rowDim-1;i++){printf("%f,",fullfvec[i]);}
+printf("%f}\n",fullfvec[*rowDim]);
+printf("deviations={\n");
+for(i=0;i<*numberOfEquations* (*lags+ *leads)-1;i++){printf("%f,",deviations[i]);}
+printf("%f}\n",deviations[*numberOfEquations* (*lags+ *leads)]);
+*/
+#endif
+
+}
 for(tNow=0;tNow<*pathLength;tNow++) {
         csrToDns(numberOfEquations,
         aOne,fmats[tNow],fmatsj[tNow],fmatsi[tNow],
-        fvec+(tNow * *numberOfEquations),numberOfEquations,ierr);
+        fvec+((*lags+tNow) * *numberOfEquations),numberOfEquations,ierr);
+pathNewtAssert(*ierr == 0);
+bump(*numberOfEquations);
         }
-/* modification end */
 @}
 
 
 
 @d Anderson-Moore algorithm  variable deallocations
 @{
-free(asymptoticLinearization);
-free(cond);
-free(epsi);
-free(inform);
-free(iq);
-free(itsbad);
-free(nbig);
-free(nexa);
-free(nnum);
-free(nroot);
-free(rooti);
-free(rootr);
-free(uprbnd);
-free(qColumns);
-free(hColumns);
+cfree(asymptoticLinearization);
+cfree(cond);
+cfree(epsi);
+cfree(inform);
+cfree(iq);
+cfree(itsbad);
+cfree(nbig);
+cfree(nexa);
+cfree(nnum);
+cfree(nroot);
+cfree(uprbnd);
+cfree(qColumns);
+cfree(hColumns);
 @}
 
 
 @d Anderson-Moore algorithm  variable allocations
 @{
-qColumns=(unsigned int *)calloc(1,sizeof(unsigned int));
+qColumns=(unsigned int *)calloc(1,sizeof(int));
 *qColumns=(*numberOfEquations)*((*lags)+(*leads));
-hColumns=(unsigned int *)calloc(1,sizeof(unsigned int));
+hColumns=(unsigned int *)calloc(1,sizeof(int));
 *hColumns=(*numberOfEquations)*((*lags)+(*leads)+1);
 asymptoticLinearization=(double *)
    calloc( (*numberOfEquations)*((*numberOfEquations)*((*leads)+(*lags)+1)),
@@ -3323,15 +3538,13 @@ asymptoticLinearization=(double *)
 
 cond = (double *)calloc(1,sizeof(double));
 epsi = (double *)calloc(1,sizeof(double));
-inform = (unsigned int *)calloc(1,sizeof(unsigned int));
-iq = (unsigned int *)calloc(1,sizeof(unsigned int));
-itsbad = (unsigned int *)calloc(1,sizeof(unsigned int));
-nbig = (unsigned int *)calloc(1,sizeof(unsigned int));
-nexa = (unsigned int *)calloc(1,sizeof(unsigned int));
-nnum = (unsigned int *)calloc(1,sizeof(unsigned int));
-nroot = (unsigned int *)calloc(1,sizeof(unsigned int));
-rootr=(double *) calloc((*numberOfEquations)*((*lags)+(*leads)),sizeof(double));
-rooti=(double *) calloc((*numberOfEquations)*((*lags)+(*leads)),sizeof(double));
+inform = (unsigned int *)calloc(1,sizeof(int));
+iq = (unsigned int *)calloc(1,sizeof(int));
+itsbad = (unsigned int *)calloc(1,sizeof(int));
+nbig = (unsigned int *)calloc(1,sizeof(int));
+nexa = (unsigned int *)calloc(1,sizeof(int));
+nnum = (unsigned int *)calloc(1,sizeof(int));
+nroot = (unsigned int *)calloc(1,sizeof(int));
 uprbnd = (double *)calloc(1,sizeof(double));
 @}
 
@@ -3344,13 +3557,6 @@ uprbnd = (double *)calloc(1,sizeof(double));
   *epsi = NEGLIGIBLEDOUBLE ;
   *uprbnd = AIMROOTBOUND + NEGLIGIBLEDOUBLE; 
   *iq = 0;
-/*
-faim_(asymptoticLinearization,numberOfEquations,lags,leads,epsi, cond, uprbnd,
-AMqMatrix,iq,rootr, rooti,nroot,nexa, nnum, nbig, itsbad, inform);
-*/
-/*
-for(i=0;i<*qColumns;i++){printf("roots,(%f,%f)\n",rootr[i],rooti[i]);}
-*/
 printf("q matrix has %d rows.\n",*iq);
 printf("q matrix has %d rows associated with large roots.\n",*nbig);
 printf("q matrix has %d rows associated with auxiliary initial conditions.\n",
@@ -3363,18 +3569,16 @@ else {  printf("Caller has terminated with inform =%d.\n",*inform);}
 
 @d alt apply the Anderson-Moore algorithm  to get AMqMatrix
 @{
-auxInit=qRows=0;
-maxHElementsForSparseAMA=maxHElements;
-/*void * aPointerToVoid;adding since all the sparseAMA.h files have this arg*/
-printf("from stackC.w line 2194\n");
-cPrintSparse(*numberOfEquations,smats[0],smatsj[0],smatsi[0]);
-sparseAMA(&maxHElementsForSparseAMA,DISCRETE_TIME,*numberOfEquations,
+*qRows=0;
+maxHElementsForSparseAim=maxHElements;
+(void)sparseAim(&maxHElementsForSparseAim/*,DISCRETE_TIME,*numberOfEquations,
 *numberOfEquations*(*lags+1+*leads),*leads,
 smats[0],smatsj[0],smatsi[0],
 newH,newHj,newHi,
-&auxInit,&qRows,
+auxInit,qRows,
 qMat,qMatj,qMati,
-&essential,rootr,rooti,&returnCode);
+&essential,rootr,rooti,&returnCode,hookForPeter*/);
+*maxNumberElements=maxHElementsForSparseAim;
 @|NEGLIGIBLEDOUBLE AIMROOTBOUND
 @}
 
@@ -3384,8 +3588,8 @@ qMat,qMatj,qMati,
 
 @d create asymptotic linearization for Anderson-Moore algorithm
 @{
-dfunc(canadaFP,params,
-smats[0],smatsj[0],smatsi[0]);
+dfunc(genericModelFP,params,shockVec,
+smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,genericModelFP,exogRows,exogCols,exogenizeQ);
 
 
 
@@ -3396,28 +3600,152 @@ smats[0],smatsj[0],smatsi[0]);
 
 @}
 
-@o stackC.h -d
+
+@o myNewt.c -d
 @{
-void computeAsymptoticQMatrix(@<computeAsymptoticQMatrix argument list@>);
-@}
+
+void putQ(unsigned int aux,unsigned int qrows,double * q,unsigned int * jq,unsigned int * iq,
+unsigned int nroots,double * rootr,double * rooti,FILE * qFile){
+
+  unsigned int ii;
+  fprintf(qFile,"%10d %10d\n",aux,qrows);
+  for(ii=0;ii<qrows+1;ii++){
+	fprintf(qFile,"%12d ",iq[ii]);}
+  for(ii=0;ii<iq[qrows]-iq[0];ii++){
+	fprintf(qFile,"%12d ",jq[ii]);}
+  for(ii=0;ii<iq[qrows]-iq[0];ii++){
+	fprintf(qFile,"%30.15e ",q[ii]);}
+  fprintf(qFile,"%10d \n",nroots);
+  for(ii=0;ii<nroots;ii++){
+	fprintf(qFile,"%30.15e ",rootr[ii]);}
+  for(ii=0;ii<nroots;ii++){
+	fprintf(qFile,"%30.15e ",rooti[ii]);}
+
+}
+void getQ(unsigned int * aux,unsigned int * qrows,double * q,unsigned int * jq,unsigned int * iq,
+unsigned int * nroots,double * rootr,double * rooti,FILE * qFile){
+
+  unsigned int ii;
+  fscanf(qFile,"%10d %10d",aux,qrows);
+  for(ii=0;ii<*qrows+1;ii++){
+	fscanf(qFile,"%12d ",iq+ii);}
+  for(ii=0;ii<iq[*qrows]-iq[0];ii++){
+	fscanf(qFile,"%12d ",jq+ii);}
+  for(ii=0;ii<iq[*qrows]-iq[0];ii++){
+	fscanf(qFile,"%le ",q+ii);}
+  fscanf(qFile,"%10d",nroots);
+  for(ii=0;ii<*nroots;ii++){
+	fscanf(qFile,"%le ",rootr+ii);}
+  for(ii=0;ii<*nroots;ii++){
+	fscanf(qFile,"%le ",rooti+ii);}
+}
+/*vecLength corresponds to actual number of shocks -- typically less than the numberOfEquations. routine pads vector with zeros to make the shockVec numberOfEquations long  numShocks is how many shocks vec to get*/
+void getShocks(unsigned int  numShocks,unsigned int  vecLength,unsigned int numberOfEquations,
+double * shockArray,FILE * sFile,unsigned int lowLim,unsigned int upLim){
+
+  unsigned int ii=0;unsigned int jj=0;unsigned int kk=0;unsigned int ll=0;double ignore[1];
+ll=lowLim;
+for(ii=0;ii<lowLim*vecLength;ii++){
+fscanf(sFile,"%le",ignore);
+}
+ii=0;
+while((ii <(numShocks)*numberOfEquations)&&(ll<=upLim)){
+while((jj<vecLength)&&(fscanf(sFile,"%le",shockArray+ii) != EOF))
+{ii++;jj++;}
+jj=0;ll++;
+for(kk=0;kk<numberOfEquations-vecLength;kk++){shockArray[ii]=0;ii++;}
+}
+}
+
+void putData(unsigned int numberOfEquations,double * q,FILE * qFile){
+
+  unsigned int ii;
+  for(ii=0;ii<numberOfEquations;ii++){
+	fprintf(qFile,"%30.15e ",q[ii]);}
+}
+
+void getData(unsigned int  numPeriods,unsigned int  vecLength,unsigned int numberOfEquations,
+double * shockArray,FILE * sFile,unsigned int lowLim,unsigned int upLim){
+
+  unsigned int ii=0;unsigned int jj=0;unsigned int kk=0;unsigned int ll=0;double ignore[1];
+ll=lowLim;
+for(ii=0;ii<lowLim*vecLength;ii++){
+fscanf(sFile,"%le",ignore);
+}
+ii=0;
+while((ii <(numPeriods)*numberOfEquations)&&(ll<=upLim)){
+while((jj<vecLength)&&(fscanf(sFile,"%le",shockArray+ii) != EOF))
+{ii++;jj++;}
+jj=0;ll++;
+for(kk=0;kk<numberOfEquations-vecLength;kk++){shockArray[ii]=0;ii++;}
+}
+}
 
 
-@d computeAsymptoticQMatrix argument list
-@{
+
+void putBadHomotopy(
+unsigned int  numberOfEquations,unsigned int  lags,unsigned int leads,unsigned int pathLength,
+double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
+					double * shock, FILE * hFile)
+{
+
+unsigned int ii;unsigned int bigVecLength;
+bigVecLength=numberOfEquations*(lags+leads+pathLength);
+  fprintf(hFile,"%10d %10d %10d %10d\n",
+  numberOfEquations,lags,leads,pathLength);
+  for(ii=0;ii<bigVecLength;ii++){
+	fprintf(hFile,"%30.15e ",easyX[ii]);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fprintf(hFile,"%30.15e ",targetX[ii]);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fprintf(hFile,"%30.15e ",x[ii]);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fprintf(hFile,"%30.15e ",lastDel[ii]);}
+  for(ii=0;ii<numberOfEquations*(lags+leads+1);ii++){
+	fprintf(hFile,"%30.15e ",fixedPt[ii]);}
+  for(ii=0;ii<numberOfEquations;ii++){
+	fprintf(hFile,"%30.15e ",shock[ii]);}
+}
+
+void getBadHomotopy(
+unsigned int  * numberOfEquations,unsigned int  * lags,unsigned int * leads,unsigned int * pathLength,
+double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
+					double * shock, FILE * hFile)
+{
+
+unsigned int ii;unsigned int bigVecLength;
+  fscanf(hFile,"%10d %10d %10d %10d",
+  numberOfEquations,lags,leads,pathLength);
+bigVecLength=*numberOfEquations*(*lags+*leads+*pathLength);
+  for(ii=0;ii<bigVecLength;ii++){
+	fscanf(hFile,"%le ",easyX+ii);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fscanf(hFile,"%le ",targetX+ii);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fscanf(hFile,"%le ",x+ii);}
+  for(ii=0;ii<bigVecLength;ii++){
+	fscanf(hFile,"%le ",lastDel+ii);}
+  for(ii=0;ii<*numberOfEquations*(*lags+*leads+1);ii++){
+	fscanf(hFile,"%le ",fixedPt+ii);}
+  for(ii=0;ii<*numberOfEquations;ii++){
+	fscanf(hFile,"%le ",shock+ii);}
+}
+
+
+
+
+computeAsymptoticQMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double canadaFP[],unsigned int * pthLngth,
+void (* func)(),void (* dfunc)(),double * params,double * shockVec,
+double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 double * AMqMatrix,
-unsigned int * ierr
-@}
-
-
-@o myNewt.c -d
-@{
-void computeAsymptoticQMatrix(@<computeAsymptoticQMatrix argument list@>)
+unsigned int * ierr,unsigned int ihomotopy,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+)
 {
 @<computeAsymptoticQMatrix variable declarations@>
 @<computeAsymptoticQMatrix variable allocations@>
@@ -3437,7 +3765,7 @@ void computeAsymptoticQMatrix(@<computeAsymptoticQMatrix argument list@>)
 @}
 @d computeAsymptoticQMatrix variable declarations
 @{
-double * asymptoticLinearization;
+double * asymptoticLinearization;double  dignore[1]={1.0};
 double * cond;
 double * epsi;
 unsigned int * inform;
@@ -3447,36 +3775,66 @@ unsigned int * nbig;
 unsigned int * nexa;
 unsigned int * nnum;
 unsigned int * nroot;
-/*double * zeroVector;*/
+double * zeroVector;
 unsigned int * qColumns;
-double * rootr;
-double * rooti;
 double * uprbnd;
-/*double * wts;*/
-/*double * err;*/
+double * wts;
+double * err;
 unsigned int * hColumns;
-/*unsigned int i;*/
-@}
-@d altComputeAsymptoticQMatrix argument list
-@{
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double canadaFP[],unsigned int * pthLngth,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,
-unsigned int * ierr
-@}
-
-@o stackC.h -d
-@{
-void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>);
+unsigned int i;
 @}
 
 @o myNewt.c -d
 @{
-void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>)
+
+altComputeAsymptoticIMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * ierr
+)
+{
+unsigned int j;
+/*construct identity matrices*/
+for(j=0;j<*numberOfEquations* *leads;j++){
+qMat[j]=1;
+qMatj[j]=(*numberOfEquations * (*lags))+j+1;
+qMati[j]=j+1;
+}
+qMati[*numberOfEquations* *leads]= (*numberOfEquations * *leads)+1;
+}
+
+
+altComputeAsymptoticDMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * ierr
+)
+{
+unsigned int j;
+/*construct identity matrices*/
+for(j=0;j<*numberOfEquations* *leads;j++){
+qMat[2*j]=1;
+qMatj[2*j]=(*numberOfEquations * (*lags))+j+1;
+qMat[(2*j)+1]=-1;
+qMatj[(2*j)+1]=(*numberOfEquations * (*lags-1))+j+1;
+qMati[j]=(2*j)+1;
+}
+qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
+}
+
+altComputeAsymptoticQMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void (* func)(),void (* dfunc)(),double * params,double * shockVec,
+double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
+double * rootr, double * rooti,
+unsigned int * ierr,unsigned int ihomotopy,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+)
 {
 @<altComputeAsymptoticQMatrix variable declarations@>
 @<altComputeAsymptoticQMatrix variable allocations@>
@@ -3490,147 +3848,1224 @@ void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>)
 @}
 @d altComputeAsymptoticQMatrix variable deallocations
 @{
-free(newH);
-free(newHj);
-free(newHi);
-free(rootr);
-free(rooti);
+cfree(newH);
+cfree(newHj);
+cfree(newHi);
 @}
 @d altComputeAsymptoticQMatrix variable allocations
 @{
+maxHElements=*maxNumberElements;
 newH=(double *)calloc(maxHElements,sizeof(double));
-newHj=(unsigned int *)calloc(maxHElements,sizeof(unsigned int));
-newHi=(unsigned int *)calloc(maxHElements,sizeof(unsigned int));
-rootr=(double *) calloc((*numberOfEquations)*((*lags)+(*leads)),
-sizeof(double));
-rooti=(double *) calloc((*numberOfEquations)*((*lags)+(*leads)),
-sizeof(double));
+newHj=(unsigned int *)calloc(maxHElements,sizeof(int));
+newHi=(unsigned int *)calloc(maxHElements,sizeof(int));
 
 @}
 @d altComputeAsymptoticQMatrix variable declarations
 @{
-unsigned int auxInit;
-unsigned int qRows;
+void * hookForPeter;/*troll needs to have this for their calloc in sparseAim*/
+double  dignore[1]={1.0};
 unsigned int maxHElements=50000;
-unsigned int maxHElementsForSparseAMA;
+unsigned int maxHElementsForSparseAim;
 unsigned int essential;
-unsigned int returnCode=0;
-/*double * zeroVector;*/
-/*int * qColumns;*/
+unsigned int returnCode;
+double * zeroVector;
+unsigned int * qColumns;
 double * newH;
 unsigned int * newHj;
 unsigned int * newHi;
-double * rootr;
-double * rooti;
-/*double * uprbnd;*/
-/*double * wts;*/
-/*double * err;*/
-/*int * hColumns;*/
-/*int i;*/
+double * uprbnd;
+double * wts;
+double * err;
+unsigned int * hColumns;
+unsigned int i;
 @}
 
 
-@d pathNewt undefines
+\subsection{Prepare Linear Terminator}
+\label{sec:linTerm}
+@d linearTerminator definition
+@{
+void linearTerminator(
+@<linearTerminator argument list@>
+)
+{
+@<linearTerminator declarations@>
+@<linearTerminator allocations@>
+
+/*compute linearization*/
+dfunc(linearizationPoint,params,shockVec,hMat,hMatj,hMati,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+
+/*apply anderson-moore algorithm*/
+maxHElementsForSparseAim=*maxNumberElements;
+sparseAim(&maxHElementsForSparseAim,DISCRETE_TIME,*numberOfEquations,
+*numberOfEquations*(*lags+1+*leads),*leads,
+hMat,hMatj,hMati,
+hzMat,hzMatj,hzMati,/*will be overwritten by subsequent call to get hzMat*/
+auxInit,qRows,
+qMat,qMatj,qMati,
+&essential,rootr,rooti,ierr,hookForPeter);
+
+
+/*compute reduced form b*/
+qCols=*numberOfEquations*(*lags+*leads);
+obtainSparseReducedForm(maxNumberElements, 
+*qRows,qCols,qMat,qMatj,qMati,
+bMat,bMatj,bMati);
+
+/*compute phiInv*/
+/*sparseAim destroys hMat*/
+dfunc(linearizationPoint,params,shockVec,hMat,hMatj,hMati,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+computePhiInv(maxNumberElements, 
+*numberOfEquations,*numberOfEquations*(*lags+*leads+1),
+hMat,hMatj,hMati,
+*numberOfEquations*(*leads),*numberOfEquations*(*lags),
+bMat,bMatj,bMati,
+phiInvMat,phiInvMatj,phiInvMati
+);
+
+/*compute fmat varthetac varthetazstar*/
+
+exfunc(params,linearizationPoint,hzMat,hzMatj,hzMati);
+
+computeF(maxNumberElements, 
+*numberOfEquations,*numberOfEquations*(*lags+*leads+1),
+hMat,hMatj,hMati,
+hzMat,hzMatj,hzMati,
+*numberOfEquations*(*leads),*numberOfEquations*(*lags),
+bMat,bMatj,bMati,
+phiInvMat,phiInvMatj,phiInvMati,
+*numberExogenous,
+psimat,psimatj,psimati,
+upsilonMat,upsilonMatj,upsilonMati,
+fmat,fmatj,fmati,
+varthetaZstar,varthetaZstarj,varthetaZstari,
+impact,impactj,impacti,
+varthetaC,varthetaCj,varthetaCi
+);
+
+
+
+/*func(linearizationPoint,params,zeroShock,cstar,cstarj,cstari,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);*/
+
+
+@<linearTerminator frees@>
+
+}
+@}
+
+@d linearTerminator declarations
+@{
+unsigned int i;double  dignore[1]={1.0};
+double * zeroShock;unsigned int ihomotopy=0;
+unsigned int  essential;
+unsigned int maxHElementsForSparseAim;
+unsigned int qCols;
+double * psimat;
+unsigned int * psimatj;
+unsigned int * psimati;
+
+@}
+
+@d linearTerminator allocations
+@{
+zeroShock=(double *)calloc(*numberOfEquations,sizeof(double));
+psimat=(double *)calloc(*maxNumberElements,sizeof(double));
+psimatj=(unsigned int *)calloc(*maxNumberElements,sizeof(int));
+psimati=(unsigned int *)calloc(*numberOfEquations+1,sizeof(int));
+@}
+
+@d linearTerminator frees
+@{
+cfree(zeroShock);
+cfree(psimat);
+cfree(psimatj);
+cfree(psimati);
+@}
+
+@d linearTerminator argument list
+@{
+unsigned int * numberOfEquations,
+unsigned int * lags, unsigned int * leads,unsigned int * numberExogenous,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+void (* func)(),void (* dfunc)(),void(*exfunc)(),double * params,double * shockVec,
+double * upsilonMat, unsigned int * upsilonMatj, unsigned int * upsilonMati,
+unsigned int * maxNumberElements,
+double * hMat,unsigned int * hMatj,unsigned int * hMati,
+double * hzMat,unsigned int * hzMatj,unsigned int * hzMati,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * auxInit,unsigned int * qRows,
+double * rootr, double * rooti,
+double * bMat,unsigned int * bMatj,unsigned int * bMati,
+double * phiInvMat,unsigned int * phiInvMatj,unsigned int * phiInvMati,
+double * fmat, unsigned int * fmatj, unsigned int * fmati,
+double * varthetaZstar, unsigned int * varthetaZstarj, unsigned int * varthetaZstari,
+double * impact, unsigned int * impactj, unsigned int * impacti,
+double * varthetaC, unsigned int * varthetaCj, unsigned int * varthetaCi,
+unsigned int * ierr,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+@}
+\subsection{computeF}
+\label{sec:computeF}
+
+@d kron definition
+@{
+void kron(
+unsigned int leftRows,unsigned int leftCols,
+double * leftMat, unsigned int * leftMatj, unsigned int * leftMati,
+unsigned int rightRows,unsigned int rightCols,
+double * rightMat, unsigned int * rightMatj, unsigned int * rightMati,
+unsigned int * maxNumberElements,
+unsigned int * resultRows,unsigned int  * resultCols,
+double * resultMat, unsigned int * resultMatj, unsigned int * resultMati)
+{
+unsigned int i; unsigned int j;unsigned int elements;unsigned int soFar=0;
+unsigned int leftRowNow; unsigned int rightRowNow;
+unsigned int leftColNow; unsigned int rightColNow;
+/*check if enough space*/
+resultMati[1]=resultMati[0]=1;
+if((elements=
+(leftMati[leftRows]-leftMati[0])*
+(rightMati[rightRows]-rightMati[0]))>*maxNumberElements){ 
+  *maxNumberElements=elements;
+  *resultRows=0;*resultCols=0;} else {
+/*for each row in left matrix*/
+for(leftRowNow=0;leftRowNow<leftRows;leftRowNow++){
+/*for each row in right matrix*/
+for(rightRowNow=0;rightRowNow<rightRows;rightRowNow++){
+/*for each element in row in left matrix*/
+for(i=leftMati[leftRowNow]-1;i<leftMati[leftRowNow+1]-1;i++){
+/*for each element in row in right matrix*/
+for(j=rightMati[rightRowNow]-1;j<rightMati[rightRowNow+1]-1;j++){
+resultMat[soFar]=leftMat[i]*rightMat[j];
+resultMatj[soFar]=(leftMatj[i]-1)*rightCols+rightMatj[j];
+soFar++;
+resultMati[leftRowNow*rightRows+rightRowNow+1]=soFar+1;
+}
+resultMati[leftRowNow*rightRows+rightRowNow+1]=soFar+1;
+}
+resultMati[leftRowNow*rightRows+rightRowNow+1]=soFar+1;
+}
+resultMati[leftRowNow*rightRows+rightRowNow]=soFar+1;
+}
+resultMati[leftRows*rightRows]=soFar+1;
+*resultRows=leftRows*rightRows;*resultCols=leftCols*rightCols;
+}
+}
+
+@}
+@d computeIntercept definition
+@{
+void computeIntercept(@<computeIntercept argument list@>)
+{
+@<computeIntercept declarations@>
+@<computeIntercept allocations@>
+if(leads=1){
+/*initialize intercept to zero*/
+for(i=0;i<hrows*leads;i++){intercept[i]=0;}
+@<compute zdeviation at time t@>
+} else { printf("multiple leads not implemented yet !!!!!!!!!!!!!!!!!!!!\n");}
+@<computeIntercept frees@>
+}
+@}
+@d compute zdeviation at time t
+@{
+        sparseMatTimesVec(&numberExogenous,linearizationPt,zLin,
+        selectZmat,selectZmatj,selectZmati);
+        sparseMatTimesVec(&numberExogenous,newPt,zNew,
+        selectZmat,selectZmatj,selectZmati);
+for(i=0;i<numberExogenous;i++){zDeviation[i]=zNew[i]-zLin[i];}
+        sparseMatTimesVec(&hrows,zDeviation,intercept,
+        impact,impactj,impacti);
+csrToDns(&hrows,&aOne,cstar,cstarj,cstari,cXstar,&hrows,&ierr);
+pathNewtAssert(ierr == 0);
+bump(hrows);
+        sparseMatTimesVec(&hrows,cXstar,intercept,
+        varthetaC,varthetaCj,varthetaCi);
+
+@}
+
+@d computeIntercept declarations
+@{
+unsigned int maxElementsEncountered=0;/*local to obtain Sparse still need to pass back to caller*/
+unsigned int i;unsigned int ierr;unsigned int aOne=1;
+double * zDeviation;
+double * zLin;
+double * zNew;
+double * cXstar;
+@}
+@d computeIntercept allocations
+@{
+zDeviation = calloc(numberExogenous,sizeof(double));
+zLin = calloc(numberExogenous,sizeof(double));
+zNew = calloc(numberExogenous,sizeof(double));
+cXstar = calloc(hrows,sizeof(double));
+@}
+@d computeIntercept frees
+@{
+cfree(zDeviation);
+cfree(zLin);
+cfree(zNew);
+cfree(cXstar);
+@}
+
+@d computeIntercept argument list
+@{
+unsigned int * maxNumberHElements, 
+unsigned int hrows, unsigned int lags, unsigned int leads,
+unsigned int numberExogenous,
+ double * hzMat, unsigned int * hzMatj, unsigned int * hzMati,
+ double * selectZmat, unsigned int * selectZmatj, unsigned int * selectZmati,
+ double * vartheta, unsigned int * varthetaj, unsigned int * varthetai,
+ double * impact, unsigned int * impactj, unsigned int * impacti,
+ double * varthetaC, unsigned int * varthetaCj, unsigned int * varthetaCi,
+double * cstar,unsigned int * cstarj,unsigned int * cstari,
+double * linearizationPt,
+double * newPt,
+double * intercept
+@}
+
+
+@d computeF definition
+@{
+void kron(
+unsigned int leftRows,unsigned int leftCols,
+double * leftMat, unsigned int * leftMatj, unsigned int * leftMati,
+unsigned int rightRows,unsigned int rightCols,
+double * rightMat, unsigned int * rightMatj, unsigned int * rightMati,
+unsigned int * maxNumberElements,
+unsigned int * resultRows,unsigned int  * resultCols,
+double * resultMat, unsigned int * resultMatj, unsigned int * resultMati);
+
+computeF(@<computeF argument list@>)
+{
+@<computeF declarations@>
+@<computeF allocations@>
+@<factor phiInv@>
+if(hcols-(bcols+2*hrows)>0){
+printf("not implemented yet!!!!!!!!!!!!!!!!!!!!!!!!!!********************");
+@<extract longb@>
+} else {
+@<compute factored phiInv hplus@>
+@<compute factored phiInv imat@>
+@<compute factored phiInv psi@>
+@<transpose upsilon compute kron subtract@>
+@<factor kron thing@>
+@<compute vec vartheta@>
+@<compute exogenous impact@>
+@<imat compute kron subtract@>
+@<factor kron thing@>
+@<compute vec varthetaC@>
+}
+
+@<computeF deallocations@>
+}
+@}
+@d compute factored phiInv psi
 @{
 
-#undef MAXITS
-#undef TOLF
-#undef TOLMIN
-#undef TOLX
-#undef STPMX
-#undef FREERETURN
-#undef PFREERETURN
-#undef NRANSI
-/* (C) Copr. 1986-92 Numerical Recipes Software '>9m_L31.. */
+
+
+
+
+
+
+
+for(i=0;i<numberExogenous;i++){
+
+firstColumn=( numberExogenous*(bcols/hrows))+1+i;
+lastColumn=( numberExogenous*(bcols/hrows))+1+i;
+extractSubmatrix(&hrows,aOne,
+aOne,&hrows,&firstColumn,&lastColumn,
+hzMat,hzMatj,hzMati,
+&nr,&nc,
+psimat,psimatj,psimati);
+
+
+csrToDns(&hrows,aOne,psimat,psimatj,psimati,
+columnVals,&hrows,&ierr);
+pathNewtAssert(ierr == 0);
+bump(hrows);
+
+    trans = 1;
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+columnVals,phipsi+(i*hrows),
+w,info);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+/*change sign*/
+
+
+}
+for(i=0;i<hrows*numberExogenous;i++)phipsi[i]=(-1)*phipsi[i];/*since the kron part is negative*/
+@}
+
+@d compute factored phiInv imat
+@{
+
+/*set  columVals is vec of identitymatrix*/
+for(i=0;i<hrows;i++){
+for(j=0;j<hrows;j++){columnVals[j]=0;}
+columnVals[i]=1;
+    trans = 1;
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+columnVals,thePhi+(i*hrows),
+w,info);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+/*change sign*/
+}
+
+for(i=0;i<hrows*hrows;i++)thePhi[i]=(-1)*thePhi[i];/*since the kron part is negative*/
+@}
+
+@d transpose upsilon compute kron subtract
+@{
+/*compute kron product*/
+csrcsc_(&numberExogenous,aOne,aOne,upsilonmat,upsilonmatj,upsilonmati,
+tupsilon,tupsilonj,tupsiloni);
+
+kron(numberExogenous, 
+numberExogenous,
+tupsilon,tupsilonj,tupsiloni,
+hrows,hrows,
+fmat,fmatj,fmati,
+maxNumberHElements,
+&resultRows,&resultCols,
+resultMat,resultMatj,resultMati);
+
+/*compute negative of I - tup kron f*/
+aplsca_(&resultRows,
+resultMat,resultMatj,resultMati,
+aMinusOne,iw);
 
 @}
+
+@d imat compute kron subtract
+@{
+
+/*set tupsilon to identitymatrix*/
+
+for(i=0;i<hrows;i++){
+tupsilon[i]=1;
+tupsiloni[i]=tupsilonj[i]=i+1;
+}
+tupsiloni[hrows]=hrows+1;
+
+
+
+/*compute kron product*/
+kron(hrows,
+hrows,
+tupsilon,tupsilonj,tupsiloni,
+hrows,hrows,
+fmat,fmatj,fmati,
+maxNumberHElements,
+&resultRows,&resultCols,
+resultMat,resultMatj,resultMati);
+
+/*compute negative of I - tup kron f*/
+aplsca_(&resultRows,
+resultMat,resultMatj,resultMati,
+aMinusOne,iw);
+
+@}
+@d computeF argument list
+@{
+unsigned int * maxNumberHElements, 
+unsigned int hrows, unsigned int hcols,
+ double * hmat, unsigned int * hmatj, unsigned int * hmati,
+ double * hzMat, unsigned int * hzMatj, unsigned int * hzMati,
+unsigned int brows, unsigned int bcols,
+ double * bmat, unsigned int * bmatj, unsigned int * bmati,
+ double * phiInvmat, unsigned int * phiInvmatj, unsigned int * phiInvmati,
+unsigned int numberExogenous,
+ double * psimat, unsigned int * psimatj, unsigned int * psimati,
+ double * upsilonmat, unsigned int * upsilonmatj, unsigned int * upsilonmati,
+ double * fmat,unsigned int * fmatj, unsigned int * fmati,
+ double * vartheta, unsigned int * varthetaj, unsigned int * varthetai,
+ double * impact, unsigned int * impactj, unsigned int * impacti,
+ double * varthetaC, unsigned int * varthetaCj, unsigned int * varthetaCi
+@}
+
+@d computeF declarations
+@{
+unsigned int maxElementsEncountered=0;/*local to obtain Sparse still need to pass back to caller*/
+ double * tupsilon; unsigned int * tupsilonj; unsigned int * tupsiloni;
+ double * tfmat; unsigned int * tfmatj; unsigned int * tfmati;
+unsigned int resultRows;unsigned int resultCols;
+double * resultMat;
+unsigned int * resultMatj;
+unsigned int * resultMati;
+unsigned int nzmaxLeft;
+unsigned int lastColumn;unsigned int firstColumn;unsigned int nr;unsigned int nc;unsigned int ierr;
+double * columnVals;
+double * columnResult;
+double * thePhi;
+double * phipsi;
+double * longb;
+unsigned int * longbj;
+unsigned int * longbi;
+unsigned int i;
+unsigned int j;
+unsigned int soFar=0;
+@}
+@d computeF allocations
+@{
+impactRows=resultRows= (hcols+numberExogenous)*(hcols+numberExogenous);
+columnVals = (double *)calloc(hrows*(hrows+numberExogenous+1),sizeof(double));
+columnResult = (double *)calloc(resultRows,sizeof(double));
+resultMat = (double *)calloc(*maxNumberHElements,sizeof(double));
+resultMatj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+resultMati = (unsigned int *)calloc((hrows+numberExogenous)*hrows+1,sizeof(int));/*too big to accomodate both uses*/
+thePhi = (double *)calloc(hrows*(hrows+numberExogenous),sizeof(double));
+phipsi = (double *)calloc(hrows*(hrows+numberExogenous),sizeof(double));
+longb = (double *)calloc(*maxNumberHElements,sizeof(double));
+longbj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+longbi = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+tfmat = (double *)calloc(*maxNumberHElements,sizeof(double));
+tfmatj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+tfmati = (unsigned int *)calloc(resultRows+1,sizeof(int));
+tupsilon = (double *)calloc(*maxNumberHElements,sizeof(double));
+tupsilonj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+tupsiloni = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+
+@}
+
+@d computeF deallocations
+@{
+cfree(resultMat);
+cfree(resultMatj);
+cfree(resultMati);
+cfree(aMinusOne);
+cfree(columnVals);
+cfree(columnResult);
+cfree(thePhi);
+cfree(phipsi);
+cfree(longb);
+cfree(longbj);
+cfree(longbi);
+cfree(tfmat);
+cfree(tfmatj);
+cfree(tfmati);
+cfree(tupsilon);
+cfree(tupsilonj);
+cfree(tupsiloni);
+@}
+
+@d computeF declarations
+@{
+unsigned int impactRows;
+double aSmallDouble=DBL_EPSILON;
+unsigned int * ma50bdIq;
+double * ma50bdFact;
+unsigned int * ma50bdIrnf;
+unsigned int * ma50bdIptrl;
+unsigned int * ma50bdIptru;
+unsigned int * ma50bdJob;
+unsigned int * jcn;
+double * cntl;
+unsigned int * icntl;
+unsigned int * ip ;
+unsigned int * np;
+unsigned int * jfirst;
+unsigned int * lenr;
+unsigned int * lastr;
+unsigned int * nextr;
+unsigned int * ifirst;
+unsigned int * lenc;
+unsigned int * lastc;
+unsigned int * nextc;
+unsigned int * info;
+double * rinfo;
+unsigned int *lfact;
+double * fact;
+unsigned int *irnf;
+unsigned int * iptrl;
+unsigned int * iptru;
+unsigned int *iw;
+double * w;
+unsigned int nzmax;
+unsigned int  * notAOne;
+unsigned int  * aOne;
+double  * aMinusOne;
+unsigned int nonZeroNow;
+unsigned int  trans;
+double * lclphiInvmat;
+unsigned int * lclphiInvmatj;
+unsigned int * lclphiInvmati;
+@}
+
+@d computeF allocations
+@{
+ma50bdIptru = (unsigned int *)calloc(resultRows,sizeof(int));
+ma50bdIptrl = (unsigned int *)calloc(resultRows,sizeof(int));
+ma50bdIrnf = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+ma50bdFact = (double *)calloc(*maxNumberHElements,sizeof(double));
+ma50bdIq = (unsigned int *)calloc(resultRows,sizeof(int));
+ma50bdJob = (unsigned int *)calloc(1,sizeof(int));
+jcn = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+cntl= (double *)calloc(5,sizeof(double));
+icntl= (unsigned int *)calloc(9,sizeof(int));
+ip = (unsigned int *)calloc(resultRows,sizeof(int));
+np = (unsigned int *)calloc(1,sizeof(int));
+jfirst = (unsigned int *)calloc(resultRows,sizeof(int));
+lenr = (unsigned int *)calloc(resultRows,sizeof(int));
+lastr = (unsigned int *)calloc(resultRows,sizeof(int));
+nextr = (unsigned int *)calloc(resultRows,sizeof(int));
+w = (double *)calloc(resultRows,sizeof(double));
+iw = (unsigned int *)calloc(3*hrows*(hrows+numberExogenous+1),sizeof(int));/*extra space to cover both uses of iw*/
+ifirst = (unsigned int *)calloc(resultRows,sizeof(int));
+lenc = (unsigned int *)calloc(resultRows,sizeof(int));
+lastc = (unsigned int *)calloc(resultRows,sizeof(int));
+nextc = (unsigned int *)calloc(resultRows,sizeof(int));
+info = (unsigned int *)calloc(7,sizeof(int));
+rinfo = (double *)calloc(1,sizeof(double));
+lfact = (unsigned int *)calloc(1,sizeof(int));
+*lfact = ( *maxNumberHElements);/*pessimistic setting for filling*/
+aOne = (unsigned int *)calloc(1,sizeof(int));
+*aOne=1;
+notAOne = (unsigned int *)calloc(1,sizeof(int));
+aMinusOne = (double *)calloc(1,sizeof(double));
+*aMinusOne=-1.;
+lclphiInvmat= (double * )calloc(*maxNumberHElements,sizeof(double));
+lclphiInvmatj= (unsigned int * )calloc(*maxNumberHElements,sizeof(int));
+lclphiInvmati= (unsigned int * )calloc((1+numberExogenous+hrows)*resultRows+1,sizeof(int));
+
+@}
+@d computeF deallocations
+@{
+cfree(ma50bdJob);
+cfree(ma50bdIq);
+cfree(ma50bdFact);
+cfree(ma50bdIrnf);
+cfree(ma50bdIptrl);
+cfree(ma50bdIptru);
+
+cfree(lclphiInvmat);
+cfree(lclphiInvmatj);
+cfree(lclphiInvmati);
+cfree(notAOne);
+cfree(aOne);
+cfree(jcn );
+cfree(cntl);
+cfree(icntl);
+cfree(ip );
+cfree(np );
+cfree(jfirst );
+cfree(lenr );
+cfree(lastr );
+cfree(nextr );
+cfree(w);
+cfree(iw);
+cfree(ifirst );
+cfree(lenc );
+cfree(lastc );
+cfree(nextc );
+cfree(info );
+cfree(rinfo );
+cfree(lfact);
+@}
+
+@d factor phiInv
+@{
+
+
+useMA50ID(cntl,icntl);
+ma50bdJob[0] =1;
+
+
+nzmax=*maxNumberHElements;
+nonZeroNow=phiInvmati[hrows]-phiInvmati[0];
+
+copyMatrix(&hrows,phiInvmat,phiInvmatj,phiInvmati,
+lclphiInvmat,lclphiInvmatj,lclphiInvmati,aOne,aOne);
+
+useMA50AD(&hrows,&hrows,&nonZeroNow,
+&nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
+ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob!=2){
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+phiInvmat,phiInvmatj,phiInvmati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
+                             to 3(ie conservative alternative)*/
+} else {
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+phiInvmat,phiInvmatj,phiInvmati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(info[0]<-7){
+/* small pivot values,
+reset to 3*/
+#ifdef DEBUG 
+printf("small pivots, resetting to 3\n");
+#endif
+*ma50bdJob=1;
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+phiInvmat,phiInvmatj,phiInvmati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);<
+pathNewtAssert(info[0]>=0);
+}
+}
+@}
+
+@d factor kron thing
+@{
+useMA50ID(cntl,icntl);
+ma50bdJob[0] =1;
+
+
+nzmax=*maxNumberHElements;
+nonZeroNow=resultMati[resultRows]-resultMati[0];
+
+copyMatrix(&resultRows,resultMat,resultMatj,resultMati,
+lclphiInvmat,lclphiInvmatj,lclphiInvmati,aOne,aOne);
+
+useMA50AD(&resultRows,&resultRows,&nonZeroNow,
+&nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
+ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob!=2){
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+resultMat,resultMatj,resultMati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
+                             to 3(ie conservative alternative)*/
+} else {
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+resultMat,resultMatj,resultMati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+if(info[0]<-7){
+/* small pivot values,
+reset to 3*/
+#ifdef DEBUG 
+printf("small pivots, resetting to 3\n");
+#endif
+*ma50bdJob=1;
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+resultMat,resultMatj,resultMati,
+cntl,icntl,ip,lclphiInvmati,
+np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+w,iw,info,rinfo);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+}
+}
+@}
+@d compute factored phiInv hplus
+@{
+
+
+for(i=0;i<hrows;i++){
+
+
+lastColumn = firstColumn=(hcols-hrows+1+i);
+for(j=0;j<hrows;j++){longbi[j]=1;}/*initialize to zero matrix*/
+extractSubmatrix(&hrows,aOne,
+aOne,&hrows,&firstColumn,&lastColumn,
+hmat,hmatj,hmati,
+&nr,&nc,
+longb,longbj,longbi);
+
+csrToDns(&hrows,aOne,longb,longbj,longbi,
+columnVals,&hrows,&ierr);
+pathNewtAssert(ierr == 0);
+bump(longbi[hrows]-longbi[0]);
+    trans = 1;
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+columnVals,columnResult,
+w,info);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+
+/*
+useMA50CD(&hrows,&hrows,icntl,qrmati,np,&trans,
+lfact,fact,irnf,iptrl,iptru,
+nsSumC,x,
+w,info);
+wordybump(info[3]);
+pathNewtAssert(info[0]>=0);
+*/
+nzmaxLeft= nzmax-soFar-1;
+dnsToCsr(aOne,&hrows,&nzmaxLeft,columnResult,
+aOne,tfmat+(tfmati[i]-1),tfmatj+(tfmati[i]-1),tfmati+i,
+&ierr);
+pathNewtAssert(ierr == 0);
+tfmati[i+1]=tfmati[i+1]+soFar;
+tfmati[i]=tfmati[i]+soFar;
+soFar=tfmati[i+1]-1;
+}
+
+
+dropSmallElements(&hrows,aOne,&aSmallDouble,tfmat,tfmatj,tfmati,tfmat,tfmatj,tfmati,&nzmax,&ierr);
+pathNewtAssert(ierr == 0);
+csrcsc2_(&hrows,&hrows,aOne,aOne,tfmat,tfmatj,tfmati,fmat,fmatj,fmati);
+/*change sign*/
+for(i=0;i<fmati[hrows]-fmati[0];i++)fmat[i]=(-1)*fmat[i];
+
+@}
+@d compute vec vartheta
+@{
+    trans = 1;
+useMA50CD(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+phipsi,columnResult,
+w,info);
+pathNewtAssert(info[0]>=0);
+dnsToCsr(&hrows,&numberExogenous,&nzmaxLeft,columnResult,
+&hrows,vartheta,varthetaj,varthetai,
+&ierr);
+wordybump(info[3]);
+pathNewtAssert(ierr == 0);
+@}
+
+@d compute vec varthetaC
+@{
+    trans = 1;
+useMA50CD(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
+lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
+thePhi,columnResult,
+w,info);
+pathNewtAssert(info[0]>=0);
+dnsToCsr(&hrows,&hrows,&nzmaxLeft,columnResult,
+&hrows,varthetaC,varthetaCj,varthetaCi,
+&ierr);
+wordybump(info[3]);
+pathNewtAssert(ierr == 0);
+@}
+
+@d compute exogenous impact
+@{
+copyMatrix(&hrows,vartheta,varthetaj,varthetai,
+impact,impactj,impacti,aOne,aOne);
+/*compute vartheta * upsilon*/
+sparseMult(&hrows,&numberExogenous,aOne,vartheta,varthetaj,varthetai,
+upsilonmat,upsilonmatj,upsilonmati,tfmat,tfmatj,tfmati,maxNumberHElements,iw,&ierr);
+pathNewtAssert(ierr == 0);
+*notAOne=impacti[hrows]-impacti[0]+1;
+/*post mult by selector matrix*/
+
+copyMatrix(&hrows,tfmat,tfmatj,tfmati,
+impact,impactj,impacti+hrows,notAOne,aOne);
+
+@}
+
+@d extract longb
+@{
+for(i=0;i<hrows;i++){
+longbi[i]=soFar+1;
+longb[soFar]=1;
+longbj[soFar]=i;
+soFar++;
+/*check to see if more than one lead if not were done with the row*/
+}
+@}
+
+\subsection{computePhiInv}
+\label{sec:computePhiInv}
+
+
+
+
+
+@d computePhiInv definition
+@{
+computePhiInv(@<computePhiInv argument list@>)
+{
+@<computePhiInv declarations@>
+@<computePhiInv allocations@>
+@< extract hzero@>
+@< extract hplus@>
+@< extract bright@>
+@< compute hplus times bright@>
+@< add hzero@>
+@<computePhiInv deallocations@>
+#ifdef DEBUG 
+printf("leaving computePhiInv\n");
+#endif
+}
+@}
+
+@d computePhiInv argument list
+@{
+unsigned int * maxNumberHElements, 
+unsigned int hrows, unsigned int hcols,
+ double * hmat, unsigned int * hmatj, unsigned int * hmati,
+unsigned int brows, unsigned int bcols,
+ double * bmat, unsigned int * bmatj, unsigned int * bmati,
+ double * phiInvmat, unsigned int * phiInvmatj, unsigned int * phiInvmati
+@}
+@d computePhiInv declarations
+@{
+double * hzero;unsigned int *    hzeroj;unsigned int * hzeroi;
+double * hplus;unsigned int *    hplusj;unsigned int * hplusi;
+double * bright;unsigned int *    brightj;unsigned int * brighti;
+double * hb;unsigned int * hbj;unsigned int * hbi;
+unsigned int * iw;
+unsigned int ierr[1];
+unsigned int nr[1];
+unsigned int nc[1];
+unsigned int firstColumn[1];
+unsigned int lastColumn[1];
+unsigned int aOne[1]={1};
+@}
+@d computePhiInv allocations
+@{
+hzero = (double *)calloc(*maxNumberHElements,sizeof(double));
+hzeroj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+hzeroi = (unsigned int *)calloc(hrows+1,sizeof(int));
+hplus = (double *)calloc(*maxNumberHElements,sizeof(double));
+hplusj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+hplusi = (unsigned int *)calloc(hrows+1,sizeof(int));
+bright = (double *)calloc(*maxNumberHElements,sizeof(double));
+brightj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+brighti = (unsigned int *)calloc(brows+1,sizeof(int));
+hb = (double *)calloc(*maxNumberHElements,sizeof(double));
+hbj = (unsigned int *)calloc(*maxNumberHElements,sizeof(int));
+hbi = (unsigned int *)calloc(hrows+1,sizeof(int));
+iw = (unsigned int *)calloc(hrows,sizeof(int));
+@}
+@d extract hzero
+@{
+*firstColumn=bcols+1;
+*lastColumn=bcols+hrows;
+#ifdef DEBUG 
+printf("in computePhiInv printing hmat\n");
+cPrintSparse(hrows,hmat,hmatj,hmati);
+#endif
+extractSubmatrix(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
+hmat,hmatj,hmati,nr,nc,hzero,hzeroj,hzeroi);
+#ifdef DEBUG 
+printf("in computePhiInv prunsigned int hzero\n");
+cPrintSparse(hrows,hzero,hzeroj,hzeroi);
+#endif
+@}
+@d extract hplus
+@{
+*firstColumn=bcols+hrows+1;
+*lastColumn=hcols;
+extractSubmatrix(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
+hmat,hmatj,hmati,nr,nc,hplus,hplusj,hplusi);
+#ifdef DEBUG 
+printf("in computePhiInv printing hplus\n");
+cPrintSparse(hrows,hplus,hplusj,hplusi);
+#endif
+@}
+@d extract bright
+@{
+*firstColumn=bcols-hrows+1;
+*lastColumn=bcols;
+#ifdef DEBUG 
+printf("in computePhiInv printing bmat\n");
+cPrintSparse(brows,bmat,bmatj,bmati);
+#endif
+extractSubmatrix(&brows,aOne,aOne,&brows,firstColumn,lastColumn,
+bmat,bmatj,bmati,nr,nc,bright,brightj,brighti);
+#ifdef DEBUG 
+printf("in computePhiInv printing bright\n");
+cPrintSparse(hrows,bright,brightj,brighti);
+#endif
+
+@}
+
+@d compute hplus times bright
+@{
+sparseMult(&hrows,&hrows,aOne,hplus,hplusj,hplusi,bright,brightj,brighti,
+                       hb,hbj,hbi,maxNumberHElements,iw,ierr);
+pathNewtAssert(ierr == 0);
+#ifdef DEBUG 
+printf("in computePhiInv printing hb\n");
+cPrintSparse(hrows,hb,hbj,hbi);
+#endif
+@}
+@d add hzero
+@{
+sparseAdd(&hrows,&hrows,aOne,hzero,hzeroj,hzeroi,hb,hbj,hbi,
+          phiInvmat,phiInvmatj,phiInvmati,maxNumberHElements,iw,ierr);
+pathNewtAssert(ierr == 0);
+#ifdef DEBUG 
+printf("in computePhiInv printing phiInvmat\n");
+cPrintSparse(hrows,phiInvmat,phiInvmatj,phiInvmati);
+#endif
+
+@}
+
+
+@d computePhiInv deallocations
+@{
+cfree(hzero);
+cfree(hzeroj);
+cfree(hzeroi);
+cfree(hplus);
+cfree(hplusj);
+cfree(hplusi);
+cfree(bright);
+cfree(brightj);
+cfree(brighti);
+cfree(hb);
+cfree(hbj);
+cfree(hbi);
+cfree(iw);
+@}
+
+
+@d another pn check for convergence
+@{
+#ifdef DEBUG 
+printf("pathNewt:another testing for convergence\n");
+#endif
+
+
+@<pathNewt check for convergence@>
+
+
+@}
+
+
 @d pathNewt check for convergence
 @{
-		test=0.0;
+
+		test=testx=testf=0.0;testfloc=99;
 		for (i=0;i<n;i++)
-			if (fabs(fvec[i]) > test) test=fabs(fvec[i]);
-		if (test < TOLF) {
+			if (fabs(fvec[i]) > test) {testf=test=fabs(fvec[i]);testfloc=i;}
+printf("pathNewt:checking test<TOLF return,max abs(fvec[i])=%e for i=%d\n",test,testfloc);/*
+badArgs(i,fvec[i],chkfdrvj,chkfdrvi,0,*numberOfEquations); */
+#ifdef DEBUG 
+printf("pathNewt:checking test<TOLF return,max abs(fvec[i])=%e for i = %d\n",test,testfloc);
+#endif
+		if (test < (tolfInput)) {
+resetFailedQ;
 			*check=0;
-			PFREERETURN
-		}
-		if (*check) {
-			test=0.0;
-			den=FMAX(f,0.5*n);
-			for (i=0;i<n;i++) {
-				temp=fabs(g[i])*FMAX(fabs(x[i]),1.0)/den;
-				if (temp > test) test=temp;
-			}
-			*check=(test < TOLMIN ? 0 : 1);
-			PFREERETURN
-		}
-		test=0.0;
+			done=1;
+printf("pathNewt:test<TOLF return,its=%d,max abs(fvec[i])=%e for i = %d\n",its,test,testfloc);
+#ifdef DEBUG 
+printf("pathNewt:test<TOLF return,its=%d,max abs(fvec[i])=%e for i = %d\n",its,test,testfloc);
+#endif
+		} else { 
+		testx=test=0.0;
 		for (i=0;i<n;i++) {
 			temp=(fabs(x[i]-xold[i]))/(FMIN(fabs(x[i]),fabs(xold[i]))+GAMMA);
-			if (temp > test) test=temp;
+			if (temp > test) (testx=test=temp);
 		}
-		if (test < TOLX) PFREERETURN
+printf("pathNewt:checking test<TOLX return, max(abs(x[i]-xold[i])/(min(x[i],xold[i])+gamma))=%e\n",test);
+		if ((its>0)&&(test < tolxInput)) {
+resetFailedQ;
+			*check=0;
+done=1;
+printf("pathNewt:test<TOLX return,its=%d, max(abs(x[i]-xold[i])/(min(abs(x[i])),abs(xold[i]))+gamma)=%e\n",its,test);
+printf("pathNewt:with TOLF max abs(fvec[i])=%e at i=%d\n",testf,testfloc);
+#ifdef DEBUG 
+printf("pathNewt:test<TOLX return,its=%d, max(abs(x[i]-xold[i])/(min(abs(x[i])),abs(xold[i]))+gamma)=%e\n",its,test);
+#endif
+}}
 
 @}
 @d pathNewt check for convergence 
 @{
-/*
-	test=0.0;
-	for (i=0;i<*numberOfEquations;i++)
-		if (fabs(fvec[i]) > test) test=fabs(fvec[i]);
-	if (test<0.01*TOLF) PFREERETURN
-*/
-	for (sum=0.0,i=0;i<*numberOfEquations;i++) sum += SQR(x[i]);
-	stpmax=(*lags+*leads+1)*STPMX*FMAX(sqrt(sum),(double)n);
+	for (sum=0.0,i=0;i<n;i++) sum += SQR(x[i]);
+	stpmax=STPMX*FMAX(sqrt(sum),(double)n);
+		fold=f;
+		for (i=0;i<n;i++) xold[i]=x[i];
 
 @}
 
 
 @d pathNewt update path
 @{
+		for (i=0;i<n;i++) xoldls[i]=x[i];
+addOneToNewtonSteps;
+if(useStackQ){
+printf("using stack\n");
 nxtGuess(numberOfEquations,lags,leads,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
-maxNumberElements,qMat,qMatj,qMati,fixedPoint,x,shockVec,xdel);
-		for (i=0;i<n;i++) xoldls[i]=x[i];
-		fold=f;
+maxNumberElements,qMat,qMatj,qMati,fixedPoint,intercept,x,shockVec,xdel,
+intControlParameters,doubleControlParameters);
+bump(*maxNumberElements);
+} else {
+/* code to replace stack with sparse inversion*/
+printf("not using stack\n");
+constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
+x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+shockVec,
+compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
+intControlParameters, doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
 
-
-/*printf("here is path check=%d, and f=%f and x before\n",*check,f);
-cPrintMatrixNonZero(n,1,x);
+multMax=  (*pathLength)* *maxNumberElements+forQ;/* try 10 for multmax*/
+newNxtGuess(&n,&multMax,
+compfvec,chkfdrv,chkfdrvj,chkfdrvi,xdel,
+ma50bdJob,
+ma50bdIq,
+ma50bdFact,
+ma50bdIrnf,
+ma50bdIptrl,
+ma50bdIptru,
+intControlParameters,doubleControlParameters
+);
+bump((((multMax-forQ)/(*pathLength))));
+}
+#ifdef DEBUG 
+/*
+printf("xdel=\n");
+cPrintMatrixNonZero(1,n,xdel,1e-8);
+printf("x=\n");
+cPrintMatrixNonZero(1,n,x,1e-8);
 */
 
-if(*pathLength)  {
-		lnsrch(n,*numberOfEquations,*pathLength,
-        xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x,
-ihomotopy,linPt,intControlParameters,doubleControlParameters,
+
+/* need to construct if using stack*/
+if(useStackQ){
+constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
+x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+shockVec,
+compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
+intControlParameters, doubleControlParameters,
 intOutputInfo, doubleOutputInfo);
+}
+chkDrv(*numberOfEquations*(*lags+*leads+*pathLength),
+chkfdrv,chkfdrvj,chkfdrvi,compfvec,xdel);
+
+#endif
+		for (i=0;i<n;i++) {x[i]=xold[i]-xdel[i];lastDel[i]=xdel[i]; }
+{/*use shock for first only*/
+addOneToFEvals;
+((*vecfunc)(x,params,shockVec,compfvec,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+
+		for(i=1;i<*pathLength;i++){
+addOneToFEvals;
+((*vecfunc)(x+(i* *numberOfEquations),params,zeroShockVec,compfvec+i* *numberOfEquations,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+
+
+if(expandFactorInput>0){
+for(icnt=0;!lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec, *numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
+ *numberOfEquations * *lags )&&icnt<5;icnt++){
+addOneToExpandSteps;
+printf("expanding...");
+for (i=0;i<n;i++) {xdel[i]= xdel[i] *(expandFactorInput);}
+		for (i=0;i<n;i++) x[i]=xold[i]-xdel[i];
+
+{/* use shock for first period only*/
+addOneToFEvals;
+((*vecfunc)(x,params,shockVec,compfvec,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+
+		for(i=1;i<*pathLength;i++){
+addOneToFEvals;
+((*vecfunc)(x+(i* *numberOfEquations),params,zeroShockVec,compfvec+i* *numberOfEquations,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+
+
+}}
+if(shrinkFactorInput>0){
+for(icnt=0;!lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec,*numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
+ *numberOfEquations * *lags)&&icnt<20;icnt++){
+addOneToShrinkSteps;
+printf("shrinking...");
+for (i=0;i<n;i++) {xdel[i]= xdel[i] *(shrinkFactorInput);}
+		for (i=0;i<n;i++) x[i]=xold[i]-xdel[i];
+
+
+{/*use shock for first period only*/
+addOneToFEvals;
+((*vecfunc)(x,params,shockVec,compfvec,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+		for(i=1;i<*pathLength;i++){
+addOneToFEvals;
+((*vecfunc)(x+(i* *numberOfEquations),params,shockVec,compfvec+i* *numberOfEquations,compfvecj,compfveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ));}
+
+
+}}
+if(icnt>20)printf("shrink failed to get rid of NaN and other non  numbers!!!!!!!!!\n");
+
+		for (i=0;i<n;i++) x[i]=xold[i];
+
+if(*pathLength)  {
+if(useLnsrchQ){
+@<compute gradient for lnsrch@>
+		lnsrch(n,*numberOfEquations,*pathLength,
+        xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x,ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ,intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
+} else {for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
+}
         } else {
 for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 }
 
-/*
-printf("here is path check=%d, and f=%f and x after\n",*check,f);
-cPrintMatrixNonZero(n,1,x);
-*/
 
-/*
-for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
-*/
 @}
+@d compute gradient for lnsrch
+@{
+if(useStackQ && useLnsrchQ){
+/* need to do this if using stack and lnsrch
+constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
+x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+shockVec,
+compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
+intControlParameters, doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
+*/
+}
+        sparseMatTimesVec(&n,compfvec,
+        g,chkfdrv,chkfdrvj,chkfdrvi);
+for(i=0;i<*pathLength;i++){
+sparseMatTimesVec(rowDim,fvec+(i * *numberOfEquations),
+g+(*numberOfEquations * (*lags+i)),smats[i],
+smatsj[i],smatsi[i]);}
+
+@}
+
+
 @d pathNewt initializations
 @{
+/*
+resetFailedQ;
+resetNewtonSteps;
+resetRealizedTolf;
+resetRealizedTolx;
+resetFEvals;
+resetFDrvEvals;
+resetShrinkSteps;
+resetExpandSteps;
+resetLnsrchSteps;
+*/
   *check=0;
     n=*numberOfEquations*(*lags+*leads+*pathLength);
-	rowDim=(unsigned int *)calloc(1,sizeof(unsigned int));
+	rowDim=(unsigned int *)calloc(1,sizeof(int));
 	*rowDim=*numberOfEquations**leads;
-    aOne=(unsigned int *)calloc(1,sizeof(unsigned int));
+    aOne=(unsigned int *)calloc(1,sizeof(int));
     *aOne=1;
-    qColumns=(unsigned int *)calloc(1,sizeof(unsigned int));
-    *qColumns=*numberOfEquations*(*leads+*lags);
+    aZero=(unsigned int *)calloc(1,sizeof(int));
+    *aZero=0;
+    qColumns=(unsigned int *)calloc(1,sizeof(int));
+    *qColumns=*numberOfEquations*(*leads+*lags+1);
     deviations=(double *)calloc(*qColumns,sizeof(double));
+    zeroShockVec=(double *)calloc(*numberOfEquations,sizeof(double));
     fullfvec=(double *)calloc(*rowDim,sizeof(double));
-	ierr=(unsigned int *)calloc(1,sizeof(unsigned int));
-	indx=(unsigned int *)calloc(n+1,sizeof(unsigned int));
+	ierr=(unsigned int *)calloc(1,sizeof(int));
+	indx=(unsigned int *)calloc(n+1,sizeof(int));
 	g=(double *)calloc(n+1,sizeof(double));
 	p=(double *)calloc(n+1,sizeof(double));
 	xdel=(double *)calloc(n+1,sizeof(double));
@@ -3640,25 +5075,51 @@ for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 
 
 	nn=n;
+forQ=qMati[*numberOfEquations * *leads]-1;
+printf("setting forQ to %d\n",forQ);
+compfvec = (double * ) calloc(n,sizeof(double));
+compfvecj = (unsigned int * ) calloc(n,sizeof(int));
+compfveci = (unsigned int * ) calloc(n+1,sizeof(int));
+chkfdrv = (double * )calloc(*pathLength * *maxNumberElements+
+/**pathLength* *pathLength * *maxNumberElements+*/forQ,sizeof(double));
+chkfdrvj = (unsigned int * )calloc(*pathLength * *maxNumberElements+
+/**pathLength* *pathLength * *maxNumberElements+*/forQ,sizeof(int));
+chkfdrvi=(unsigned int * ) calloc(n+1,sizeof(int));
+
 
 @}
 @d pathNewt declarations
-@{    unsigned int  n; int ihomotopy;
-    unsigned int tNow;unsigned int * rowDim;unsigned int * qColumns;int done=0;
+@{    unsigned int  n; unsigned int done;unsigned int ihomotopy=1;
+double * zeroShockVec;
+#include "stackC.h"
+unsigned int forQ;double  dignore[1]={1.0};
+unsigned int maxElementsEncountered=0;
+unsigned int icnt;
+unsigned int  multMax;
+    unsigned int tNow;unsigned int * rowDim;unsigned int * qColumns;
     double * deviations;double * fullfvec;
 /*	double fmin(double x[]);*/
-	unsigned int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
-	double /*d,*/den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,*xoldls,*xdel,normSum;
-@}
+/* declared below
+	void lnsrch(unsigned int  n, unsigned int np,unsigned int reps,double xold[], double  *fold, double g[], double p[],double * params,double * shockVec,
+		 double * f, double stpmax, unsigned int *check, void (*func)(),double * x,
+            unsigned int ihomotopy,double * linPt,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo);
+*/
 
+	unsigned int i,its,j,*indx,*aOne,*aZero,*ndns,*ierr,testfloc;
+	double d,den,f,fold,stpmax,sum,temp,test,testx,testf,*g,*p,*xold,*xoldls,*xdel,normSum;
+double * compfvec;
+unsigned int * compfvecj;
+unsigned int * compfveci;
+double * chkfdrv;
+unsigned int * chkfdrvj;
+unsigned int * chkfdrvi;
+
+@}
 
 \subsection{lnsrch}
 \label{sec:lnsrch}
-@o stackC.h
-@{
-void lnsrch(@<lnsrch argument list@>);
-
-@}
 @d lnsrch argument list
 @{unsigned int  n,unsigned int np,unsigned int reps,
 double xold[], double * fold, double g[], double p[], 
@@ -3668,14 +5129,15 @@ double xold[], double * fold, double g[], double p[],
 unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
-
+@o stackC.h -d
+@{
+void lnsrch(@<lnsrch argument list@>);
+@}
 @o myNewt.c -d
 @{
 #include <math.h>
 #define NRANSI
-/*#include "./nrutil.h"*/
-#define ALF 1.0e-4
-#define TOLX 1.0e-10
+
 
 extern void dgemm_(char * noTransp1,char * noTransp2,
 unsigned int * neq,unsigned int * aOne,unsigned int *BMatrixColumns1,
@@ -3685,40 +5147,97 @@ double *deviationsFromPeriodicPath,unsigned int *BMatrixColumns2,
 double *aZero,
 double *pathNow,
 unsigned int *BMatrixRows2);
-#include "stackC.h"
-#include "stochProto.h"
+
+@}
+
+@o stackC.h -d
+@{
+unsigned int lclValidVector(unsigned int numRows,double * vec);
+unsigned int lclValidVectorVerbose(unsigned int numRows,double * vec,unsigned int  forMod,double * x,
+unsigned int * ja,unsigned int * ia,unsigned int skipRows);
+
+@}
+
+
+@o myNewt.c -d
+@{
+
+
+#define TRUE 1
+unsigned int lclValidVector(unsigned int numRows,double * vec)
+{
+unsigned int i,allFiniteNumbers;
+unsigned int printed=0;
+      allFiniteNumbers=TRUE;
+      for(i=0;i<numRows;i++){
+        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
+        if(!finite(vec[i])) {
+if(printed<2) {
+printf("<lclValidVectorNew:problem with i=%d,vec[i]=%e,with numRows=%d>",i,vec[i],numRows);printed++;} else 
+{printf(".");}
+}
+}
+printf("\n");
+      return(allFiniteNumbers);
+}
+@}
+@o myNewt.c -d
+@{
+
+unsigned int lclValidVectorVerbose(unsigned int numRows,double * vec,unsigned int  forMod,double * x,
+unsigned int * ja,unsigned int * ia,unsigned int skipRows)
+{
+unsigned int i,allFiniteNumbers;
+unsigned int printed=0;
+      allFiniteNumbers=TRUE;
+      for(i=0;i<numRows;i++){
+        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
+        if(!finite(vec[i])) {
+if(printed<1) {
+printf("<lclValidVectorVerbose:problem with eqn i=%d in block=%d,vec[i]=%e,with numRows=%d>",i%forMod+1,i/forMod,vec[i],numRows);printed++;
+badArgs(i,x,ja,ia,skipRows,forMod);} else 
+{printf(".");}
+}
+}
+printf("\n");
+      return(allFiniteNumbers);
+}
+badArgs(unsigned int ii,double * x,unsigned int * ja,unsigned int * ia,unsigned int skipRows,unsigned int forMod){
+unsigned int kk;unsigned int fir;unsigned int lst;unsigned int elems;
+fir=ia[ii+skipRows]-1;
+lst=ia[ii+skipRows+1]-1;
+elems=lst-fir;
+for(kk=fir;kk<lst;kk++){
+printf("x[%d,%d]=%e ",((ja[kk]-1)/forMod)-1,((ja[kk]-1)%forMod)+1,x[ja[kk]-1]);
+}
+}
 
 extern double  dnrm2_();
-#include <string.h>
-#include "stackC.h"
-#include "stochProto.h"
-
 void lnsrch(@<lnsrch argument list@>)
 {
 @< lnsrch declarations@>
 @< lnsrch preloop@>
 @< lnsrch loop@>
 @< lnsrch postloop@>
-free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
+cfree(aOne);cfree(aZero);cfree(aTwo);cfree(fvec);cfree(fvecj);cfree(fveci);
 }
-#undef ALF
-#undef TOLX
+
 #undef NRANSI
 /* (C) Copr. 1986-92 Numerical Recipes Software '>9m_L31.. */
 
 @}
+
 @d lnsrch declarations
 @{
-	unsigned int i;double * zeroShockVec;/*unsigned int resetFailedQ;*/
-
+	unsigned int i;double * zeroShockVec;
 	double a,alam,alam2,alamin,b,disc,f2,fold2,rhs1,rhs2,slope,sum,temp,
 		test,tmplam;
-	unsigned int* aOne;unsigned int* aTwo,*ierr,*aZero;
-	double * fnow,*fvec/*,*fnorm*/, *xorig,*aDoubleZero;
-    unsigned int* fvecj;
+	unsigned int * aOne;unsigned int * aTwo,*ierr,*aZero;
+	double * fnow,*fvec,*fnorm, *xorig,*aDoubleZero;
+    unsigned int * fvecj;
     double *dir,*aDoubleOne;
     char * transp, *noTransp;
-	unsigned int* fveci;
+	unsigned int * fveci;
     transp = (char *)calloc(2,sizeof(char));
     strcpy(transp,"T");
     noTransp = (char *)calloc(2,sizeof(char));
@@ -3729,13 +5248,13 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
     fnow=(double *)calloc(n,sizeof(double));
     aDoubleZero=(double *)calloc(1,sizeof(double));
     *aDoubleZero=0.0;
-	ierr=(unsigned int*)calloc(1,sizeof(unsigned int));
-	fveci=(unsigned int*)calloc(n+1,sizeof(unsigned int));
-	aOne=(unsigned int*)calloc(1,sizeof(unsigned int));
+	ierr=(unsigned int *)calloc(1,sizeof(int));
+	fveci=(unsigned int *)calloc(n+1,sizeof(int));
+	aOne=(unsigned int *)calloc(1,sizeof(int));
 	*aOne=1;
-	aZero=(unsigned int*)calloc(1,sizeof(unsigned int));
+	aZero=(unsigned int *)calloc(1,sizeof(int));
 	*aOne=0;
-	aTwo=(unsigned int*)calloc(1,sizeof(unsigned int));
+	aTwo=(unsigned int *)calloc(1,sizeof(int));
 	*aTwo=2;
 	fvec=(double *)calloc(n,sizeof(double));
 	zeroShockVec=(double *)calloc(n,sizeof(double));
@@ -3754,21 +5273,21 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 *fold=0;
 {/* use shock for first only*/
 addOneToFEvals;
-(*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
-        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+(*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
-(*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
-        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+(*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
 
       *fold *= 0.5;
 
 /*
-csrToDns(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+csrdns_(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
 pathNewtAssert(ierr == 0);
 
     dgemm_(transp,noTransp,
@@ -3781,7 +5300,7 @@ if(*dir<0)
 
 for (i=0;i<n;i++) p[i]= (-p[i]);
 
-//resetFailedQ;
+resetFailedQ;
 	*check=0;
 	for (sum=0.0,i=0;i<n;i++) sum += p[i]*p[i];
 	sum=sqrt(sum);
@@ -3800,21 +5319,21 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 @d lnsrch free storage
 @{
 
-			free(transp);
-            free(ierr);
-			free(noTransp);
-			free(dir);
-			free(aDoubleZero);
-			free(aDoubleOne);
-			free(fnow);
-			free(xorig);
-			free(zeroShockVec);
-			free(fvec);
-			free(fvecj);
-			free(fveci);
-			free(aOne);
-			free(aZero);
-			free(aTwo);
+			cfree(transp);
+            cfree(ierr);
+			cfree(noTransp);
+			cfree(dir);
+			cfree(aDoubleZero);
+			cfree(aDoubleOne);
+			cfree(fnow);
+			cfree(xorig);
+			cfree(zeroShockVec);
+			cfree(fvec);
+			cfree(fvecj);
+			cfree(fveci);
+			cfree(aOne);
+			cfree(aZero);
+			cfree(aTwo);
 @}
 
 @d lnsrch loop
@@ -3826,14 +5345,14 @@ for (i=0;i<n;i++) p[i]= (-p[i]);
 *f=0;
 {/*use shock first period only*/
 addOneToFEvals;
-(*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
-        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+(*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
-(*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt);
-        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
+(*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
 
@@ -3905,9 +5424,9 @@ printf("lnsrch:*f < *fold+(alfInput)*alam*slope return\n,slope=%e,alam=%e\n,*fol
 @o validArrayElements.c
 @{
 @<define assert bump@>
-int validArrayElements(int elements,double * mata)
+unsigned int validArrayElements(unsigned int elements,double * mata)
 {
-int result,allPositive,allFiniteNumbers;
+unsigned int result,allPositive,allFiniteNumbers;
 result=(elements >0);
       allFiniteNumbers=TRUE;
       for(i=0;i<elements;i++){

@@ -124,6 +124,7 @@ the page numbers of the component's definition.}
 
 /*unsigned int  dtime(double * userSystemTime);*/
 
+#include "stackC.h"
 #include "stochProto.h"
 
 int main(int argc, char * argv[])
@@ -225,6 +226,8 @@ The driver program uses these to allocate  space for the computations.
 #define MAXELEMENTS 20000
 //#define PATHLENGTH 25
 //#define REPLICATIONS 5000
+#include "stackC.h"
+#include "stochProto.h"
 
 
 @}
@@ -935,6 +938,8 @@ printf("initializing variables\n totalTime=%f,userSystemTime=%f,systemTime=%f\n"
 #include<stdlib.h>
 #include "useSparseAMA.h"
 #include "stackC.h"
+#include "stackC.h"
+#include "stochProto.h"
 void generic(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
