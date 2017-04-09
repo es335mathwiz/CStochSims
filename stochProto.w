@@ -1313,23 +1313,6 @@ printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength
 
 }
 
-void fPrintMathDbl(FILE * file,unsigned int length,double * matrix,char *  matrixName)
-{
-unsigned int i;
-fprintf(file,"%s={",matrixName);
-for(i=0;(i<length-1);i++){
-fprintf(file,"%30.20f,",matrix[i]);}
-fprintf(file,"%30.20f};\n",matrix[length-1]);
-}
-void fPrintMathInt(FILE * file,unsigned int length,unsigned int * matrix,char *  matrixName)
-{
-unsigned int i;
-fprintf(file,"%s={",matrixName);
-for(i=0;(i<length-1);i++){
-fprintf(file,"%d,",matrix[i]);}
-fprintf(file,"%d};\n",matrix[length-1]);
-}
-
 @}
 
 
