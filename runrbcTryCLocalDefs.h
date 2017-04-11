@@ -2,7 +2,7 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 5, 13, 12, 18.919406}*/
+/*Mathematica Creation Date{2017, 4, 11, 15, 20, 55.270366}*/
 #define SPAMAXELEMENTS 15*(4)^2
 #define MAXELEMENTS 25*(4)^2
 
@@ -12,10 +12,15 @@ void rbcExample(double * xvec,double * pvec,double * shock,
 double * alhs,
 int * jalhs,int * ialhs,int * alphas,double * linPt
 );
+void rbcExampleData(int t,double * vectorOfVals);
+void rbcExampleShocks(int t,double * vectorOfVals);
 void rbcExampleDerivative(double * xvec,double * pvec,
 double * alhs,
 int * jalhs,
 int * ialhs);
+void rbcExamplePeriodicPointGuesser
+(double * parameters,int period,
+	double guessVector[(1+1+1)*4]);
 void rbcExampleExogH(double * pvec,
 double * alhs,
 int * jalhs,
@@ -35,17 +40,8 @@ double * rbcExampleZeroShock;
 double * rbcExampleShockVals;
 double * rbcExampleDataVals;
 double * rbcExampleFP;
-double * rbcExampleFailedQ;
 double * rbcExampleIntercept;
 double * rbcExampleEasyPathQ;
 double * rbcExampleTargetPathQ;
 double * rbcExamplePathQ;
 double * rbcExampleZeroPathQ;
-void rbcExampleData(int t,double * vectorOfVals);
-void rbcExampleShocks(int t,double * vectorOfVals);
-//void rbcExamplePeriodicPointGuesser
-//(double * parameters,int period,
-//	double guessVector[3][4]);
-void rbcExamplePeriodicPointGuesser
-(double * parameters,int period,
-	double guessVector[12]);

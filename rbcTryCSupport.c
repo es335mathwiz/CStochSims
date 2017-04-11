@@ -1,11 +1,12 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 5, 13, 12, 18.919406}*/
+/*Mathematica Creation Date{2017, 4, 11, 15, 20, 55.270366}*/
 /*rbc example model*/
-#include "lagLead.h"
+#include "./lagLead.h"
 #include <math.h>
-//staticf double maxarg1,maxarg2;
+#include "useSparseAMA.h"
+//static double maxarg1,maxarg2;
 #include <math.h>
 
 double FMAX(double a,double b)
@@ -47,7 +48,7 @@ double doSign(double a)
 
 
 
-/*
+
 void rbcExamplePeriodicPointGuesser
 (double * parameters,int period,
 	double guessVector[3][4])
@@ -62,31 +63,9 @@ for(timeOffset=0;
 guessVector[timeOffset][0]=0.;
 guessVector[timeOffset][1]=0.35984508755628597;
 guessVector[timeOffset][2]=0.18703194520402708;
-
 guessVector[timeOffset][3]=1.;
 }
 }
-*/
-void rbcExamplePeriodicPointGuesser
-(double * parameters,int period,
-	double guessVector[12])
-{
-//int i,j;
-//double svalue;
-int timeOffset;
-for(timeOffset=0;
-	timeOffset<period+ 3 - 1;
-			timeOffset++)
-	{
-guessVector[4*timeOffset+0]=0.;
-guessVector[4*timeOffset+1]=0.35984508755628597;
-guessVector[4*timeOffset+2]=0.18703194520402708;
-guessVector[4*timeOffset+3]=1.;
-}
-}
-
-
-
 
 void rbcExampleModelDimensions(int * numberOfEquations, int * lags,
 int * leads, int * numberOfParameters,
@@ -121,7 +100,7 @@ jaMat[0]=1.;
 void rbcExampleSelectZ(double * aMat,int * jaMat,int *iaMat
 )
 {
-//aMat;
+aMat;
 iaMat[0]=1.;
-//jaMat;
+jaMat;
 }

@@ -131,7 +131,7 @@ endog[modelEquations_]:=Union[Select[DeleteCases[
 		Select[Variables[(modelEquations//.funcSubs)//.getVarSubs],
 				Length[#]==1&],FABS[_]|myabsv[_]|Log[_]|modelShock[_]]//.{x_[t]->x,x_[t+_]->x},Length[#]==0&]];
 *)
-mmaMcFilesDir=FileNameJoin[Drop[FileNameSplit[FindFile["MmaModelToC`"]], -1]];
+mmaMcFilesDir="./"(*FileNameJoin[Drop[FileNameSplit[FindFile["MmaModelToC`"]], -1]];*)
 lagLeadLoc=FileNameJoin[{mmaMcFilesDir,"lagLead.h"}]
 $runItExt=FileNameJoin[{mmaMcFilesDir,"runItExternalDefs.h"}]
 $runItInv=FileNameJoin[{mmaMcFilesDir,"runItInvariantLocalDefs.h"}]
@@ -440,7 +440,7 @@ With[{allv=allVars[modelEquation]},
 With[{linv=({#,ToExpression["linPt$" <>ToString[#]],1}& /@allv)},
 With[{},
 Normal[Series @@ Join[{(modelEquation)},linv]]]]];
-
+MmaModelDenseColToSparseMat[aList_List]:=denseColToSparseMat[aList][[{1,3,2}]]
 
 avoidSeries[modelEquations_]:=
 With[{drvmat=spdrvs[modelEquations],allv=allVars[modelEquations],
@@ -449,7 +449,7 @@ With[{linv=(ToExpression["linPt$" <>ToString[#]]& /@allv)},
 With[{forSub= Thread[allv->linv]},
 With[{intcpt=Join[(modelEquations/.forSub),
 Table[0,{Length[bth]-Length[modelEquations]}]],
-prod=sparseAmuB[(drvmat/.forSub) , denseColToSparseMat[(allv-linv)]]},
+prod=sparseAmuB[(drvmat/.forSub) , MmaModelDenseColToSparseMat[(allv-linv)]]},
 intcpt+spMatToVec[prod,Length[bth]]]]]]
 
 avoidSeries[modelEquations_,drvmat_]:=
@@ -459,7 +459,7 @@ With[{linv=(ToExpression["linPt$" <>ToString[#]]& /@allv)},
 With[{forSub= Thread[allv->linv]},Print["avoidSeries:about to compute product"];
 With[{intcpt=Join[(modelEquations/.forSub),
 Table[0,{Length[bth]-Length[modelEquations]}]],
-prod=sparseAmuB[(drvmat/.forSub) , denseColToSparseMat[(allv-linv)]]},
+prod=sparseAmuB[(drvmat/.forSub) , MmaModelDenseColToSparseMat[(allv-linv)]]},
 intcpt+spMatToVec[prod,Length[bth]]]]]]
 
 
@@ -541,6 +541,7 @@ part="/*Mathematica Creation Date `date`*/
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+#include \"useSparseAMA.h\"
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -557,7 +558,7 @@ if(*homotopyAlpha>=1.0) {
 `opVarDefsSFA`
 `sparseFunctionAssignmentsA`
 
-/*for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};*/
+for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};
 
 
 "
@@ -566,6 +567,7 @@ mmaToCTemplate="/*Mathematica Creation Date `date`*/
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+#include \"useSparseAMA.h\"
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -576,18 +578,18 @@ double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizati
 {
 int i;
 double bMat[`modelNumberOfEquations`];
-int ibMat[`modelNumberOfEquations`+1];
-int jbMat[`modelNumberOfEquations`];
+//int ibMat[`modelNumberOfEquations`+1];
+//int jbMat[`modelNumberOfEquations`];
 if(*homotopyAlpha>=1.0) {
 `opVarDefsSFA`
 `sparseFunctionAssignmentsA`
-/*for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};*/
+for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};
 `sparseFunctionAssignmentsIA`
 `sparseFunctionAssignmentsJA`
 } else {
 `opLinVarDefsSFA`
 `linSparseFunctionAssignmentsA`
-/*for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};*/
+for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++){aMat[i]=aMat[i]+shockVec[i];};
 `linSparseFunctionAssignmentsIA`
 `linSparseFunctionAssignmentsJA`
 if(*homotopyAlpha>0.0) {
@@ -615,10 +617,10 @@ linModel=Chop[complexLinModel/.reallyLinearSubs];
 With[{nlinPartModel=Join[Chop[
 	modelEquations-(linModel[[Range[Length[modelEquations]]]])],
 Table[0,{Length[linModel]-Length[modelEquations]}]]},
-With[{modelMatrix=denseColToSparseMat[Join[modelEquations(*/.funcSubs*),
+With[{modelMatrix=MmaModelDenseColToSparseMat[Join[modelEquations(*/.funcSubs*),
 Table[0,{Length[modelExogenous[modelEquations]]}]]]//.timeSubs,
-linModelMatrix=denseColToSparseMat[linModel]//.timeSubs,
-nlinModelMatrix=denseColToSparseMat[nlinPartModel]//.timeSubs},
+linModelMatrix=MmaModelDenseColToSparseMat[linModel]//.timeSubs,
+nlinModelMatrix=MmaModelDenseColToSparseMat[nlinPartModel]//.timeSubs},
 Module[{modelColumns,theNamesArray,theParamNamesArray,
 sparseFunctionAssignmentsA,opVarDefsSFA,
 sparseFunctionAssignmentsIA,
@@ -649,28 +651,28 @@ numberOfParameters=Length[coeffs[modelEquations]];
 {dataRows,dataCols}=Dimensions[modelData[modelEquations]];
 {shocksRows,shocksCols}=Dimensions[modelShocks[modelEquations]];
 {sparseFunctionAssignmentsA,opVarDefsSFA,
-sparseFunctionAssignmentsJA,
-sparseFunctionAssignmentsIA}=
+sparseFunctionAssignmentsIA,
+sparseFunctionAssignmentsJA}=
 genAIAJAAssn[modelEquations,modelMatrix];
 {linSparseFunctionAssignmentsA,opLinVarDefsSFA,
-linSparseFunctionAssignmentsJA,
-linSparseFunctionAssignmentsIA}=
+linSparseFunctionAssignmentsIA,
+linSparseFunctionAssignmentsJA}=
 genAIAJAAssn[modelEquations,linModelMatrix];
 {nlinSparseFunctionAssignmentsA,opNLinVarDefsSFA,
-nlinSparseFunctionAssignmentsJA,
-nlinSparseFunctionAssignmentsIA}=
+nlinSparseFunctionAssignmentsIA,
+nlinSparseFunctionAssignmentsJA}=
 genAIAJAAssn[modelEquations,nlinModelMatrix];
 {sparseFunctionDerivativeAssignmentsA,opVarDefsDrvSFA,
-sparseFunctionDerivativeAssignmentsJA,
-sparseFunctionDerivativeAssignmentsIA}=
+sparseFunctionDerivativeAssignmentsIA,
+sparseFunctionDerivativeAssignmentsJA}=
 genAIAJAAssn[modelEquations,modelSparseDrvs];
 {linSparseFunctionDerivativeAssignmentsA,opLinVarDefsDrvSFA,
-linSparseFunctionDerivativeAssignmentsJA,
-linSparseFunctionDerivativeAssignmentsIA}=
+linSparseFunctionDerivativeAssignmentsIA,
+linSparseFunctionDerivativeAssignmentsJA}=
 genAIAJAAssn[modelEquations,linModelMatrix];
 {nlinSparseFunctionDerivativeAssignmentsA,opNLinVarDefsDrvSFA,
-nlinSparseFunctionDerivativeAssignmentsJA,
-nlinSparseFunctionDerivativeAssignmentsIA}=
+nlinSparseFunctionDerivativeAssignmentsIA,
+nlinSparseFunctionDerivativeAssignmentsJA}=
 genAIAJAAssn[modelEquations,nlinModelMatrix];
 ll=lagsLeads[modelEquations];
 lags=-ll[[1]];
@@ -802,7 +804,7 @@ With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 
 
 writeModelDotC[outFile_String,aList_Association]:=
-With[{theStr=TemplateApply[mmaToCTemplate,aList]},
+With[{theStr=TemplateApply[mmaToCTemplate,aList]},Print["writing dotc",theStr,outFile];
 WriteString[outFile<>".c",
 	theStr]]
 
@@ -817,6 +819,7 @@ mmaToCDrvTemplate="
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+#include \"useSparseAMA.h\"
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -979,7 +982,7 @@ mpiRunTemplate="
 /*`modelCreationInfo`*/
 #include \"runItExternalDefs.h\"
 #include \"distStochSims.h\"
-main(int argc, char * argv[])
+int main(int argc, char * argv[])
 {
 #include \"runItInvariantLocalDefs.h\"
 #include \"run`outFile`LocalDefs.h\"
@@ -1603,10 +1606,15 @@ void `functionName`(double * xvec,double * pvec,double * shock,
 double * alhs,
 int * jalhs,int * ialhs,int * alphas,double * linPt
 );
+void `functionName`Data(int t,double * vectorOfVals);
+void `functionName`Shocks(int t,double * vectorOfVals);
 void `functionName`Derivative(double * xvec,double * pvec,
 double * alhs,
 int * jalhs,
 int * ialhs);
+void `functionName`PeriodicPointGuesser
+(double * parameters,int period,
+	double guessVector[(`lags`+`leads`+1)*`modelNumberOfEquations`]);
 void `functionName`ExogH(double * pvec,
 double * alhs,
 int * jalhs,
@@ -1664,32 +1672,34 @@ runItTemplate=
 /*Mathematica Creation Date`date`*/
 /*`modelCreationInfo`*/
 #include <stdlib.h>
-#include \"`runItExt`\"
+#include <stdio.h>
+#include \"stackC.h\"
+#include \"stochProto.h\"
+
 
 
 
 #define PATHLENGTH 1000
-
-int numberOfEquations=`modelNumberOfEquations`;
-char * namesArray[] =  `theNamesArray`;
-char * paramNamesArray[] = `theParamNamesArray`;
-int numberOfParameters=`numberOfParameters`;
-int * parameters[]={};
-int numDATA=`dataRows`;
-int numSHOCKS=`shocksRows`;
+unsigned int Parameters=0;
+unsigned int NEQS=`modelNumberOfEquations`;
+unsigned int NLAGS=`lags`;
+unsigned int NLEADS=`leads`;
+unsigned int numDATA=`dataRows`;
+unsigned int numSHOCKS=`shocksRows`;
 double * theData;
-
-main(int argc, char * argv[])
-{
-#include \"`runItInv`\"
+#include \"runItInvariantLocalDefs.h\"
+unsigned int i;
 #include \"run`outFile`LocalDefs.h\"
+
+int main(int argc, char * argv[])
+{
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
 
-`functionName`DataVals=(double *)calloc(numberOfEquations*numDATA,sizeof(double));
-for(i=0;i<numDATA;i++){rbcExampleData(i,`functionName`DataVals+(i*numberOfEquations));}
+`functionName`DataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
+for(i=0;i<numDATA;i++){rbcExampleData(i,`functionName`DataVals+(i*(*numberOfEquations)));}
 
-`functionName`ShockVals=(double *)calloc(numberOfEquations*numSHOCKS,sizeof(double));
-for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,`functionName`ShockVals+(i*numberOfEquations));}
+`functionName`ShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
 
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
@@ -1698,18 +1708,57 @@ paramNamesArray,numberOfParameters,parameters,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
 
-/*
-`functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
+unsigned int exogRows[0];
+unsigned int exogCols[0];
+unsigned int exogenizeQ[1]={0};
 
-FPnewt(numberOfEquations,lags,leads,
-`functionName`,`functionName`Derivative,parameters,
-`functionName`FP,
+
+unsigned int * rbcExampleFailedQ;
+rbcExampleFailedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
+unsigned int maxNumberElements=100;
+double ** fmats, ** smats;
+unsigned int ** fmatsj, ** smatsj,** fmatsi, **smatsi;
+allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
+&rbcExampleFP,&rbcExampleIntercept,
+&fmats,&fmatsj,&fmatsi,
+&smats,&smatsj,&smatsi);
+
+rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
+FPnewt(numberOfEquations,&NLAGS,&NLEADS,
+rbcExample,rbcExampleDerivative,parameters,
+rbcExampleFP,rbcExampleIntercept,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
-maxNumberElements,
-failedQ);
+&maxNumberElements,
+rbcExampleFailedQ,intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo);
 
+FILE * outFile;
+outFile=fopen(flnm,\"w\");
+
+printf(\"saving values for variable in file named %s \\n \",flnm);
+fprintf(outFile,\"RunParams={%d,%d,%d,%d,%d,%d,%d};\\n\",NEQS,NLAGS,NLEADS,
+     *pathLength,*t0,*stochasticPathLength,*replications);
+
+
+freeFPNewt(NLAGS,*pathLength,
+&rbcExampleFP,&rbcExampleIntercept,
+&fmats,&fmatsj,&fmatsi,
+&smats,&smatsj,&smatsi);
+
+/*
+fPrintMathInt(outFile,*replications,rbcExampleFailedQ,\"rbcExampleFailedQ\");
+fPrintMathInt(outFile,*replications * (*stochasticPathLength),
+      rbcExamplePermVec,\"rbcExamplePermVec\");
+fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
+      rbcExamplePathQ,\"Results\");
+fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,\"dataArray\");
+fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,\"shocksArray\");
 */
+
+     fclose(outFile);
+
+return(0);
 }
 
 #include \"`runItOth`\"
@@ -1778,7 +1827,8 @@ cSupportTemplate="
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
-static double maxarg1,maxarg2;
+#include \"useSparseAMA.h\"
+//static double maxarg1,maxarg2;
 #include <math.h>
 
 double FMAX(double a,double b)
@@ -1817,8 +1867,8 @@ void `functionName`PeriodicPointGuesser
 (double * parameters,int period,
 	double guessVector[`modelColumns`][`modelNumberOfEquations`])
 {
-int i,j;
-double svalue;
+//int i,j;
+//double svalue;
 int timeOffset;
 for(timeOffset=0;
 	timeOffset<period+ `modelColumns` - 1;

@@ -2,40 +2,36 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 5, 13, 12, 18.919406}*/
+/*Mathematica Creation Date{2017, 4, 11, 15, 20, 55.270366}*/
 /*rbc example model*/
 #include <stdlib.h>
 #include <stdio.h>
 #include "stackC.h"
 #include "stochProto.h"
 
-// not needed #include "runItExternalDefs.h"
 
 
 
-
-//char * namesArray[] =  {"aDummy", "cc", "kk", "theta"};
-//char * paramNamesArray[] = {};
+#define PATHLENGTH 1000
 unsigned int Parameters=0;
-//int * parameters[]={};
 unsigned int NEQS=4;
 unsigned int NLAGS=1;
 unsigned int NLEADS=1;
 unsigned int numDATA=500;
 unsigned int numSHOCKS=500;
 double * theData;
-
 #include "runItInvariantLocalDefs.h"
+unsigned int i;
 #include "runrbcTryCLocalDefs.h"
 
 int main(int argc, char * argv[])
 {
 printf(" runIt.mc, 2016 m1gsa00 \n");
 
-rbcExampleDataVals=(double *)calloc((*numberOfEquations)*numDATA,sizeof(double));
+rbcExampleDataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
 for(i=0;i<numDATA;i++){rbcExampleData(i,rbcExampleDataVals+(i*(*numberOfEquations)));}
 
-rbcExampleShockVals=(double *)calloc((*numberOfEquations)*numSHOCKS,sizeof(double));
+rbcExampleShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
 for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,rbcExampleShockVals+(i*(*numberOfEquations)));}
 
 
@@ -44,6 +40,7 @@ paramNamesArray,numberOfParameters,parameters,
 	rbcExampleDataVals,numDATA,numSHOCKS,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
+
 unsigned int exogRows[0];
 unsigned int exogCols[0];
 unsigned int exogenizeQ[1]={0};
@@ -72,9 +69,8 @@ intOutputInfo, doubleOutputInfo);
 FILE * outFile;
 outFile=fopen(flnm,"w");
 
-printf("saving values for variable in file named %s\n",flnm);
-fprintf(outFile,"RunParams={%d,%d,%d,%d,%d,%d,%d};\n",
-    NEQS,NLAGS,NLEADS,
+printf("saving values for variable in file named %s \n ",flnm);
+fprintf(outFile,"RunParams={%d,%d,%d,%d,%d,%d,%d};\n",NEQS,NLAGS,NLEADS,
      *pathLength,*t0,*stochasticPathLength,*replications);
 
 
@@ -96,10 +92,9 @@ fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
      fclose(outFile);
 
 return(0);
-
 }
 
-#include "runItOther.h"
+#include "./runItOther.h"
 
 /*
 printf("generating perm vec
