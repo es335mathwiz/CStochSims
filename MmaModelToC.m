@@ -719,7 +719,9 @@ jaMat,exogHMatrix[[2]],AssignOptimize->True,OptimizationSymbol -> okay];
 numbExog=Length[modelExogenous[modelEquations]];
 selectZMatrix={Table[1,{numbExog}],
 Flatten[Position[bothExogEndog[modelEquations],#]& /@
-justExog[modelEquations]], Range[numbExog+1]}; selectZMatA=myCAssign[
+justExog[modelEquations]], Range[numbExog+1]};
+ If[numbExog==0,selectZMatA=selectZMatIA=selectZMatJA="",
+       selectZMatA=myCAssign[
 aMat,selectZMatrix[[1]],AssignOptimize->True,OptimizationSymbol ->
 okay];
 selectZMatIA= myCAssign[
@@ -727,10 +729,10 @@ iaMat,selectZMatrix[[3]],AssignOptimize->True,OptimizationSymbol ->
 okay];
 selectZMatJA= myCAssign[
 jaMat,selectZMatrix[[2]],AssignOptimize->True,OptimizationSymbol ->
-okay];
-vstr=StringReplace[ToString[InputForm[N[Flatten[modelData[modelEquations]]]]],{"*^-"->"e-"}];
+okay]];
+vstr=StringReplace[ToString[InputForm[N[modelData[modelEquations]]]],{"*^-"->"e-"}];
 dvalsInfo=modelShocksInfo[modelEquations];
-dstr=StringReplace[ToString[InputForm[N[Flatten[modelShocks[modelEquations]]]]],{"*^-"->"e-"}];
+dstr=StringReplace[ToString[InputForm[N[modelShocks[modelEquations]]]],{"*^-"->"e-"}];
 With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 <|"date"->Date[],
 "modelCreationInfo"->modelInfo[modelEquations],
@@ -845,7 +847,7 @@ int jcMat[`bLength`];
 int aOne=1;int ierr;int maxNumberHElements;
 int hrows=`modelNumberOfEquations`;
 int hcols=`modelColumns`*`modelNumberOfEquations`;
-double okay[`spaceForTempVars`];
+int okay[`spaceForTempVars`];
 if(*homotopyAlpha>=1.0) {
 `opVarDefsDrvSFA`
 

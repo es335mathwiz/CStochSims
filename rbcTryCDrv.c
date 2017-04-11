@@ -1,6 +1,6 @@
 
 
-/*Mathematica Creation Date{2017, 4, 11, 15, 20, 55.270366}*/
+/*Mathematica Creation Date{2017, 4, 11, 15, 56, 59.365725}*/
 /*rbc example model*/
 #include "./lagLead.h"
 #include <math.h>
@@ -38,7 +38,7 @@ int jcMat[11];
 int aOne=1;int ierr;int maxNumberHElements;
 int hrows=4;
 int hcols=3*4;
-double okay[50000];
+int okay[50000];
 if(*homotopyAlpha>=1.0) {
 double okay10;
 double okay14;

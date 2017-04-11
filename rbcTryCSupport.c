@@ -1,7 +1,7 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 11, 15, 20, 55.270366}*/
+/*Mathematica Creation Date{2017, 4, 11, 15, 56, 59.365725}*/
 /*rbc example model*/
 #include "./lagLead.h"
 #include <math.h>
@@ -100,7 +100,7 @@ jaMat[0]=1.;
 void rbcExampleSelectZ(double * aMat,int * jaMat,int *iaMat
 )
 {
-aMat;
-iaMat[0]=1.;
-jaMat;
+
+
+
 }
