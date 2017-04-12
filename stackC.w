@@ -3115,7 +3115,7 @@ normSum=0.0;
 	for (sum=0.0,i=0;i<*numberOfEquations;i++) sum += SQR(x[i]);
 	stpmax=(*lags+*leads+1)*STPMX*FMAX(sqrt(sum),(double)n);
 
-
+dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
         sparseMatTimesVec(numberOfEquations,
         smats[0],smatsj[0],smatsi[0],fvec,
         g+(*numberOfEquations * *lags));
@@ -3128,7 +3128,7 @@ normSum=0.0;
 
 @d get newton update
 @{
-dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+
 		for (i=0;i<n;i++) xold[i]=x[i];
 		/*modification begin*/
 nxtFPGuess(numberOfEquations,lags,leads,

@@ -410,7 +410,7 @@ With[{init=expectations[[Range[numEq*mlags]]]},
   nxtGuess[lags[model],
   newFunc,
   drvFunc[model],
-  BlockMatrix[{{ZeroMatrix[numEq*mleads,numEq*(mlags)],IdentityMatrix[numEq*mleads]}}],
+  blockMatrix[{{zeroMatrix[numEq*mleads,numEq*(mlags)],IdentityMatrix[numEq*mleads]}}],
   expectations,#]&,
   expectations,
   SameTest->(Max[Abs[#1-#2]]<10^(-15)&)][[numEq*mlags+Range[numEq]]]]]]
@@ -457,8 +457,8 @@ With[{neq=Length[theDrvFunc[[2]]]},
 With[{nlead=(Length[theDrvFunc[[2,1]]]/neq)-nlag-1},
 Module[{nxlstC,nxlstD,lstC,lstD},
 With[{appDim=(nlag+nlead+1)*neq,
-theZeroMatsC=Table[ZeroMatrix[neq,neq],{nlag}],
-theZeroMatsD=Table[ZeroMatrix[neq,1],{nlag}]
+theZeroMatsC=Table[zeroMatrix[neq,neq],{nlag}],
+theZeroMatsD=Table[zeroMatrix[neq,1],{nlag}]
 },
 With[{theArgs=Partition[guess,appDim,neq]},
 With[{theRes=Map[Apply[theFunc,#]& , theArgs]},
@@ -473,7 +473,7 @@ Apply[theDrvFunc,y],(*Print["applying theFunc=",Apply[theFunc,y],y];*)
 Apply[theFunc,y],x[[1]],x[[2]]}]],
 prime(*{theZeroMatsC,theZeroMatsD}*),Drop[theArgs,1]];
 {lstC,lstD}=nxtCDmats[{nlag,
-BlockMatrix[{{termConstr,ZeroMatrix[neq]}}],
+blockMatrix[{{termConstr,zeroMatrix[neq]}}],
 termConstr . (Transpose[{guess[[Range[-neq*(nlag+nlead),-1]]]}]- 
 Transpose[{fp[[Range[-neq*(nlag+nlead),-1]]]}]),nxlstC,nxlstD}];
 bs=backSub[lstC,lstD];
@@ -534,7 +534,7 @@ The example output uses the  following model definitions:
 
 @o stochProtoTest.m
 @{
-$Path=Append[$Path,"/mq/home/m1gsa00/bestMath/"];
+
 <<amsMatrices.m
 (*testModel definition*)
 (* pg 14 example juillard, laxton, mcadam, pioro *)
@@ -613,7 +613,7 @@ qmat=Join[af,ubigEvs[[{1}]]];
 qMat[testModel]=qmat;
 fp[testModel]=Table[0,{5*3}];
 
-paperQ=BlockMatrix[{{qmat,ZeroMatrix[5]}}];
+paperQ=blockMatrix[{{qmat,zeroMatrix[5]}}];
 
 
 @}

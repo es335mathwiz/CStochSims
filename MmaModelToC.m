@@ -440,7 +440,7 @@ With[{allv=allVars[modelEquation]},
 With[{linv=({#,ToExpression["linPt$" <>ToString[#]],1}& /@allv)},
 With[{},
 Normal[Series @@ Join[{(modelEquation)},linv]]]]];
-MmaModelDenseColToSparseMat[aList_List]:=denseColToSparseMat[aList][[{1,3,2}]]
+MmaModelDenseColToSparseMat[aList_List]:=denseColToSparseMat[aList]
 
 avoidSeries[modelEquations_]:=
 With[{drvmat=spdrvs[modelEquations],allv=allVars[modelEquations],
@@ -483,8 +483,8 @@ allShft]]
 
 
 Print["sparseFunctionAssignments"];
-genAIAJAAssn[modelEquations_List,
-modelCSRMatrix:{theA_?VectorQ,theIA_?VectorQ,theJA_?VectorQ}]:=
+genAJAIAAssn[modelEquations_List,
+modelCSRMatrix:{theA_?VectorQ,theJA_?VectorQ,theIA_?VectorQ}]:=
 With[{sfa=SFAAssign[modelEquations,theA],
 sfIA=myCAssign[iaMat,theIA,AssignEnd->";\n",
 AssignOptimize->True,OptimizationSymbol -> okay],
@@ -623,8 +623,8 @@ linModelMatrix=MmaModelDenseColToSparseMat[linModel]//.timeSubs,
 nlinModelMatrix=MmaModelDenseColToSparseMat[nlinPartModel]//.timeSubs},
 Module[{modelColumns,theNamesArray,theParamNamesArray,
 sparseFunctionAssignmentsA,opVarDefsSFA,
-sparseFunctionAssignmentsIA,
 sparseFunctionAssignmentsJA,
+sparseFunctionAssignmentsIA,
 linSparseFunctionAssignmentsA,opLinVarDefsSFA,
 linSparseFunctionAssignmentsIA,
 linSparseFunctionAssignmentsJA,
@@ -632,8 +632,8 @@ nlinSparseFunctionAssignmentsA,opNLinVarDefsSFA,
 nlinSparseFunctionAssignmentsIA,
 nlinSparseFunctionAssignmentsJA,
 sparseFunctionDerivativeAssignmentsA,opVarDefsDrvSFA,
-sparseFunctionDerivativeAssignmentsIA,
 sparseFunctionDerivativeAssignmentsJA,
+sparseFunctionDerivativeAssignmentsIA,
 linSparseFunctionDerivativeAssignmentsA,opLinVarDefsDrvSFA,
 linSparseFunctionDerivativeAssignmentsIA,
 linSparseFunctionDerivativeAssignmentsJA,
@@ -653,27 +653,27 @@ numberOfParameters=Length[coeffs[modelEquations]];
 {sparseFunctionAssignmentsA,opVarDefsSFA,
 sparseFunctionAssignmentsIA,
 sparseFunctionAssignmentsJA}=
-genAIAJAAssn[modelEquations,modelMatrix];
+genAJAIAAssn[modelEquations,modelMatrix];
 {linSparseFunctionAssignmentsA,opLinVarDefsSFA,
 linSparseFunctionAssignmentsIA,
 linSparseFunctionAssignmentsJA}=
-genAIAJAAssn[modelEquations,linModelMatrix];
+genAJAIAAssn[modelEquations,linModelMatrix];
 {nlinSparseFunctionAssignmentsA,opNLinVarDefsSFA,
 nlinSparseFunctionAssignmentsIA,
 nlinSparseFunctionAssignmentsJA}=
-genAIAJAAssn[modelEquations,nlinModelMatrix];
+genAJAIAAssn[modelEquations,nlinModelMatrix];
 {sparseFunctionDerivativeAssignmentsA,opVarDefsDrvSFA,
 sparseFunctionDerivativeAssignmentsIA,
 sparseFunctionDerivativeAssignmentsJA}=
-genAIAJAAssn[modelEquations,modelSparseDrvs];
+genAJAIAAssn[modelEquations,modelSparseDrvs];
 {linSparseFunctionDerivativeAssignmentsA,opLinVarDefsDrvSFA,
 linSparseFunctionDerivativeAssignmentsIA,
 linSparseFunctionDerivativeAssignmentsJA}=
-genAIAJAAssn[modelEquations,linModelMatrix];
+genAJAIAAssn[modelEquations,linModelMatrix];
 {nlinSparseFunctionDerivativeAssignmentsA,opNLinVarDefsDrvSFA,
 nlinSparseFunctionDerivativeAssignmentsIA,
 nlinSparseFunctionDerivativeAssignmentsJA}=
-genAIAJAAssn[modelEquations,nlinModelMatrix];
+genAJAIAAssn[modelEquations,nlinModelMatrix];
 ll=lagsLeads[modelEquations];
 lags=-ll[[1]];
 leads=ll[[-1]];
@@ -1725,6 +1725,10 @@ allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
+printf(\"generating perm vec\n\");
+ generateDraws(1,(stochasticPathLength),(*replications),numSHOCKS,julliardPermVec);
+printf(\"done generating perm vec\n\");
+
 rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
 FPnewt(numberOfEquations,&NLAGS,&NLEADS,
 rbcExample,rbcExampleDerivative,parameters,
@@ -1743,10 +1747,6 @@ fprintf(outFile,\"RunParams={%d,%d,%d,%d,%d,%d,%d};\\n\",NEQS,NLAGS,NLEADS,
      *pathLength,*t0,*stochasticPathLength,*replications);
 
 
-freeFPNewt(NLAGS,*pathLength,
-&rbcExampleFP,&rbcExampleIntercept,
-&fmats,&fmatsj,&fmatsi,
-&smats,&smatsj,&smatsi);
 
 /*
 fPrintMathInt(outFile,*replications,rbcExampleFailedQ,\"rbcExampleFailedQ\");
@@ -1759,6 +1759,10 @@ fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,\"shocksArray\");
 */
 
      fclose(outFile);
+freeFPNewt(NLAGS,*pathLength,
+&rbcExampleFP,&rbcExampleIntercept,
+&fmats,&fmatsj,&fmatsi,
+&smats,&smatsj,&smatsi);
 
 return(0);
 }
@@ -1766,9 +1770,6 @@ return(0);
 #include \"`runItOth`\"
 
 /*
-printf(\"generating perm vec\n\");
- generateDraws(1,(stochasticPathLength),(*replications),numSHOCKS,julliardPermVec);
-printf(\"done generating perm vec\n\");
 */
 
 

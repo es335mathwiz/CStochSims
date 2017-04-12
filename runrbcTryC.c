@@ -2,7 +2,7 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 11, 15, 56, 59.365725}*/
+/*Mathematica Creation Date{2017, 4, 12, 17, 15, 22.136857}*/
 /*rbc example model*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -79,15 +79,18 @@ freeFPNewt(NLAGS,*pathLength,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
-/*
+
 fPrintMathInt(outFile,*replications,rbcExampleFailedQ,"rbcExampleFailedQ");
+fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,"dataArray");
+fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
+
+/*
 fPrintMathInt(outFile,*replications * (*stochasticPathLength),
       rbcExamplePermVec,"rbcExamplePermVec");
 fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
       rbcExamplePathQ,"Results");
-fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,"dataArray");
-fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
 */
+
 
      fclose(outFile);
 
