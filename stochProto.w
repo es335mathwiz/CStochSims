@@ -320,21 +320,28 @@ unsigned int *failedQ
 @}
 
 
+
+@o stochProto.h -d
+@{
+void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ);
+void freeStochSim(unsigned int ** failedQ);
+@}
 @o stochProto.c -d
 @{
-void stochSim(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,
-double x[],
-unsigned int *failedQ)
+void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
+{
+*failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(unsigned int));
+}
+void freeStochSim(unsigned int ** failedQ)
+{
+free(*failedQ);
+}
+@}
+
+
+@o stochProto.c -d
+@{
+void stochSim(@<stochSim argument list@>)
 {
 /*unsigned int check[1]={0};*/
 unsigned int * numberOfShocks;

@@ -1078,18 +1078,18 @@ allocFPNewt(numberOfEquations,lags,leads,
 &`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,&smats,&smatsj,&smatsi);
 /*space for path*/
-allocPathNewt(numberOfEquations,lags,leads,
+allocPathNewt(*numberOfEquations,lags,leads,
 	pathLength,replications,stochasticPathLength,
 &`functionName`PathQ,&`functionName`ZeroPathQ);
 /*space for stochSims sucess record*/
-allocStochSims(stochasticPathLength,replications,&failedQ);
+allocStochSim(stochasticPathLength,replications,&failedQ);
 /*initialize  whole path to data values at t0*/
 for(i=0;i<lags+pathLength+leads+stochasticPathLength;i++){
   for(j=0;j<numberOfEquations;j++){
-	`functionName`ZeroPathQ[i* numberOfEquations+j]=
-	  `functionName`DataVals[(i+t0)*numberOfEquations+j];
-	`functionName`PathQ[i* numberOfEquations+j]=
-	  `functionName`DataVals[(i+t0)*numberOfEquations+j];
+	`functionName`ZeroPathQ[i* (*numberOfEquations)+j]=
+	  `functionName`DataVals[(i+t0)*(*numberOfEquations)+j];
+	`functionName`PathQ[i* (*numberOfEquations)+j]=
+	  `functionName`DataVals[(i+t0)*(*numberOfEquations)+j];
   }}
 
 
@@ -1760,6 +1760,18 @@ allocPathNewt(*numberOfEquations,NLAGS,NLEADS,
 &`functionName`EasyPath,
 &`functionName`TargetPath
 );
+unsigned int j;
+allocStochSim(*stochasticPathLength,*replications,&`functionName`FailedQ);
+/*initialize  whole path to data values at t0*/
+for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
+  for(j=0;j<*numberOfEquations;j++){
+	`functionName`ZeroPathQ[i* (*numberOfEquations)+j]=
+	  `functionName`DataVals[(i+*t0)*(*numberOfEquations)+j];
+	`functionName`PathQ[i* (*numberOfEquations)+j]=
+	  `functionName`DataVals[(i+*t0)*(*numberOfEquations)+j];
+  }}
+
+
 
 `functionName`PermVec=(unsigned int *)calloc(
      (*stochasticPathLength)*(*replications),sizeof(unsigned int));
@@ -1802,6 +1814,23 @@ intOutputInfo, doubleOutputInfo
 );
 
 
+
+stochSim(numberOfEquations,lags,leads,pathLength,
+`functionName`,`functionName`Derivative,parameters,
+replications,t0,tf,`functionName`PermVec,
+`functionName`ShockVals,&numSHOCKS,
+`functionName`DataVals,&numDATA,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+&maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
+`functionName`FP,
+`functionName`PathQ,
+`functionName`FailedQ);
+
+
+
+
+
 FILE * outFile;
 outFile=fopen(flnm,\"w\");
 
@@ -1836,6 +1865,9 @@ freePathNewt(&`functionName`Path);
 freePathNewt(&`functionName`ZeroPath);
 freePathNewt(&`functionName`EasyPath);
 freePathNewt(&`functionName`TargetPath);
+
+freeStochSim(&`functionName`FailedQ);
+
 return(0);
 }
 

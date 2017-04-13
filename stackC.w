@@ -607,7 +607,7 @@ double * oddSumDA;unsigned int * oddSumDJA;unsigned int * oddSumDIA;
 double  *ao;unsigned int *jao,*iao;
 double *b;unsigned int *jb,*ib;
 double *tb;unsigned int *jtb,*itb;
-double *tmp;unsigned int *jtmp,*itmp;
+//double *tmp;unsigned int *jtmp,*itmp;
 unsigned int *firstColumn,*lastColumn,*nr,*nc;
 unsigned int *iw,*ierr,*nzmax,*nonZeroNow;unsigned int cmatsExtent;unsigned int *nzmaxLeft;
 unsigned int i;
@@ -1664,7 +1664,7 @@ void nxtFPGuess(@<nxtFPGuess argument list@>)
 
 @d nxtFPGuess variable declarations
 @{
-unsigned int maxElementsEncountered=0;
+//unsigned int maxElementsEncountered=0;
 unsigned int * ma50bdJob;
 unsigned int * ma50bdIq;
 double * ma50bdFact;
