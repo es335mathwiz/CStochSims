@@ -2,7 +2,7 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 12, 17, 15, 22.136857}*/
+/*Mathematica Creation Date{2017, 4, 13, 17, 10, 29.114578}*/
 /*rbc example model*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,6 +35,7 @@ rbcExampleShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double)
 for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,rbcExampleShockVals+(i*(*numberOfEquations)));}
 
 
+
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
 paramNamesArray,numberOfParameters,parameters,
 	rbcExampleDataVals,numDATA,numSHOCKS,
@@ -56,6 +57,46 @@ allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
+
+double *rbcExampleDataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
+unsigned int i;
+for(i=0;i<numDATA;i++){rbcExampleData(i,rbcExampleDataVals+(i*(*numberOfEquations)));}
+
+double *rbcExampleShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,rbcExampleShockVals+(i*(*numberOfEquations)));}
+double * AMqMatrix;
+unsigned int * AMqMatrixi;
+unsigned int * AMqMatrixj;
+
+
+double * rootr;
+double * rooti;
+
+allocAltComputeAsymptoticQ(*numberOfEquations,NLAGS,NLEADS,
+maxNumberElements,&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
+&rootr,&rooti);
+
+double*rbcExamplePath;
+double*rbcExampleZeroPath;
+double*rbcExampleEasyPath;
+double*rbcExampleTargetPath;
+
+
+allocPathNewt(*numberOfEquations,NLAGS,NLEADS,
+*pathLength,*replications,*stochasticPathLength,
+&rbcExamplePath,
+&rbcExampleZeroPath,
+&rbcExampleEasyPath,
+&rbcExampleTargetPath
+);
+
+rbcExamplePermVec=(unsigned int *)calloc(
+     (*stochasticPathLength)*(*replications),sizeof(unsigned int));
+
+printf("generating perm vec\n");
+ generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,rbcExamplePermVec);
+printf("done generating perm vec\n");
+
 rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
 FPnewt(numberOfEquations,&NLAGS,&NLEADS,
 rbcExample,rbcExampleDerivative,parameters,
@@ -66,6 +107,30 @@ smats,smatsj,smatsi,
 rbcExampleFailedQ,intControlParameters,doubleControlParameters,
 intOutputInfo, doubleOutputInfo);
 
+double shockVecStandIn[1]={0};
+unsigned int auxInit[1]={0};
+unsigned int qRows[1]={0};
+unsigned int ierr[1]={0};
+unsigned int ihomotopy[1]={0};
+
+
+
+
+altComputeAsymptoticQMatrix(
+numberOfEquations,lags,leads,
+rbcExample,rbcExampleDerivative,parameters,
+shockVecStandIn,rbcExampleFP,exogRows,exogCols,exogenizeQ,pathLength,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+&maxNumberElements,
+AMqMatrix,AMqMatrixj,AMqMatrixi,auxInit,qRows,
+rootr,rooti,
+ierr,*ihomotopy,
+intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo
+);
+
+
 FILE * outFile;
 outFile=fopen(flnm,"w");
 
@@ -74,53 +139,45 @@ fprintf(outFile,"RunParams={%d,%d,%d,%d,%d,%d,%d};\n",NEQS,NLAGS,NLEADS,
      *pathLength,*t0,*stochasticPathLength,*replications);
 
 
+
+/*
+fPrintMathInt(outFile,*replications,rbcExampleFailedQ,"rbcExampleFailedQ");
+fPrintMathInt(outFile,*replications * (*stochasticPathLength),
+      rbcExamplePermVec,"rbcExamplePermVec");
+fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
+      rbcExamplePathQ,"Results");
+fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,"dataArray");
+fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
+*/
+
+     fclose(outFile);
 freeFPNewt(NLAGS,*pathLength,
 &rbcExampleFP,&rbcExampleIntercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
-
-fPrintMathInt(outFile,*replications,rbcExampleFailedQ,"rbcExampleFailedQ");
-fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,"dataArray");
-fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,"shocksArray");
-
-/*
-fPrintMathInt(outFile,*replications * (*stochasticPathLength),
-      rbcExamplePermVec,"rbcExamplePermVec");
-fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
-      rbcExamplePathQ,"Results");
-*/
+freeAltComputeAsymptoticQ(
+&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
+&rootr,&rooti);
 
 
-     fclose(outFile);
-
+freePathNewt(&rbcExamplePath);
+freePathNewt(&rbcExampleZeroPath);
+freePathNewt(&rbcExampleEasyPath);
+freePathNewt(&rbcExampleTargetPath);
 return(0);
 }
 
 #include "./runItOther.h"
 
 /*
-printf("generating perm vec
-");
- generateDraws(1,(stochasticPathLength),(*replications),numSHOCKS,julliardPermVec);
-printf("done generating perm vec
-");
 */
 
 
 /*
 
 
-altComputeAsymptoticQMatrix(
-numberOfEquations,lags,leads,
-rbcExample,rbcExampleDerivative,parameters,
-rbcExampleFP,pathLength,
-fmats,fmatsj,fmatsi,
-smats,smatsj,smatsi,
-maxNumberElements,
-AMqMatrix,AMqMatrixj,AMqMatrixi,
-failedQ
-);
+
 */
 
 /*

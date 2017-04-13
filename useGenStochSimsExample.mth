@@ -157,7 +157,7 @@ fp[rbcTestModel] = Last /@ Join[ssSolnSubsPF,ssSolnSubsPF,ssSolnSubsPF];
 stochSim[t0,tf,reps,model,horizon,expType]
 
 stochSim[2, 2, 1, rbcTestModel, 1, t] // Chop // TableForm
-
+NestList[Private`nxtFpGuess[1,rbcF,rbcDF,#]&,2.03*fp[rbcTestModel]],5]
 *)
 
 rbcForC=eqnsRBCSubbed/.zapAerr;

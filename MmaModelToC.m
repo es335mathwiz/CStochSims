@@ -806,7 +806,7 @@ With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 
 
 writeModelDotC[outFile_String,aList_Association]:=
-With[{theStr=TemplateApply[mmaToCTemplate,aList]},Print["writing dotc",theStr,outFile];
+With[{theStr=TemplateApply[mmaToCTemplate,aList]},
 WriteString[outFile<>".c",
 	theStr]]
 
@@ -1147,14 +1147,16 @@ systemTime=%f\n\",*totalTime,*userSystemTime,*(userSystemTime+1));
 
 
 
-
+unsigned int exogRows[1]={0};
+unsigned int exogCols[1]={0};
+unsigned int exogenizeQ[1]={0};
 
 /*compute asymptotic Q constraint*/
 if(!useIdentityQ){
 altComputeAsymptoticQMatrix(
 &numberOfEquations,&lags,&leads,
 `functionName`,`functionName`Derivative,parameters,
-`functionName`FP,pathLength,
+`functionName`FP,exogRows,exogCols,exogenizeQ,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &spaMaxNumberElements,
@@ -1631,7 +1633,7 @@ double parameters[]=
 int `functionName`exogQ[]=
 `exogQ`;
 
-int * `functionName`PermVec;
+unsigned int * `functionName`PermVec;
 double * `functionName`ZeroShock;
 double * `functionName`ShockVals;
 double * `functionName`DataVals;
@@ -1698,10 +1700,11 @@ int main(int argc, char * argv[])
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
 
 `functionName`DataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
-for(i=0;i<numDATA;i++){rbcExampleData(i,`functionName`DataVals+(i*(*numberOfEquations)));}
+for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(*numberOfEquations)));}
 
 `functionName`ShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
-for(i=0;i<numSHOCKS;i++){rbcExampleShocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
+for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
+
 
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
@@ -1715,29 +1718,89 @@ unsigned int exogCols[0];
 unsigned int exogenizeQ[1]={0};
 
 
-unsigned int * rbcExampleFailedQ;
-rbcExampleFailedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
+unsigned int * `functionName`FailedQ;
+`functionName`FailedQ=(unsigned int *)calloc(*replications,sizeof(unsigned int));
 unsigned int maxNumberElements=100;
 double ** fmats, ** smats;
 unsigned int ** fmatsj, ** smatsj,** fmatsi, **smatsi;
 allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
-&rbcExampleFP,&rbcExampleIntercept,
+&`functionName`FP,&`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
-printf(\"generating perm vec\n\");
- generateDraws(1,(stochasticPathLength),(*replications),numSHOCKS,julliardPermVec);
-printf(\"done generating perm vec\n\");
 
-rbcExamplePeriodicPointGuesser(parameters,1,rbcExampleFP);
+double *`functionName`DataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
+unsigned int i;
+for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(*numberOfEquations)));}
+
+double *`functionName`ShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
+double * AMqMatrix;
+unsigned int * AMqMatrixi;
+unsigned int * AMqMatrixj;
+
+
+double * rootr;
+double * rooti;
+
+allocAltComputeAsymptoticQ(*numberOfEquations,NLAGS,NLEADS,
+maxNumberElements,&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
+&rootr,&rooti);
+
+double*`functionName`Path;
+double*`functionName`ZeroPath;
+double*`functionName`EasyPath;
+double*`functionName`TargetPath;
+
+
+allocPathNewt(*numberOfEquations,NLAGS,NLEADS,
+*pathLength,*replications,*stochasticPathLength,
+&`functionName`Path,
+&`functionName`ZeroPath,
+&`functionName`EasyPath,
+&`functionName`TargetPath
+);
+
+`functionName`PermVec=(unsigned int *)calloc(
+     (*stochasticPathLength)*(*replications),sizeof(unsigned int));
+
+printf(\"generating perm vec\\n\");
+ generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec);
+printf(\"done generating perm vec\\n\");
+
+`functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
 FPnewt(numberOfEquations,&NLAGS,&NLEADS,
-rbcExample,rbcExampleDerivative,parameters,
-rbcExampleFP,rbcExampleIntercept,exogRows,exogCols,exogenizeQ,
+`functionName`,`functionName`Derivative,parameters,
+`functionName`FP,`functionName`Intercept,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,
-rbcExampleFailedQ,intControlParameters,doubleControlParameters,
+`functionName`FailedQ,intControlParameters,doubleControlParameters,
 intOutputInfo, doubleOutputInfo);
+
+double shockVecStandIn[1]={0};
+unsigned int auxInit[1]={0};
+unsigned int qRows[1]={0};
+unsigned int ierr[1]={0};
+unsigned int ihomotopy[1]={0};
+
+
+
+
+altComputeAsymptoticQMatrix(
+numberOfEquations,lags,leads,
+`functionName`,`functionName`Derivative,parameters,
+shockVecStandIn,`functionName`FP,exogRows,exogCols,exogenizeQ,pathLength,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+&maxNumberElements,
+AMqMatrix,AMqMatrixj,AMqMatrixi,auxInit,qRows,
+rootr,rooti,
+ierr,*ihomotopy,
+intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo
+);
+
 
 FILE * outFile;
 outFile=fopen(flnm,\"w\");
@@ -1749,21 +1812,30 @@ fprintf(outFile,\"RunParams={%d,%d,%d,%d,%d,%d,%d};\\n\",NEQS,NLAGS,NLEADS,
 
 
 /*
-fPrintMathInt(outFile,*replications,rbcExampleFailedQ,\"rbcExampleFailedQ\");
+fPrintMathInt(outFile,*replications,`functionName`FailedQ,\"`functionName`FailedQ\");
 fPrintMathInt(outFile,*replications * (*stochasticPathLength),
-      rbcExamplePermVec,\"rbcExamplePermVec\");
+      `functionName`PermVec,\"`functionName`PermVec\");
 fPrintMathDbl(outFile,(*replications * NEQS*(*stochasticPathLength+NLAGS)),
-      rbcExamplePathQ,\"Results\");
-fPrintMathDbl(outFile,(NEQS*(numDATA)),rbcExampleDataVals,\"dataArray\");
-fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),rbcExampleShockVals,\"shocksArray\");
+      `functionName`PathQ,\"Results\");
+fPrintMathDbl(outFile,(NEQS*(numDATA)),`functionName`DataVals,\"dataArray\");
+fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),`functionName`ShockVals,\"shocksArray\");
 */
 
      fclose(outFile);
 freeFPNewt(NLAGS,*pathLength,
-&rbcExampleFP,&rbcExampleIntercept,
+&`functionName`FP,&`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
+freeAltComputeAsymptoticQ(
+&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
+&rootr,&rooti);
+
+
+freePathNewt(&`functionName`Path);
+freePathNewt(&`functionName`ZeroPath);
+freePathNewt(&`functionName`EasyPath);
+freePathNewt(&`functionName`TargetPath);
 return(0);
 }
 
@@ -1776,16 +1848,7 @@ return(0);
 /*
 
 
-altComputeAsymptoticQMatrix(
-numberOfEquations,lags,leads,
-`functionName`,`functionName`Derivative,parameters,
-`functionName`FP,pathLength,
-fmats,fmatsj,fmatsi,
-smats,smatsj,smatsi,
-maxNumberElements,
-AMqMatrix,AMqMatrixj,AMqMatrixi,
-failedQ
-);
+
 */
 
 /*

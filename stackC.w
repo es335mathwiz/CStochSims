@@ -432,12 +432,14 @@ bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
 @d switch odd for even to avoid calloc
 @{
+/*
 tmp=oddSumCA;jtmp=oddSumCJA;itmp=oddSumCIA;
 oddSumCA=evenSumCA;oddSumCJA=evenSumCJA;oddSumCIA=evenSumCIA;
 evenSumCA=tmp;evenSumCJA=jtmp;evenSumCIA=itmp;
 tmp=oddSumDA;jtmp=oddSumDJA;itmp=oddSumDIA;
 oddSumDA=evenSumDA;oddSumDJA=evenSumDJA;oddSumDIA=evenSumDIA;
 evenSumDA=tmp;evenSumDJA=jtmp;evenSumDIA=itmp;
+*/
 @}
 
 
@@ -484,7 +486,7 @@ oddSumCA,oddSumCJA,oddSumCIA);
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
 
 useMA50ID(cntl,icntl);
-useMA50AD(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
+useMA50AD(rowDim,rowDim,nonZeroNow,maxNumberHElements,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 /*wordybump(info[3]);*/
 pathNewtAssert(info[0]>=0);
@@ -1662,6 +1664,7 @@ void nxtFPGuess(@<nxtFPGuess argument list@>)
 
 @d nxtFPGuess variable declarations
 @{
+unsigned int maxElementsEncountered=0;
 unsigned int * ma50bdJob;
 unsigned int * ma50bdIq;
 double * ma50bdFact;
@@ -2534,14 +2537,21 @@ free(*smatsi);
 }
 
 @}
+@o stackC.h
+@{
+void allocAltComputeAsymptoticQ(@<allocAltComputeAsymptoticQ argument list@>);
+@}
+
+@d allocAltComputeAsymptoticQ argument list
+@{
+unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+unsigned int maxElements,double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
+double** rootr,double**rooti
+@}
+
 @o stackC.c -d
 @{
-
-
-
-void allocAltComputeAsymptoticQ(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
-unsigned int maxElements,double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
-double** rootr,double**rooti)
+void allocAltComputeAsymptoticQ(@<allocAltComputeAsymptoticQ argument list@>)
 {
 *AMqMatrix=(double *)
    calloc(maxElements,sizeof(double));
@@ -2556,12 +2566,21 @@ double** rootr,double**rooti)
 }
 
 @}
+@d freeAltComputeAsymptoticQ argument list
+@{
+double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
+double**rootr,double**rooti
+@}
+
+@o stackC.h
+@{
+void freeAltComputeAsymptoticQ(@<freeAltComputeAsymptoticQ argument list@>);
+@}
+
 @o stackC.c -d
 @{
 
-void freeAltComputeAsymptoticQ(
-double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
-double**rootr,double**rooti)
+void freeAltComputeAsymptoticQ(@<freeAltComputeAsymptoticQ argument list@>)
 {
 free(*AMqMatrix);
 free(*AMqMatrixj);
@@ -2832,16 +2851,26 @@ free(*rooti);
 }
 
 @}
-@o stackC.c -d
+@o stackC.h -d
 @{
+void allocPathNewt(@<allocPathNewt argument list@>);
+@}
 
-void allocPathNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+@d allocPathNewt argument list
+@{
+unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int pathLength,unsigned int replications,unsigned int stochasticPathLength,
 double**genericPath,
 double**genericZeroPath,
 double**genericEasyPath,
 double**genericTargetPath
-)
+@}
+
+
+@o stackC.c -d
+@{
+
+void allocPathNewt(@<allocPathNewt argument list@>)
 {
 *genericPath=(double *)calloc(
     replications*
@@ -2861,11 +2890,18 @@ double**genericTargetPath
     sizeof(double));
 }
 @}
+@d freePathNewt argument list
+@{
+double ** genericPath
+@}
+@o stackC.h -d
+@{
+void freePathNewt(@<freePathNewt argument list@>);
+@}
+
 @o stackC.c -d
 @{
-
-
-void freePathNewt(double ** genericPath)
+void freePathNewt(@<freePathNewt argument list@>)
 {
 free(*genericPath);
 }
@@ -2880,19 +2916,29 @@ void allocShockVec(unsigned int numberOfEquations,double**shockVec)
     numberOfEquations,sizeof(double));
 }
 @}
+
+
 @o stackC.c -d
 @{
-
 void freeShockVec(double ** shockVec)
 {
 free(*shockVec);
 }
 @}
+
+@d allocShocksData argument list
+@{
+unsigned int numberOfEquations,unsigned int numberOfShocks,unsigned int numberOfData,
+double**shockVec,double ** dataVec,double ** zeroShockVec
+@}
+@o stackC.h -d
+@{
+void allocShocksData(@<allocShocksData argument list@>);
+@}
 @o stackC.c -d
 @{
 
-void allocShocksData(unsigned int numberOfEquations,unsigned int numberOfShocks,unsigned int numberOfData,
-double**shockVec,double ** dataVec,double ** zeroShockVec)
+void allocShocksData(@<allocShocksData argument list@>)
 {
 unsigned int i;
 *shockVec=(double *)calloc(
@@ -2904,11 +2950,25 @@ unsigned int i;
 for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
 }
 @}
+@d freeShocksData argument list
+@{
+double ** shockVec,double ** dataVec,
+double ** zeroShockVec
+@}
+@o stackC.h -d
+@{
+void allocShocksData(@<allocShocksData argument list@>);
+@}
+
+
+
 @o stackC.c -d
 @{
 
-void freeShocksData(double ** shockVec,double ** dataVec,
-double ** zeroShockVec)
+
+
+
+void freeShocksData(@<freeShocksData argument list@>)
 {
 free(*shockVec);
 free(*dataVec);
@@ -3129,6 +3189,7 @@ dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,lin
 @d get newton update
 @{
 
+dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
 		for (i=0;i<n;i++) xold[i]=x[i];
 		/*modification begin*/
 nxtFPGuess(numberOfEquations,lags,leads,
@@ -3797,6 +3858,26 @@ unsigned int * hColumns;
 //unsigned int i;
 @}
 
+@d altComputeAsymptoticQMatrix argument list
+@{
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void (* func)(),void (* dfunc)(),double * params,double * shockVec,
+double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
+double * rootr, double * rooti,
+unsigned int * ierr,unsigned int ihomotopy,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo
+@}
+
+@o stackC.h -d
+@{
+void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>);
+@}
+
 @o myNewt.c -d
 @{
 
@@ -3835,19 +3916,7 @@ qMati[j]=(2*j)+1;
 qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 }
 
-void altComputeAsymptoticQMatrix(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,double * shockVec,
-double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
-double * rootr, double * rooti,
-unsigned int * ierr,unsigned int ihomotopy,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo
-)
+void altComputeAsymptoticQMatrix(@<altComputeAsymptoticQMatrix argument list@>)
 {
 @<altComputeAsymptoticQMatrix variable declarations@>
 @<altComputeAsymptoticQMatrix variable allocations@>

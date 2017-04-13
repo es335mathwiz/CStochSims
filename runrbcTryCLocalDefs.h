@@ -2,7 +2,7 @@
 
 
 
-/*Mathematica Creation Date{2017, 4, 12, 17, 15, 22.136857}*/
+/*Mathematica Creation Date{2017, 4, 13, 17, 10, 29.114578}*/
 #define SPAMAXELEMENTS 15*(4)^2
 #define MAXELEMENTS 25*(4)^2
 
@@ -35,7 +35,7 @@ double parameters[]=
 int rbcExampleexogQ[]=
 {0, 0, 0, 0};
 
-int * rbcExamplePermVec;
+unsigned int * rbcExamplePermVec;
 double * rbcExampleZeroShock;
 double * rbcExampleShockVals;
 double * rbcExampleDataVals;
