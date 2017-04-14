@@ -184,16 +184,7 @@ void genericPeriodicPointGuesser
 
 void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
 unsigned int * iarray);
-void altComputeAsymptoticQMatrix(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double canadaFP[],unsigned int * pthLngth,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,
-unsigned int * ierr
-);
+
 void stochSim(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
