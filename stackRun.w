@@ -1,6 +1,6 @@
 %	$Id: stackRun.w,v 1.6 2000/12/06 14:53:34 m1gsa00 Exp m1gsa00 $	
 \documentclass[html]{article}
-@i /msu/res2/m1gsa00/proj3/garyFiles/big/cFiles/nuwebTree/miscLatexDefn.tex
+@i ~/git/sparseAMA/miscLatexDefn.tex
 \begin{document}
 
 \title{``C'' Program Calling stackSim()

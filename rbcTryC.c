@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/*Mathematica Creation Date {2017, 4, 14, 11, 46, 41.26377}*/
-=======
-/*Mathematica Creation Date {2017, 4, 13, 18, 17, 53.81481}*/
->>>>>>> aeb0f3387010ab5c84785f3133a9b545fb611280
+/*Mathematica Creation Date {2017, 4, 15, 12, 27, 37.966414}*/
 /*rbc example model*/
 #include "./lagLead.h"
 #include <math.h>
