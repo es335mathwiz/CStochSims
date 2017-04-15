@@ -2,7 +2,11 @@
 
 
 
+<<<<<<< HEAD
 /*Mathematica Creation Date{2017, 4, 14, 11, 46, 41.26377}*/
+=======
+/*Mathematica Creation Date{2017, 4, 13, 18, 17, 53.81481}*/
+>>>>>>> aeb0f3387010ab5c84785f3133a9b545fb611280
 /*rbc example model*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -89,6 +93,18 @@ allocPathNewt(*numberOfEquations,NLAGS,NLEADS,
 &rbcExampleEasyPath,
 &rbcExampleTargetPath
 );
+unsigned int j;
+allocStochSim(*stochasticPathLength,*replications,&rbcExampleFailedQ);
+/*initialize  whole path to data values at t0*/
+for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
+  for(j=0;j<*numberOfEquations;j++){
+	rbcExampleZeroPathQ[i* (*numberOfEquations)+j]=
+	  rbcExampleDataVals[(i+*t0)*(*numberOfEquations)+j];
+	rbcExamplePathQ[i* (*numberOfEquations)+j]=
+	  rbcExampleDataVals[(i+*t0)*(*numberOfEquations)+j];
+  }}
+
+
 
 rbcExamplePermVec=(unsigned int *)calloc(
      (*stochasticPathLength)*(*replications),sizeof(unsigned int));
@@ -131,6 +147,23 @@ intOutputInfo, doubleOutputInfo
 );
 
 
+
+stochSim(numberOfEquations,lags,leads,pathLength,
+rbcExample,rbcExampleDerivative,parameters,
+replications,t0,tf,rbcExamplePermVec,
+rbcExampleShockVals,&numSHOCKS,
+rbcExampleDataVals,&numDATA,
+fmats,fmatsj,fmatsi,
+smats,smatsj,smatsi,
+&maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
+rbcExampleFP,
+rbcExamplePathQ,
+rbcExampleFailedQ);
+
+
+
+
+
 FILE * outFile;
 outFile=fopen(flnm,"w");
 
@@ -165,6 +198,9 @@ freePathNewt(&rbcExamplePath);
 freePathNewt(&rbcExampleZeroPath);
 freePathNewt(&rbcExampleEasyPath);
 freePathNewt(&rbcExampleTargetPath);
+
+freeStochSim(&rbcExampleFailedQ);
+
 return(0);
 }
 

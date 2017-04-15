@@ -2,7 +2,11 @@
 
 
 
+<<<<<<< HEAD
 /*Mathematica Creation Date{2017, 4, 14, 11, 46, 41.26377}*/
+=======
+/*Mathematica Creation Date{2017, 4, 13, 18, 17, 53.81481}*/
+>>>>>>> aeb0f3387010ab5c84785f3133a9b545fb611280
 #define SPAMAXELEMENTS 15*(4)^2
 #define MAXELEMENTS 25*(4)^2
 

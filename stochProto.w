@@ -1,7 +1,7 @@
 \documentclass{article}
 \newcommand{\myamp}{&}
 \newcommand{\mywedge}{^}
-%\usepackage{notebook}
+\usepackage{notebook}
 \usepackage{amsmath}
 \usepackage{latexsym}
 \begin{document}
@@ -51,7 +51,7 @@ The code requires that $t_0-\tau>0$ and $t_f\ge t_0$, $T>0$.
 
 Setting initial  path to data before call to generatePathX
 
-@o stochProto.m 
+@o stochProto.m
 @{
 $Path=Append[$Path,"/mq/home4/m1gsa00/aim/frbus"];
 
@@ -71,7 +71,7 @@ stochSim[t0Index_Integer,tfIndex_Integer,
         replications_Integer,
 		model_List,horizon_Integer,expType_Symbol]:=
 With[{mlags=lags[model]},
-With[{laggedDataValues=xData[model][[t0Index+Range[-mlags,-1]]]},
+With[{laggedDataValues=xData[model][[t0Index-Range[-mlags,-1]]]},
 With[{shockSeqList=
 generateDraws[t0Index,tfIndex,replications,Length[shocks[model]]],
 iterFunc=(generatePathX[{model,horizon,expType,laggedDataValues},#])&},
@@ -80,37 +80,23 @@ Map[iterFunc,shockSeqList]
    horizon>0 && replications>0&&((expType == tMinusOne)||(expType == t)))
 
 @}
-
-
-
-
-@o stochProto.c -d
+@o stochSims.h -d
 @{
-#include "stochProto.h"
-void free();
-void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void cfree();
+//void * calloc(unsigned num,int amt);
+/*void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
-unsigned int *check);
-long ignuin_(long *low,long *high);
+int *check);*/
+long ignuin(long low,long high);
 
 
-void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
-unsigned int * iarray)
-{
-static  long K1=1;
-unsigned int ntot,i;
-long mxint;
-ntot=(tfIndex-t0Index+1)*replications;
-mxint=shocksAvailable;
-    for(i=0; i<ntot; i++) {
-        *(iarray+i) = (unsigned int )ignuin_(&K1,&mxint);
-    }
-}
+//void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,int * iarray);
+
 @}
 
 
@@ -123,7 +109,7 @@ for each time period(t0Index to tfIndex) in each replication.
 
 The following function generates $r \times (t_f-t_0+1)$ integer
 indexes into the shock matrix.
-@o stochProto.m 
+@o stochProto.m
 @{
 generateDraws[t0Index_Integer,tfIndex_Integer,
 		replications_Integer,shocksAvailable_Integer]:=
@@ -198,22 +184,52 @@ solutions for the model. Note that the qMat[model] provides the precomputed AIM 
 Also, fp[model] provides the precomputed fixed point for the model. This version of the
 routine initializes the path beyond the lagged values to the fp[model] values.
 
-@o stochProto.c -d
+@o generateDraws.c -d
 @{
 
-/*void * calloc(unsigned num,unsigned int amt);*/
+#include "stochSims.h"
 
-void compXEtm1(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void allocGenerateDraws(int t0Index,int tfIndex, int replications,int ** iarray)
+{
+*iarray=(int *)calloc((tfIndex-t0Index+1)*replications,sizeof(int));
+}
+void cfreeGenerateDraws(int ** iarray)
+{
+cfree(*iarray);
+}
+
+
+void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
+int * iarray)
+{
+static  long K1=1;
+int ntot,i;
+long mxint;
+ntot=(tfIndex-t0Index+1)*replications;
+mxint=shocksAvailable;
+    for(i=0; i<ntot; i++) {
+        *(iarray+i) = ignuin(K1,mxint);
+    }
+}
+@}
+
+@o compXEtm1.c -d
+@{
+
+#include "stochSims.h"
+
+
+void compXEtm1(int * numberOfEquations,int * lags, int * leads,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
-unsigned int *check)
+int *check)
 {
-unsigned int i;
-unsigned int aOne[1];
+int i;
+int aOne[1];
 aOne[0]=1;
 for(i=0;i<*numberOfEquations* *leads;i++)
 qMat[i]=0.0;
@@ -238,21 +254,24 @@ check);
 }
 @}
 
-@o stochProto.c -d
+@o generateNextXTMinusOne.c -d
 @{
+
+#include "stochSims.h"
+
 void generateNextXTMinusOne(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,unsigned int * shockIndex,
+int * numberOfEquations,int * lags, int * leads,int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,int * shockIndex,
 double * shockTable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
-unsigned int *check)
+int *check)
 {
 double * shockVec;double * tailVec;
-unsigned int i;
+int i;
 shockVec= (double *) calloc(*numberOfEquations,sizeof(double));
 tailVec= (double *) calloc(*numberOfEquations*(*lags+*leads+1),sizeof(double));
 for(i=0;i<*numberOfEquations;i++)shockVec[i]=0;
@@ -271,26 +290,30 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 tailVec,x,check);
-free(tailVec);free(shockVec);
+cfree(tailVec);cfree(shockVec);
 }
 @}
 
-@o stochProto.c -d
+@o generatePathX.c -d
 @{
+
+#include "stochSims.h"
+
+
 void generatePathX(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberOfShocks,
-unsigned int * shockIndices,
+int * numberOfShocks,
+int * shockIndices,
 double * shockTable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
-unsigned int *check)
+int *check)
 {
-unsigned int i;
+int i;
 for(i=0;i<*numberOfShocks;i++){
 printf("for given draw, computing for date=%d\n",i);
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
@@ -300,52 +323,49 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,
-x+(*numberOfEquations*i),check);
+x+(*numberOfEquations*i),check+i);
 }}
 @}
 
-@d stochSim argument list
-@{unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,
-double x[],
-unsigned int *failedQ
-@}
-
-
-@o stochProto.c -d
+@o stochSims.c -d
 @{
+
+#include "stochSims.h"
+
+void allocStochSims(int stochasticPathLength,int replications,int ** failedQ)
+{
+*failedQ=(int *)calloc(stochasticPathLength*replications,sizeof(int));
+}
+void cfreeStochSims(int ** failedQ)
+{
+cfree(*failedQ);
+}
+
 void stochSim(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+int * replications,
+int * t0,int * tf,int * permVecs,
+double * shockTable,int * shocksAvailable,
+double * dataTable,int * dataAvailable,
+double ** fmats, int ** fmatsj, int ** fmatsi,
+double ** smats, int ** smatsj, int ** smatsi,
+int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
 double * fixedPoint,
 double x[],
-unsigned int *failedQ)
+int *failedQ)
 {
-/*unsigned int check[1]={0};*/
-unsigned int * numberOfShocks;
-unsigned int i,j;
-numberOfShocks=(unsigned int *)calloc(1,sizeof(unsigned int));
+int check[1]={0};
+int * numberOfShocks;
+int i,j;
+numberOfShocks=(int *)calloc(1,sizeof(int));
 *numberOfShocks=*tf-*t0+1;
 for(i=0;i<*replications;i++){
 printf("computing for draw=%d\n",i);
 for(j=0;j<*numberOfEquations*(*lags+*numberOfShocks+*leads);j++){
 x[*numberOfEquations*(*lags+*numberOfShocks)*i+j]=
-     dataTable[*t0* *numberOfEquations +j];}
+     dataTable[(*t0* *numberOfEquations +j) % 
+(*dataAvailable * *numberOfEquations) ];}
 /*initialize path to last simulation path*/
 generatePathX(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,numberOfShocks,permVecs+i**numberOfShocks,
@@ -354,9 +374,9 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,
-x+(*numberOfEquations*(*lags+*numberOfShocks)*i),failedQ+i);
+x+(*numberOfEquations*(*lags+*numberOfShocks)*i),failedQ+(i* *numberOfShocks));
 };
-free(numberOfShocks);
+cfree(numberOfShocks);
 }
 @}
 
@@ -410,7 +430,7 @@ With[{init=expectations[[Range[numEq*mlags]]]},
   nxtGuess[lags[model],
   newFunc,
   drvFunc[model],
-  blockMatrix[{{zeroMatrix[numEq*mleads,numEq*(mlags)],IdentityMatrix[numEq*mleads]}}],
+  BlockMatrix[{{ZeroMatrix[numEq*mleads,numEq*(mlags)],IdentityMatrix[numEq*mleads]}}],
   expectations,#]&,
   expectations,
   SameTest->(Max[Abs[#1-#2]]<10^(-15)&)][[numEq*mlags+Range[numEq]]]]]]
@@ -457,8 +477,8 @@ With[{neq=Length[theDrvFunc[[2]]]},
 With[{nlead=(Length[theDrvFunc[[2,1]]]/neq)-nlag-1},
 Module[{nxlstC,nxlstD,lstC,lstD},
 With[{appDim=(nlag+nlead+1)*neq,
-theZeroMatsC=Table[zeroMatrix[neq,neq],{nlag}],
-theZeroMatsD=Table[zeroMatrix[neq,1],{nlag}]
+theZeroMatsC=Table[ZeroMatrix[neq,neq],{nlag}],
+theZeroMatsD=Table[ZeroMatrix[neq,1],{nlag}]
 },
 With[{theArgs=Partition[guess,appDim,neq]},
 With[{theRes=Map[Apply[theFunc,#]& , theArgs]},
@@ -473,7 +493,7 @@ Apply[theDrvFunc,y],(*Print["applying theFunc=",Apply[theFunc,y],y];*)
 Apply[theFunc,y],x[[1]],x[[2]]}]],
 prime(*{theZeroMatsC,theZeroMatsD}*),Drop[theArgs,1]];
 {lstC,lstD}=nxtCDmats[{nlag,
-blockMatrix[{{termConstr,zeroMatrix[neq]}}],
+BlockMatrix[{{termConstr,ZeroMatrix[neq]}}],
 termConstr . (Transpose[{guess[[Range[-neq*(nlag+nlead),-1]]]}]- 
 Transpose[{fp[[Range[-neq*(nlag+nlead),-1]]]}]),nxlstC,nxlstD}];
 bs=backSub[lstC,lstD];
@@ -534,7 +554,7 @@ The example output uses the  following model definitions:
 
 @o stochProtoTest.m
 @{
-
+$Path=Append[$Path,"/mq/home/m1gsa00/bestMath/"];
 <<amsMatrices.m
 (*testModel definition*)
 (* pg 14 example juillard, laxton, mcadam, pioro *)
@@ -613,7 +633,7 @@ qmat=Join[af,ubigEvs[[{1}]]];
 qMat[testModel]=qmat;
 fp[testModel]=Table[0,{5*3}];
 
-paperQ=blockMatrix[{{qmat,zeroMatrix[5]}}];
+paperQ=BlockMatrix[{{qmat,ZeroMatrix[5]}}];
 
 
 @}
@@ -672,651 +692,6 @@ pathTwo02=aimType2[testModel,1,0.25*plugT00][[-1]];
 *)
 
 @}
-
-@o stochProto.h -d
-@{
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-/*
-#include<time.h>
-#include<sys/time.h>
-*/
-/* Performance Analysis simple code */
-/*https://paolozaino.wordpress.com/2015/06/13/c-code-snippet-to-measure-function-execution-time-for-both-linux-and-mac-os-x/*/
-#include <time.h>
-#include <sys/time.h>
-
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
-
-#ifdef __APPLE__
-
-  #define INIT_TIME struct timespec tsi, tsf; \
-      double elaps_s; long elaps_ns; \
-      clock_serv_t cclock; \
-      mach_timespec_t mts;
-
-#else
-
-  #define INIT_TIME struct timespec tsi, tsf; \
-      double elaps_s; long elaps_ns;
-
-#endif
-
-#ifdef __APPLE__
-
-  #define START_GET_THE_TIME \
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock); \
-    clock_get_time(cclock, &mts); \
-    mach_port_deallocate(mach_task_self(), cclock); \
-    tsi.tv_sec = mts.tv_sec; \
-    tsi.tv_nsec = mts.tv_nsec;
-
-  #define STOP_GET_THE_TIME \
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock); \
-    clock_get_time(cclock, &mts); \
-    mach_port_deallocate(mach_task_self(), cclock); \
-    tsf.tv_sec = mts.tv_sec; \
-    tsf.tv_nsec = mts.tv_nsec; \
-    elaps_s = difftime(tsf.tv_sec, tsi.tv_sec); \
-    elaps_ns = tsf.tv_nsec - tsi.tv_nsec;
-
-#else
-
-  #ifdef CLOCK_PROCESS_CPUTIME_ID
-    /* cpu time in the current process */
-
-    #define START_GET_THE_TIME clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tsi);
-
-    #define STOP_GET_THE_TIME clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tsf); \
-        elaps_s = difftime(tsf.tv_sec, tsi.tv_sec); \
-        elaps_ns = tsf.tv_nsec - tsi.tv_nsec;
-
-  #else
-
-    /* this one should be appropriate to avoid errors on multiprocessors systems */
-
-    #define START_GET_THE_TIME clock_gettime(CLOCK_MONOTONIC_RAW, &tsi);
-
-    #define STOP_GET_THE_TIME clock_gettime(CLOCK_MONOTONIC_RAW, &tsf); \
-        elaps_s = difftime(tsf.tv_sec, tsi.tv_sec); \
-        elaps_ns = tsf.tv_nsec - tsi.tv_nsec;
-
-  #endif
-
-#endif
-
-
-
-
-/*set maximal dimension constants*/
-#define PATHLENGTH 1000
-#define REPLICATIONS 1000
-#define PRINTMAX 12
-#define FALSE 0
-#define TRUE 1
-
-
-#define widthIntControlInfo 70
-#define widthDoubleControlInfo 50
-#define widthIntOutputInfo 20
-#define widthDoubleOutputInfo 10
-unsigned int intControlParameters[widthIntControlInfo];
-double doubleControlParameters[widthDoubleControlInfo];
-unsigned int intOutputInfo[REPLICATIONS*widthIntOutputInfo];
-double doubleOutputInfo[REPLICATIONS*widthDoubleOutputInfo];
-
-
-#define useStackQ intControlParameters[0]
-#define useLnsrchQ intControlParameters[1]
-#define numberOfDebugPairs intControlParameters[2]
-#define useIdentityQ intControlParameters[3]
-#define maxitsInput intControlParameters[4]
-#define maxNumberStackElements intControlParameters[5]
-#define maxNumberAimElements intControlParameters[6]
-#define numberAlphas intControlParameters[7]
-#define numberBetas intControlParameters[8]
-#define useFirstDiffQ intControlParameters[9]
-#define ma50PivotSearch intControlParameters[10]
-#define useQQ intControlParameters[11]
-#define terminalConstraintSelection intControlParameters[12]
-#define useFixedPoint  0
-#define useCrawlingDataPoint  1
-#define useWaggingTail  2
-#define useFixedDataPoint  3
-#define useTailSolutionPlus  4
-#define numberVarsToMonitor intControlParameters[13]
-#define monitoredVars intControlParameters[14]
-/*also reserve next 9 for monotored Vars*/
-#define type3Q intControlParameters[24]
-#define debugQ intControlParameters[25]
-#define numberVarsToShock intControlParameters[26]
-#define shockedVars intControlParameters[27]
-/*also reserve next 9 for shocked Vars*/
-#define tMinusOneQ intControlParameters[37]
-#define debugPairs intControlParameters[38]
-/*also reserve next 10 for debug pairs*/
-
-#define homotopyXGuess intControlParameters[48]
-#define homotopyEasy intControlParameters[49]
-#define useBigX 0
-#define useBigEasy 1
-#define usePreviousHomotopyQ intControlParameters[50]
-#define useShockFileQ intControlParameters[51]
-#define shockFileOffset intControlParameters[52]
-#define dataFileOffset intControlParameters[53]
-#define streamingQ intControlParameters[54]
-#define ICshockVecLength  intControlParameters[55]
-#define ICnumberOfEquation intControlParameters[56]
-#define ICnumberOfLags intControlParameters[57]
-#define ICnumberOfLeads intControlParameters[58]
-#define ICnumberOfParameters intControlParameters[59]
-#define ICnumberOfDataValues intControlParameters[60]
-#define ICnumberOfShocks intControlParameters[61]
-#define ICnumberExog intControlParameters[62]
-#define ignoreFailQ intControlParameters[63]
-
-#define tolxInput doubleControlParameters[0]
-#define tolfInput doubleControlParameters[1]
-#define shrinkFactorInput doubleControlParameters[2]
-#define expandFactorInput doubleControlParameters[3]
-#define alaminInput doubleControlParameters[4]
-#define alfInput doubleControlParameters[5]
-#define ma50DropTol doubleControlParameters[6]
-
-#define homotopyAlpha (doubleControlParameters+10)
-/*also reserve next 9 for homotopyAlpha*/
-#define homotopyBeta (doubleControlParameters+20)
-/*also reserve next 9 for homotopyBeta*/
-#define ma50Balance doubleControlParameters[30]
-#define ma50DropEntry doubleControlParameters[31]
-#define ma50DropCol doubleControlParameters[32]
-#define shockScalar doubleControlParameters[33]
-
-
-
-#define addOneToFailedQ (intOutputInfo[0])++
-#define subOneFromFailedQ (intOutputInfo[0])--
-#define resetFailedQ (intOutputInfo[0]=0)
-#define addOneToNewtonSteps (intOutputInfo[1])++
-#define resetNewtonSteps (intOutputInfo[1]=0)
-#define addOneToFEvals (intOutputInfo[2])++
-#define resetFEvals (intOutputInfo[2]=0)
-#define addOneToFDrvEvals (intOutputInfo[3])++
-#define resetFDrvEvals (intOutputInfo[3]=0)
-#define addOneToShrinkSteps (intOutputInfo[4])++
-#define resetShrinkSteps (intOutputInfo[4]=0)
-#define addOneToExpandSteps (intOutputInfo[5])++
-#define resetExpandSteps (intOutputInfo[5]=0)
-#define addOneToLnsrchSteps (intOutputInfo[6])++
-#define resetLnsrchSteps (intOutputInfo[6]=0)
-#define addOneToHomotopies (intOutputInfo[7])++
-#define resetHomotopies (intOutputInfo[7]=0)
-#define addOneToHomotopyFailures (intOutputInfo[8])++
-#define resetHomotopyFailures (intOutputInfo[8]=0)
-#define currentReplication (intOutputInfo[9])
-#define currentDate (intOutputInfo[10])
-
-#define assignRealizedTolf doubleOutputInfo[0]
-#define resetRealizedTolf (doubleOutputInfo[0]=0)
-#define assignRealizedTolx doubleOutputInfo[1]
-#define resetRealizedTolx (doubleOutputInfo[1]=0)
-
-
-#define tMaOne (-1)
-#define tMaTwo (-2)
-#define tMaThree (-3)
-#define tMaFour (-4)
-#define tMaFive (-5)
-#define tMaSix (-6)
-#define tMaSeven (-7)
-#define tMaEight (-8)
-#define tMaNine (-9)
-#define tMaTen (-10)
-#define tMaEleven (-11)
-#define tMaTwelve (-12)
-#define tMaThirteen (-13)
-#define tMaFourteen (-14)
-#define tMaFifteen (-15)
-#define tMaSixteen (-16)
-#define tMaSeventeen (-17)
-#define tMaEighteen (-18)
-#define tMaNineteen (-19)
-#define tMaTwenty (-20)
-#define tMaTwentyOne (-21)
-#define tMaTwentyTwo (-22)
-#define tMaTwentyThree (-23)
-#define tMaTwentyFour (-24)
-#define tMaTwentyFive (-25)
-
-#define tPaOne (1)
-#define tPaTwo (2)
-#define tPaThree (3)
-#define tPaFour (4)
-#define tPaFive (5)
-#define tPaSix (6)
-#define tPaSeven (7)
-#define tPaEight (8)
-#define tPaNine (9)
-#define tPaTen (10)
-#define tPaEleven (11)
-#define tPaTwelve (12)
-#define tPaThirteen (13)
-#define tPaFourteen (14)
-#define tPaFifteen (15)
-#define tPaSixteen (16)
-#define tPaSeventeen (17)
-#define tPaEighteen (18)
-#define tPaNineteen (19)
-#define tPaTwenty (20)
-#define tPaTwentyOne (21)
-#define tPaTwentyTwo (22)
-#define tPaTwentyThree (23)
-#define tPaTwentyFour (24)
-#define tPaTwentyFive (25)
-
-
-
-
-
-
-
-
-@}
-
-@o stochProto.h -d
-@{
-
-/*declare prototypes for functions*/
-/*float  dtime_(float * userSystemTime);*/
-double atof();
-#include <stdio.h>
-#include <stdlib.h>
-
-
-
-
-
-
-/*unsigned int qRows=0;
- unsigned int auxInit=0;
- unsigned int aZero=0;*/
-
-/*processCommandLine() determines defaults for these*/
-
-
-/*timing routine variables*/
-
-
-/*workspace*/
-//double **fmats;unsigned int  **fmatsj;unsigned int  **fmatsi;
-//double **smats;unsigned int  **smatsj;unsigned int  **smatsi;
-/*success indicators for stochSims*/
-
-/*csr q matrix*/
-/*double * AMqMatrix;
-unsigned int * AMqMatrixj;
-unsigned int * AMqMatrixi;*/
-/*csr b matrix*/
-/*double * AMbMatrix;
-unsigned int * AMbMatrixj;
-unsigned int * AMbMatrixi;
- double * rootr;
- double * rooti;*/
-/* double * brootr;
- double * brooti;
-double*upsilonMatrix;unsigned int*upsilonMatrixj;unsigned int*upsilonMatrixi;
-double*hMat;unsigned int*hMatj;unsigned int*hMati;
-double*hzMat;unsigned int*hzMatj;unsigned int*hzMati;
-double*cstar;unsigned int*cstarj;unsigned int*cstari;
-double*phiInvMat;unsigned int*phiInvMatj;unsigned int*phiInvMati;
-double*fmat;unsigned int*fmatj;unsigned int*fmati;
-double*impact;unsigned int*impactj;unsigned int*impacti;*/
-/*double*selectZmat;unsigned int*selectZmatj;unsigned int*selectZmati;*/
-/*double*varthetaC;unsigned int*varthetaCj;unsigned int*varthetaCi;*/
-/*double*varthetaZstar;unsigned int*varthetaZstarj;unsigned int*varthetaZstari;*/
-
- /*unsigned int * ma50bdJob;
- unsigned int * ma50bdIq;
- double * ma50bdFact;
- unsigned int * ma50bdIrnf;
- unsigned int * ma50bdIptrl;
- unsigned int * ma50bdIptru;*/
- /*unsigned int * cmpma50bdJob;
- unsigned int * cmpma50bdIq;
- double * cmpma50bdFact;
- unsigned int * cmpma50bdIrnf;
- unsigned int * cmpma50bdIptrl;
- unsigned int * cmpma50bdIptru;*/
-/* unsigned int sysDim;*/
-
-
-
-
-@}
-
-
-@o stochProto.h -d
-@{
-
-
-//double FMAX(double a,double b);
-//double FMIN(double a,double b);
-double FABS(double a);
-double doRightSmaller(double a,double b);
-double doSign(double a);
-
-
-
-
-@}
-
-
-@o stochProto.h -d
-@{
-
-#ifdef __APPLE__
-#include<strings.h>
-#endif
-#ifdef __linux__
-#include<string.h>
-#endif
-/* */
-
-void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
-			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2);
-
-void modDataAbs(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
-			unsigned  int vbl,unsigned int t0,unsigned int tf,double val1,double val2);
-/* */
-
-
-
-void stochSim(@<stochSim argument list@>);
-void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
-unsigned int * iarray);
-
-void processCommandLine(unsigned int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
-double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
-unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-unsigned int * intControlParameters,double* doubleControlParameters,char * flnm);
-
-@}
-
-@o stochProto.c -d
-@{
-#ifdef __APPLE__
-#include<strings.h>
-#endif
-#ifdef __linux__
-#include<string.h>
-#endif
-/* */
-
-void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
-			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2)
-{
-  unsigned int t;
-  for(t=t0;t<=tf&&t<numberDataValues;t++){
-	if(t0==tf) {
-dataVals[t*numberOfEquations+vbl]=dataVals[t*numberOfEquations+vbl]+
-  (val2+val1)/2;} else {
-dataVals[t*numberOfEquations+vbl]=dataVals[t*numberOfEquations+vbl]+
-  (t-t0)*val2/(tf-t0) + (tf-t)*val1/(tf-t0);}
-  }
-}
-void modDataAbs(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
-			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2)
-{
-  unsigned int t;
-  for(t=t0;t<=tf&&t<numberDataValues;t++){
-	if(t0==tf) {
-dataVals[t*numberOfEquations+vbl]= (val2+val1)/2;} else {
-	dataVals[t*numberOfEquations+vbl]=(t-t0)*val2/(tf-t0) + (tf-t)*val1/(tf-t0);}
-  }
-}/* */
-
-
-
-void processCommandLine(unsigned int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
-double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
-unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-unsigned int * intControlParameters,double* doubleControlParameters,char * flnm)
-{
-  float aFloat;unsigned int i;unsigned int anInt;
- unsigned int pl;unsigned int t1;unsigned int t2; double val1; double val2; unsigned int vbl;
-/*setup defaults*/
-useLnsrchQ=FALSE;
-useStackQ=FALSE;
-useIdentityQ=FALSE;
-useFirstDiffQ=FALSE;
- alaminInput=1e-10;
- alfInput=1e-4;
- expandFactorInput=1.3;
- shrinkFactorInput=0.7;
- tolfInput=1e-10;
-  tolxInput=1e-10;
- maxitsInput=100;
-*replications=1;
-*stochasticPathLength=1;
-*pathLength=1;
-*t0=0;
-numberAlphas=1;
-homotopyAlpha[0]=1.0;
-numberBetas=1;
-homotopyBeta[0]=1.0;
-while(argc>1&&argv[1][0] == '-')
-{
-printf("processing command line args\n");
- switch(argv[1][1]){
-   case 'p':
-i=0;
-while((strcmp(argv[2],paramNamesArray[i])) && (i <modelNEQS))i++;
-if(i==modelNEQS){
-printf("i don't know the parameter %s: ignoring this parmeter value pair\n",argv[2]);} else {vbl = i;}
-         sscanf(argv[3],"%f",&aFloat);val1=(double)aFloat;
-         printf("got %d for param %s  and %f for value\n",vbl,paramNamesArray[i],
-	val1);
-		 parameters[i]=val1;
-         argc--;argv++;
-         argc--;argv++;
-         break;
-   case 'v':
-i=0;
-while((strcmp(argv[2],namesArray[i])) && (i <modelNEQS))i++;
-if(i==modelNEQS){
-printf("i don't know the variable %s: ignoring this variable value pair\n",argv[2]);} else {vbl = i;}
-         t1=(unsigned int)atoi(argv[3]);
-         t2=(unsigned int)atoi(argv[4]);
-         sscanf(argv[5],"%f",&aFloat);val1=(double)aFloat;
-         sscanf(argv[6],"%f",&aFloat);val2=(double)aFloat;
-         printf("got %d for vbl %s and (%d,%d) (%f,%f)\n",vbl,namesArray[i],
-	t1,t2,val1,val2);
-		 modData(modelNEQS,numberDataValues,dataValues,vbl,t1,t2,val1,val2);
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         break;
-   case 'V':
-i=0;
-while((strcmp(argv[2],namesArray[i])) && (i <modelNEQS))i++;
-if(i==modelNEQS){
-printf("i don't know the variable %s: ignoring this variable value pair\n",argv[2]);} else {vbl = i;}
-         t1=(unsigned int)atoi(argv[3]);
-         t2=(unsigned int)atoi(argv[4]);
-         sscanf(argv[5],"%f",&aFloat);val1=(double)aFloat;
-         sscanf(argv[6],"%f",&aFloat);val2=(double)aFloat;
-         printf("got %d for vbl %s and (%d,%d) (%f,%f)\n",vbl,namesArray[i],
-	t1,t2,val1,val2);
-		 modDataAbs(modelNEQS,numberDataValues,dataValues,vbl,t1,t2,val1,val2);
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         argc--;argv++;
-         break;
-   case 'l':
-         pl=atoi(argv[2]);
-     printf("got %d for path length\n",pl);
-     if(pl>PATHLENGTH)
-         {
-       *pathLength=PATHLENGTH;
-       printf("setting pathlength to maximum=%d\n",PATHLENGTH);
-       } else   if(pl<1){
-       *pathLength=1;
-       printf("setting pathlength to 1\n");
-       } else 
-     {*pathLength=pl;}
-         argc--;argv++;
-         break;
-   case 'r':
-         pl=atoi(argv[2]);
-     printf("got %d for replications\n",pl);
-     if(pl>REPLICATIONS||pl<1)
-         {
-       *replications=REPLICATIONS;
-       printf("setting repetitions to maximum=%d\n",REPLICATIONS);
-       } else { *replications = pl;}
-         argc--;argv++;
-         break;
-   case 'a':
-         pl=atoi(argv[2]);
-     printf("got %d for t0\n",pl);
-     if(pl>numShockValues||pl<0)
-         {
-       *t0=numShockValues;
-       printf("initial t0 to maximum=%d\n",numShockValues);
-       } else { *t0 = pl;}
-         argc--;argv++;
-         break;
-   case 's':
-         *stochasticPathLength=atoi(argv[2]);
-     printf("got %d for stochasticPathLength\n",*stochasticPathLength);
-     if(*stochasticPathLength<1)
-         {
-       *stochasticPathLength=1;
-       printf("setting tf to 1\n");
-       }
-         argc--;argv++;
-         break;
-   case 'N':
-         (maxitsInput)=atoi(argv[2]);
-     printf("got %d for maxits\n",(maxitsInput));
-     if((maxitsInput)<1)
-         {
-       (maxitsInput)=1;
-       printf("setting maxits to 1\n");
-       }
-         argc--;argv++;
-         break;
-   case 'F':
-         sscanf(argv[2],"%f",&aFloat);
-		 tolfInput=(double)aFloat;
-     printf("got %e for tolfInput\n",tolfInput);
-         argc--;argv++;
-         break;
-   case 'X':
-         sscanf(argv[2],"%f",&aFloat);
-		 tolxInput=(double)aFloat;
-     printf("got %e for tolxInput\n",tolxInput);
-         argc--;argv++;
-         break;
-   case 'H':
-         sscanf(argv[2],"%d",&anInt);
-		 numberAlphas=anInt;
-		 if(anInt>10){numberAlphas=10; printf("only using first 10\n");}
-         argc--;argv++;
-		 for(i=0;i<anInt;i++){
-         sscanf(argv[2],"%f",&aFloat);
-		 if(i<10){homotopyAlpha[i]=(double)aFloat;}
-     printf("got %e for homotopyAlpha[%d]\n",aFloat,i);
-	 argc--;argv++;}
-         break;
-   case 'D':
-         sscanf(argv[2],"%d",&anInt);
-		 numberBetas=anInt;
-		 if(anInt>10){numberBetas=10; printf("only using first 10\n");}
-         argc--;argv++;
-		 for(i=0;i<anInt;i++){
-         sscanf(argv[2],"%f",&aFloat);
-		 if(i<10){homotopyBeta[i]=(double)aFloat;}
-     printf("got %e for homotopyBeta[%d]\n",aFloat,i);
-	 argc--;argv++;}
-         break;
-   case 'K':
-         sscanf(argv[2],"%f",&aFloat);
-		 shrinkFactorInput=(double)aFloat;
-     printf("got %e for shrinkFactorInput\n",shrinkFactorInput);
-         argc--;argv++;
-         break;
-   case 'E':
-         sscanf(argv[2],"%f",&aFloat);
-		 expandFactorInput=(double)aFloat;
-     printf("got %e for expandFactorInput\n",expandFactorInput);
-         argc--;argv++;
-         break;
-   case 'L':
-         useLnsrchQ=TRUE;
-     printf("got flag for using lnsrch algorithm\n");
-         break;
-   case 'S':
-         useStackQ=TRUE;
-     printf("got flag for using stack algorithm\n");
-         break;
-   case 'I':
-         useIdentityQ=TRUE;
-         useFirstDiffQ=FALSE;
-     printf("got flag for using identity matrix\n");
-         break;
-   case 'J':
-         useFirstDiffQ=TRUE;
-         useIdentityQ=FALSE;
-     printf("got flag for using first difference matrix\n");
-         break;
-   case 'h':
-     printf("\n-l <stack pathlength>\n"); 
-     printf("-s <stochastic pathlength>\n");
-     printf("-r <number of replications>\n");
-     printf("-f <output filename>\n");
-     printf("-L  use lnsearch\n");
-     printf("-I  use identity matrix terminal condition\n");
-     printf("-a <offset into datamatrix>\n");
-     printf("-X <x convergence tolerance>\n");
-     printf("-F <f(x) convergence tolerance>\n");
-     printf("-N <maximum number of newton steps>\n");
-     printf("-E <expansion factor>\n");
-     printf("-K <shrinkage factor>\n");
-     printf("-v <variableName> <dataPt 0 > <dataPtf> <incrementVal0> <incrementValf>\n");
-     printf("-V <variableName> <dataPt 0 > <dataPtf> <val0> <valf>\n");
-     printf("-p <parameterName> <valf>\n");
-        break;
-   case 'f':
-         strcpy(flnm,argv[2]);
-         printf("got %s for filename \n",flnm);
-         argc--;argv++;
-         break;
- default:
-   printf("%s: unknown arg %s-- not processing any more args\n",
-      argv[0],argv[1]);
- }
-argc--;argv++;
-}
-
-
-printf("values for run:(pathLength=%d,replications=%d,t0=%d,stochasticPathLength=%d)\n",*pathLength,*replications,*t0,*stochasticPathLength);
-
-
-}
-
-@}
-
-
-
 \appendix
 
 
