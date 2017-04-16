@@ -1023,6 +1023,23 @@ int * intControlParameters,double * doubleControlParameters
 theFunc theDrvFunc capT 
 @}
 
+@o stackC.h -d
+@{
+void constructFdrv(@<constructFdrv argument list@>);
+@}
+
+@d constructFdrv argument list
+@{
+int numberOfEquations,int lags, int leads,int pathLength,
+double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
+double * termConstr,int * termConstrj,int * termConstri,
+double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
+double * shockVec,
+double * fvec,
+double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
+int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo@}
+
 @d chkDrv definition
 @{
 #include <math.h>
@@ -1054,15 +1071,7 @@ printf("chkDrv:done\n");
 
 }
 
-constructFdrv(int numberOfEquations,int lags, int leads,int pathLength,
-double * xvec,double * params,void (* vFunc)(),void (* vFuncDrv)(),
-double * termConstr,int * termConstrj,int * termConstri,
-double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double * shockVec,
-double * fvec,
-double * fdrv,int * fdrvj,int * fdrvi,int ihomotopy,
-int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo)
+void constructFdrv(@<constructFdrv argument list@>)
 {
 double * deviations;
 int * ignore;double  dignore[1]={1.0};
@@ -2494,7 +2503,7 @@ return;}
 
 @d FPnewt declarations
 @{
-    int n;double * xdel;double  dignore[1]={1.0};int done;
+    int n/*;double * xdel;double  dignore[1]={1.0}*/;int done;
 /*	double fmin(double x[]);*/unsigned int ihomotopy=1;double realAlpha;
 /*	void lnsrch(int n,int np,int reps,
     double xold[], double   * fold, double g[], double p[],double * params,
@@ -2505,8 +2514,8 @@ int * intControlParameters,double * doubleControlParameters,
 int * intOutputInfo, double * doubleOutputInfo);*/
 	void lubksb(double **a, int n, int *indx, double b[]);
 	void ludcmp(double **a, int n, int *indx, double *d);
-	int i,its,j,*indx,*aOne,*ndns,*ierr;
-	double d,den,f,fold,stpmax,sum,temp,test,*g,*p,*xold,normSum;
+	int i,its/*,j*/,*indx,*aOne/*,*ndns*/,*ierr;
+	double /*d,den,*/f,fold,stpmax,sum,temp,test,*g,*p,*xold,normSum;
     double * shockVec;
     n=*numberOfEquations*(*lags+*leads+1);
 	aOne=(int *)calloc(1,sizeof(int));
@@ -2646,7 +2655,7 @@ done=1;
 
 void exogenizeRow(int row, double * a, int * ja, int * ia)
 {
-int i; int strt;
+//int i; int strt;
 a[ia[row-1]-1]=0.0;
 }
 void exogenizeDRow(int row, int col, double * a, int * ja, int * ia)
