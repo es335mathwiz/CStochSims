@@ -193,6 +193,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 @{
 #include <stdio.h>
 #include <float.h>
+#include "useSparseAMA.h"
 #include "stochSims.h"
 //#include "stochProto.h"
 #include "useSparseAMA.h"
@@ -2420,6 +2421,7 @@ __LINE__);
 @{
 #include <stdio.h>
 //#include "stochProto.h"
+#include "useSparseAMA.h"
 #include "stackC.h"
 #include "stochSims.h"
 
@@ -5061,7 +5063,7 @@ c two digits of accuracy (D9.2). )
 \subsubsection{amub}
 @o stackC.h -d
 @{
-void amub_();
+//void amub_();
 @}
 
 \begin{verbatim}
@@ -5125,7 +5127,18 @@ c-----------------------------------------------------------------------
 
 @o stackC.h -d
 @{
-void amux_();
+//void amux_();
+
+
+
+
+
+
+
+
+
+
+
 @}
 
 
@@ -5164,7 +5177,7 @@ c-----------------------------------------------------------------------
 \subsubsection{aplb}
 @o stackC.h -d
 @{
-void aplb_();
+//void aplb_();
 @}
 
 
@@ -5226,7 +5239,7 @@ c-----------------------------------------------------------------------
 
 @o stackC.h -d
 @{
-void csrcsc2_();
+//void csrcsc2_();
 @}
 
 \begin{verbatim}
@@ -5277,7 +5290,7 @@ c-----------------------------------------------------------------------
 \end{verbatim}
 @o stackC.h -d
 @{
-void csrcsc_();
+//void csrcsc_();
 @}
 
 
@@ -5329,7 +5342,7 @@ c-----------------------------------------------------------------------
 \subsubsection{csrdns}
 @o stackC.h -d
 @{
-void csrdns_();
+//void csrdns_();
 @}
 
 
@@ -5374,7 +5387,7 @@ c-----------------------------------------------------------------------
 \subsubsection{dnscsr}
 @o stackC.h -d
 @{
-void dnscsr_();
+//void dnscsr_();
 @}
 
 
@@ -5424,7 +5437,7 @@ c-----------------------------------------------------------------------
 \subsubsection{submat}
 @o stackC.h -d
 @{
-void submat_();
+//void submat_();
 @}
 
 \begin{verbatim}
@@ -5481,7 +5494,7 @@ c----------------------------------------------------------------------c
 
 @o stackC.h -d
 @{
-void ma50ad_();
+//void ma50ad_();
 @}
 
 \begin{verbatim}
@@ -5670,7 +5683,7 @@ c-----------------------------------------------------------------
 
 @o stackC.h -d
 @{
-void ma50bd_();
+//void ma50bd_();
 @}
 
 \begin{verbatim}
@@ -5820,7 +5833,7 @@ C    floating-point operations performed.
 
 @o stackC.h -d
 @{
-void ma50cd_();
+//void ma50cd_();
 @}
 
 \begin{verbatim}
