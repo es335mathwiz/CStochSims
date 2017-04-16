@@ -205,7 +205,7 @@ Map[iterFunc,shockSeqList]
 
 
 
-/*void cfree();*/
+/*void free();*/
 /*void * calloc(unsigned num,int amt);*/
 void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
@@ -230,6 +230,9 @@ void setall(long iseed1,long iseed2);
 
 void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
 int * iarray,char * str);
+#include <stdlib.h>
+void free(void * ptr);
+void * calloc(size_t amt,size_t size);
 
 @}
 
@@ -393,7 +396,7 @@ void allocGenerateDraws(int t0Index,int tfIndex, int replications,int ** iarray)
 }
 void cfreeGenerateDraws(int ** iarray)
 {
-cfree(*iarray);
+free(*iarray);
 }
 
 
@@ -591,23 +594,26 @@ shockVec,"shock");
 fprintf(debFile,"\n(**)");
 fclose(debFile);
 }
-cfree(lastDel);
-cfree(safex);
-cfree(intercept);
-cfree(fixedPath);
-cfree(qMat);
-cfree(qMatj);
-cfree(qMati);
+free(lastDel);
+free(safex);
+free(intercept);
+free(fixedPath);
+free(qMat);
+free(qMatj);
+free(qMati);
 }
 @}
 
 @o generateNextXTMinusOne.c -d
 @{
+#include <stdio.h>
+#include  "useSparseAMA.h"
+#include  "stackC.h"
+#include  "stochSims.h"
+
 @<define assert bump@>
 
 
-#include <stdio.h>
-#include  "stochSims.h"
 
 
 
@@ -783,7 +789,7 @@ x[*((&monitoredVars)+ii)+*numberOfEquations* *lags]);}
 
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsEncountered;
-cfree(shockVec);cfree(zeroShockX);cfree(diffFromZeroShock);cfree(lastDel);cfree(safex);
+free(shockVec);free(zeroShockX);free(diffFromZeroShock);free(lastDel);free(safex);
 }
 
 
@@ -792,9 +798,13 @@ cfree(shockVec);cfree(zeroShockX);cfree(diffFromZeroShock);cfree(lastDel);cfree(
 
 @o generateNextXT.c -d
 @{
+#include <stdio.h>
+#include  "useSparseAMA.h"
+#include  "stackC.h"
+#include "stochSims.h"
+
 @<define assert bump@>
 
-#include "stochSims.h"
 
 
 
@@ -970,7 +980,7 @@ x[*((&monitoredVars)+ii)+*numberOfEquations* *lags]);}
 
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsEncountered;
-cfree(shockVec);cfree(lclTargetX);cfree(lclEasyX);cfree(diffFromZeroShock);cfree(lastDel);cfree(safex);
+free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(lastDel);free(safex);
 }
 
 
@@ -1145,7 +1155,7 @@ if(check[i]!=0)for(j=i;j<*numberOfShocks;j++){check[j]=1;}
 
 }
 *maxNumberElements=maxElementsEncountered;
-cfree(lclFixedPoint);
+free(lclFixedPoint);
 }
 #include <stdio.h>
 void streamingGeneratePathX(FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,
@@ -1319,7 +1329,7 @@ targetX[ii+(*lags+*leads+*pathLength-1)**numberOfEquations];}
 
 }
 *maxNumberElements=maxElementsEncountered;
-cfree(lclFixedPoint);
+free(lclFixedPoint);
 }
 @}
 
@@ -1335,7 +1345,7 @@ void allocStochSims(int stochasticPathLength,int replications,int ** failedQ)
 }
 void cfreeStochSims(int ** failedQ)
 {
-cfree(*failedQ);
+free(*failedQ);
 }
 
 #include <stdio.h>
@@ -1444,7 +1454,7 @@ fprintf(debFile,"end stochSim\n");
 fclose(debFile);
 }
 
-cfree(stochasticPathLength);
+free(stochasticPathLength);
 }
 
 void stochSim(
@@ -1541,7 +1551,7 @@ fprintf(debFile,"end stochSim\n");
 fclose(debFile);
 }
 
-cfree(stochasticPathLength);
+free(stochasticPathLength);
 }
 
 @}
@@ -1667,7 +1677,7 @@ compXMa50bdIptru
    fprintf(outFile, "%d   %f\n", j, x[j]);
    ********************/
 
-cfree(stochasticPathLength);
+free(stochasticPathLength);
 }
 @}
 

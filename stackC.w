@@ -173,8 +173,8 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @o  stackC.c -d
 @{
-@<define assert bump@>
 @<define constants and specify include files@>
+@<define assert bump@>
 @<nxtCDmats definition@>
 @<oneStepBack definition@>
 
@@ -192,6 +192,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 @d define constants and specify include files
 @{
 #include <stdio.h>
+#include <stdlib.h>
 #include <float.h>
 #include "useSparseAMA.h"
 #include "stochSims.h"
@@ -1045,7 +1046,7 @@ int * intOutputInfo, double * doubleOutputInfo@}
 @{
 #include <math.h>
 #define NEGLIGIBLEDOUBLE 1.0e-9
-chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
+void chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
 double * fvec,double * delxvec)
 {
 int i;
@@ -1075,7 +1076,7 @@ printf("chkDrv:done\n");
 void constructFdrv(@<constructFdrv argument list@>)
 {
 double * deviations;
-int * ignore;double  dignore[1]={1.0};
+int * ignore;//double  dignore[1]={1.0};
 int rowDim;int * fvecj;int * fveci;
 int i;int j;int soFar;double * zeroShockVec;
 ignore = (int *)calloc(numberOfEquations+1,sizeof(int));
@@ -1179,7 +1180,7 @@ void newNxtGuess(@<newNxtGuess argument list@>)
 {
 
 
-int i;
+//int i;
 int maxElementsEncountered=0;
 double * copychkfdrv;int * copychkfdrvj;int * copychkfdrvi;
 int * jcn;
@@ -1198,10 +1199,10 @@ int * nextc;
 int * info;
 double * rinfo;
 int *lfact;
-double * fact;
-int *irnf;
-int * iptrl;
-int * iptru;
+//double * fact;
+//int *irnf;
+//int * iptrl;
+//int * iptru;
 int *iw;
 double * w;
 int nzmax;
@@ -1275,7 +1276,7 @@ for(i=0;i<7;i++)printf(" %d ",info[i]);
 printf("\n ma50bd info\n");
 #endif
 pathNewtAssert(info[0]>=0);
-if(*ma50bdJob=1)*ma50bdJob=1;
+if(*ma50bdJob==1)*ma50bdJob=1;
 /* if it was 1 promote 
                              to 3(ie conservative alternative)*/
 /*unless we're dropping terms with cntl[2]>0*/
@@ -1657,7 +1658,7 @@ int *qColumns;
 int *rowDim;
 double *fullfvec;
 double *fulldfvec;
-double *fullXvec;
+//double *fullXvec;
 int * aOne;
 int * ierr;
 @}
@@ -1882,7 +1883,7 @@ free(ymatsi);
 
 @d compPathError definition
 @{
-compPathError(int * numberOfEquations,int * lags,int * leads,
+void compPathError(int * numberOfEquations,int * lags,int * leads,
 void (* theFunction)(),
 double * termConstr,int * termConstrj,int * termConstri,double * fp,double * intercept,
 double * initialX,
@@ -2421,6 +2422,7 @@ __LINE__);
 @{
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 //#include "stochProto.h"
 #include "useSparseAMA.h"
 #include "stackC.h"
