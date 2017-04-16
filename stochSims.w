@@ -605,9 +605,9 @@ cfree(qMati);
 @{
 @<define assert bump@>
 
-#include "stochSims.h"
-#include <stdio.h>
 
+#include <stdio.h>
+#include  "stochSims.h"
 
 
 

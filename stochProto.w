@@ -82,7 +82,7 @@ Map[iterFunc,shockSeqList]
 @}
 @o stochSims.h -d
 @{
-void cfree();
+//void cfree();
 //void * calloc(unsigned num,int amt);
 /*void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,

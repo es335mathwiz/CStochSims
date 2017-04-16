@@ -197,7 +197,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 #include <stdio.h>
 #include <float.h>
 #include "stochSims.h"
-#include "stochProto.h"
+//#include "stochProto.h"
 #include "useSparseAMA.h"
 
 @|stdio.h math.h
@@ -2409,7 +2409,8 @@ __LINE__);
 @o myNewt.c -d 
 @{
 #include <stdio.h>
-#include "stochProto.h"
+//#include "stochProto.h"
+#include "stochSims.h"
 
 /*taken from numerical recipes nrutil.h*/
 @<define assert bump@>
