@@ -2420,6 +2420,7 @@ __LINE__);
 @o myNewt.c -d 
 @{
 #include <stdio.h>
+#include <string.h>
 //#include "stochProto.h"
 #include "useSparseAMA.h"
 #include "stackC.h"
@@ -3036,13 +3037,13 @@ else {  printf("Caller has terminated with inform =%d.\n",*inform);}
 @{
 *qRows=0;
 maxHElementsForSparseAim=maxHElements;
-(void)sparseAim(&maxHElementsForSparseAim/*,DISCRETE_TIME,*numberOfEquations,
+(void)sparseAMA(&maxHElementsForSparseAim,DISCRETE_TIME,*numberOfEquations,
 *numberOfEquations*(*lags+1+*leads),*leads,
 smats[0],smatsj[0],smatsi[0],
 newH,newHj,newHi,
 auxInit,qRows,
 qMat,qMatj,qMati,
-&essential,rootr,rooti,&returnCode,hookForPeter*/);
+&essential,rootr,rooti,&returnCode);
 *maxNumberElements=maxHElementsForSparseAim;
 @|NEGLIGIBLEDOUBLE AIMROOTBOUND
 @}
@@ -3199,7 +3200,7 @@ bigVecLength=*numberOfEquations*(*lags+*leads+*pathLength);
 
 
 
-computeAsymptoticQMatrix(
+void computeAsymptoticQMatrix(
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,double * shockVec,
 double genericModelFP[],int *exogRows,int *exogCols,int *exogenizeQ,int * pthLngth,
@@ -3230,7 +3231,7 @@ int * intOutputInfo, double * doubleOutputInfo
 @}
 @d computeAsymptoticQMatrix variable declarations
 @{
-double * asymptoticLinearization;double  dignore[1]={1.0};
+double * asymptoticLinearization;//double  dignore[1]={1.0};
 double * cond;
 double * epsi;
 int * inform;
@@ -3240,19 +3241,19 @@ int * nbig;
 int * nexa;
 int * nnum;
 int * nroot;
-double * zeroVector;
+//double * zeroVector;
 int * qColumns;
 double * uprbnd;
-double * wts;
-double * err;
+//double * wts;
+//double * err;
 int * hColumns;
-int i;
+//int i;
 @}
 
 @o myNewt.c -d
 @{
 
-altComputeAsymptoticIMatrix(
+void altComputeAsymptoticIMatrix(
 int * numberOfEquations,int * lags, int * leads,
 double * qMat,int * qMatj,int * qMati,
 int * ierr
@@ -3269,7 +3270,7 @@ qMati[*numberOfEquations* *leads]= (*numberOfEquations * *leads)+1;
 }
 
 
-altComputeAsymptoticDMatrix(
+void altComputeAsymptoticDMatrix(
 int * numberOfEquations,int * lags, int * leads,
 double * qMat,int * qMatj,int * qMati,
 int * ierr
@@ -3287,7 +3288,7 @@ qMati[j]=(2*j)+1;
 qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 }
 
-altComputeAsymptoticQMatrix(
+void altComputeAsymptoticQMatrix(
 int * numberOfEquations,int * lags, int * leads,
 void (* func)(),void (* dfunc)(),double * params,double * shockVec,
 double genericModelFP[],int *exogRows,int *exogCols,int *exogenizeQ,int * pthLngth,
@@ -3327,22 +3328,22 @@ newHi=(int *)calloc(maxHElements,sizeof(int));
 @}
 @d altComputeAsymptoticQMatrix variable declarations
 @{
-void * hookForPeter;/*troll needs to have this for their calloc in sparseAim*/
-double  dignore[1]={1.0};
+/*void * hookForPeter;*//*troll needs to have this for their calloc in sparseAMA*/
+//double  dignore[1]={1.0};
 int maxHElements=50000;
 int maxHElementsForSparseAim;
 int essential;
 int returnCode;
-double * zeroVector;
-int * qColumns;
+//double * zeroVector;
+//int * qColumns;
 double * newH;
 int * newHj;
 int * newHi;
-double * uprbnd;
-double * wts;
-double * err;
-int * hColumns;
-int i;
+//double * uprbnd;
+//double * wts;
+//double * err;
+//int * hColumns;
+//int i;
 @}
 
 
@@ -3362,7 +3363,7 @@ dfunc(linearizationPoint,params,shockVec,hMat,hMatj,hMati,homotopyAlpha+ihomotop
 
 /*apply anderson-moore algorithm*/
 maxHElementsForSparseAim=*maxNumberElements;
-sparseAim(&maxHElementsForSparseAim,DISCRETE_TIME,*numberOfEquations,
+sparseAMA(&maxHElementsForSparseAim,DISCRETE_TIME,*numberOfEquations,
 *numberOfEquations*(*lags+1+*leads),*leads,
 hMat,hMatj,hMati,
 hzMat,hzMatj,hzMati,/*will be overwritten by subsequent call to get hzMat*/
@@ -3378,7 +3379,7 @@ obtainSparseReducedForm(maxNumberElements,
 bMat,bMatj,bMati);
 
 /*compute phiInv*/
-/*sparseAim destroys hMat*/
+/*sparseAMA destroys hMat*/
 dfunc(linearizationPoint,params,shockVec,hMat,hMatj,hMati,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
 computePhiInv(maxNumberElements, 
 *numberOfEquations,*numberOfEquations*(*lags+*leads+1),
@@ -4630,8 +4631,8 @@ int i,allFiniteNumbers;
 int printed=0;
       allFiniteNumbers=TRUE;
       for(i=0;i<numRows;i++){
-        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
-        if(!finite(vec[i])) {
+        allFiniteNumbers=(isfinite(vec[i])&&allFiniteNumbers);
+        if(!isfinite(vec[i])) {
 if(printed<2) {
 printf("<lclValidVectorNew:problem with i=%d,vec[i]=%e,with numRows=%d>",i,vec[i],numRows);printed++;} else 
 {printf(".");}
@@ -4656,8 +4657,8 @@ int i,allFiniteNumbers;
 int printed=0;
       allFiniteNumbers=TRUE;
       for(i=0;i<numRows;i++){
-        allFiniteNumbers=(finite(vec[i])&&allFiniteNumbers);
-        if(!finite(vec[i])) {
+        allFiniteNumbers=(isfinite(vec[i])&&allFiniteNumbers);
+        if(!isfinite(vec[i])) {
 if(printed<1) {
 printf("<lclValidVectorVerbose:problem with eqn i=%d in block=%d,vec[i]=%e,with numRows=%d>",i%forMod+1,i/forMod,vec[i],numRows);printed++;
 badArgs(i,x,ja,ia,skipRows,forMod);} else 
@@ -4667,11 +4668,24 @@ badArgs(i,x,ja,ia,skipRows,forMod);} else
 printf("\n");
       return(allFiniteNumbers);
 }
-void badArgs(int ii,double * x,int * ja,int * ia,int skipRows,int forMod){
-int kk;int fir;int lst;int elems;
+@}
+@d badArgs signature
+@{
+void badArgs(int ii,double * x,int * ja,int * ia,int skipRows,int forMod)
+@}
+@o stackC.h -d
+@{
+@<badArgs signature@>;
+@}
+@o myNewt.c -d
+@{
+
+
+@<badArgs signature@>{
+int kk;int fir;int lst;//int elems;
 fir=ia[ii+skipRows]-1;
 lst=ia[ii+skipRows+1]-1;
-elems=lst-fir;
+//elems=lst-fir;
 for(kk=fir;kk<lst;kk++){
 printf("x[%d,%d]=%e ",((ja[kk]-1)/forMod)-1,((ja[kk]-1)%forMod)+1,x[ja[kk]-1]);
 }
@@ -4698,7 +4712,7 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 	double a,alam,alam2,alamin,b,disc,f2,fold2,rhs1,rhs2,slope,sum,temp,
 		test,tmplam;
 	int * aOne;int * aTwo,*ierr,*aZero;
-	double * fnow,*fvec,*fnorm, *xorig,*aDoubleZero;
+	double * fnow,*fvec/*,*fnorm*/, *xorig,*aDoubleZero;
     int * fvecj;
     double *dir,*aDoubleOne;
     char * transp, *noTransp;
@@ -4895,7 +4909,7 @@ int result,allPositive,allFiniteNumbers;
 result=(elements >0);
       allFiniteNumbers=TRUE;
       for(i=0;i<elements;i++){
-        allFiniteNumbers=(finite(mata[i])&&allFiniteNumbers);}
+        allFiniteNumbers=(isfinite(mata[i])&&allFiniteNumbers);}
       result=(result &&  allFiniteNumbers);
       return(result);
 }
