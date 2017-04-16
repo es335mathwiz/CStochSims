@@ -4555,7 +4555,7 @@ chkfdrvi=(int * ) calloc(n+1,sizeof(int));
 @{    int  n; int done;/*unsigned int ihomotopy=1;*/
 int ihomotopy=0;double * zeroShockVec;
 #include "stochSims.h"
-int forQ;double  dignore[1]={1.0};
+int forQ/*;double  dignore[1]={1.0}*/;
 int maxElementsEncountered=0;
 int icnt;
 int  multMax;
@@ -4570,8 +4570,8 @@ int * intControlParameters,double * doubleControlParameters,
 int * intOutputInfo, double * doubleOutputInfo);
 */
 
-	int i,its,j,*indx,*aOne,*aZero,*ndns,*ierr,testfloc;
-	double d,den,f,fold,stpmax,sum,temp,test,testx,testf,*g,*p,*xold,*xoldls,*xdel,normSum;
+	int i,its/*,j*/,*indx,*aOne,*aZero/*,*ndns*/,*ierr,testfloc;
+	double /*d,den,*/f,fold,stpmax,sum,temp,test,testx,testf,*g,*p,*xold,*xoldls,*xdel,normSum;
 double * compfvec;
 int * compfvecj;
 int * compfveci;
