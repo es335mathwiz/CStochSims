@@ -4638,8 +4638,17 @@ printf("<lclValidVectorNew:problem with i=%d,vec[i]=%e,with numRows=%d>",i,vec[i
 printf("\n");
       return(allFiniteNumbers);
 }
-int lclValidVectorVerbose(int numRows,double * vec,int  forMod,double * x,
-int * ja,int * ia,int skipRows)
+@}
+@o stackC.h -d
+@{
+int lclValidVectorVerbose(@<lclValidVectorVerbose argument list@>);
+@}
+@d lclValidVectorVerbose argument list
+@{
+int numRows,double * vec,int  forMod,double * x,int * ja,int * ia,int skipRows
+@}
+@o myNewt.c -d
+@{int lclValidVectorVerbose(@<lclValidVectorVerbose argument list@>)
 {
 int i,allFiniteNumbers;
 int printed=0;
