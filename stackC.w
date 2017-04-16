@@ -1,9 +1,6 @@
-%$Id: stackC.w,v 1.44 2002/06/10 19:21:25 m1gsa00 Exp m1gsa00 $	
-\documentclass[html]{article}
-\include{miscLatexPkg}
-\newcommand{\Treebox}[1]{
-\Tr{\psframebox{#1}}}
-\begin{document}
+%$Id: stackC.w,v 1.44 2002/06/10 19:21:25 m1gsa00 Exp m1gsa00 $
+\documentclass[html]{article} \include{miscLatexPkg}
+\newcommand{\Treebox}[1]{ \Tr{\psframebox{#1}}} \begin{document}
 
 \title{``C'' Implementation of Stack:
 }
@@ -255,6 +252,10 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 
 @o stackC.h -d
 @{
+#include <stdio.h>
+#include <stdlib.h>
+void free(void * ptr);
+void * calloc(size_t amt,size_t size);
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
 Function uses SPARSEKIT's CSR format.
@@ -789,73 +790,73 @@ ib
 
 @d nxtCDmats scalar variable deallocations
 @{
-cfree(firstColumn);
-cfree(lastColumn);
-cfree(nr);
-cfree(nc);
-cfree(ierr);
-cfree(nzmax);
-cfree(nzmaxLeft);
-cfree(nonZeroNow);
-cfree(hColumns);
-cfree(cColumns);
-cfree(balColumns);
+free(firstColumn);
+free(lastColumn);
+free(nr);
+free(nc);
+free(ierr);
+free(nzmax);
+free(nzmaxLeft);
+free(nonZeroNow);
+free(hColumns);
+free(cColumns);
+free(balColumns);
 @}
 
 
 @d nxtCDmats array variable deallocations
 @{
-cfree(ib);
-cfree(jb);
-cfree(b);
-cfree(itb);
-cfree(jtb);
-cfree(tb);
-cfree(evenSumCIA);
-cfree(evenSumCJA);
-cfree(evenSumCA);
-cfree(oddSumCIA);
-cfree(oddSumCJA);
-cfree(oddSumCA);
-cfree(evenSumDIA);
-cfree(evenSumDJA);
-cfree(evenSumDA);
-cfree(oddSumDIA);
-cfree(oddSumDJA);
-cfree(oddSumDA);
-cfree(iao);
-cfree(jao);
-cfree(ao);
-cfree(iw);
-cfree(w);
+free(ib);
+free(jb);
+free(b);
+free(itb);
+free(jtb);
+free(tb);
+free(evenSumCIA);
+free(evenSumCJA);
+free(evenSumCA);
+free(oddSumCIA);
+free(oddSumCJA);
+free(oddSumCA);
+free(evenSumDIA);
+free(evenSumDJA);
+free(evenSumDA);
+free(oddSumDIA);
+free(oddSumDJA);
+free(oddSumDA);
+free(iao);
+free(jao);
+free(ao);
+free(iw);
+free(w);
 @}
 
 @d ma50xx array variable deallocations
 @{
 
 /*for ma50ad*/
-cfree(jcn);
-cfree(cntl);
-cfree(icntl);
-cfree(ip);
-cfree(np);
-cfree(jfirst);
-cfree(lenr);
-cfree(lastr);
-cfree(nextr);
-cfree(ifirst);
-cfree(lenc);
-cfree(lastc);
-cfree(nextc);
-cfree(info);
-cfree(rinfo);
+free(jcn);
+free(cntl);
+free(icntl);
+free(ip);
+free(np);
+free(jfirst);
+free(lenr);
+free(lastr);
+free(nextr);
+free(ifirst);
+free(lenc);
+free(lastc);
+free(nextc);
+free(info);
+free(rinfo);
 /* ma50bd*/
-cfree(lfact);
-cfree(x);
-cfree(trans);
-cfree(nsSumD);
-cfree(nsSumC);
-cfree(aOne);
+free(lfact);
+free(x);
+free(trans);
+free(nsSumD);
+free(nsSumC);
+free(aOne);
 @}
 
 
@@ -950,13 +951,13 @@ iw = (int *)calloc(1,sizeof(int));
 @}
 @d oneStepBack variable deallocations
 @{
-cfree(ierr);
-cfree(aOne);
-cfree(rcy);
-cfree(rcyj);
-cfree(rcyi);
-cfree(iw);
-cfree(nzmax);
+free(ierr);
+free(aOne);
+free(rcy);
+free(rcyj);
+free(rcyi);
+free(iw);
+free(nzmax);
 @}
 
 \subsection{terminalConditions}
@@ -988,8 +989,8 @@ amux_(&rowDim,impactPart1,impactPart2,
 impactr,impactrj,impactri);
 for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
 }
-cfree(impactPart1);
-cfree(impactPart2);
+free(impactPart1);
+free(impactPart2);
 }
 @}
 
@@ -1003,7 +1004,7 @@ cfree(impactPart2);
 @o stackC.h -d
 @{
 void nxtGuess(@<nxtGuess argument list@>);
-void newNxtGuess(@<nxtGuess argument list@>);
+void newNxtGuess(@<newNxtGuess argument list@>);
 @}
 
 
@@ -1046,7 +1047,7 @@ printf("chkDrv:discrepancy for %d,(%e,%e)\n",i,fvals[i],fvec[i]);
 #endif
 }
 }
-cfree(fvals);
+free(fvals);
 #ifdef DEBUG 
 printf("chkDrv:done\n");
 #endif
@@ -1135,11 +1136,11 @@ rowDim=numberOfEquations*leads;
 amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
 termConstr,termConstrj,termConstri);
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
-cfree(ignore);
-cfree(fvecj);
-cfree(fveci);
-cfree(deviations);
-cfree(zeroShockVec);
+free(ignore);
+free(fvecj);
+free(fveci);
+free(deviations);
+free(zeroShockVec);
 }
 @}
 
@@ -1304,26 +1305,26 @@ pathNewtAssert(info[0]>=0);
 @}
 @d nxtGuess definition
 @{
-cfree(aOne);
-cfree(jcn );
-cfree(cntl);
-cfree(icntl);
-cfree(ip );
-cfree(np );
-cfree(jfirst );
-cfree(lenr );
-cfree(lastr );
-cfree(nextr );
-cfree(w);
-cfree(iw);
-cfree(ifirst );
-cfree(lenc );
-cfree(lastc );
-cfree(nextc );
-cfree(info );
-cfree(rinfo );
-cfree(lfact);
-cfree(copychkfdrv);cfree(copychkfdrvj);cfree(copychkfdrvi);
+free(aOne);
+free(jcn );
+free(cntl);
+free(icntl);
+free(ip );
+free(np );
+free(jfirst );
+free(lenr );
+free(lastr );
+free(nextr );
+free(w);
+free(iw);
+free(ifirst );
+free(lenc );
+free(lastc );
+free(nextc );
+free(info );
+free(rinfo );
+free(lfact);
+free(copychkfdrv);free(copychkfdrvj);free(copychkfdrvi);
 }
 
 void nxtGuess(@<nxtGuess argument list@>)
@@ -1545,45 +1546,45 @@ bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
 @}
 @d nxtGuess storage deallocations
 @{
-cfree(ma50bdIptru);
-cfree(ma50bdIptrl);
-cfree(ma50bdIrnf);
-cfree(ma50bdFact);
-cfree(ma50bdIq);
-cfree(ma50bdJob);
-cfree(deviations);
-cfree(hColumns);
-cfree(qColumns);
-cfree(rowDim);
-cfree(fullXvec);
-cfree(fullfvec);
-cfree(fulldfvec);
-cfree(ierr);
-cfree(aOne);
+free(ma50bdIptru);
+free(ma50bdIptrl);
+free(ma50bdIrnf);
+free(ma50bdFact);
+free(ma50bdIq);
+free(ma50bdJob);
+free(deviations);
+free(hColumns);
+free(qColumns);
+free(rowDim);
+free(fullXvec);
+free(fullfvec);
+free(fulldfvec);
+free(ierr);
+free(aOne);
 
 for(i=0;i<*capT+(*lags+*leads)+1;i++){
-cfree(cmats[i]);
-cfree(cmatsj[i]);
-cfree(cmatsi[i]);
-cfree(dmats[i]);
-cfree(dmatsj[i]);
-cfree(dmatsi[i]);
-cfree(ymats[i]);
-cfree(ymatsj[i]);
-cfree(ymatsi[i]);
+free(cmats[i]);
+free(cmatsj[i]);
+free(cmatsi[i]);
+free(dmats[i]);
+free(dmatsj[i]);
+free(dmatsi[i]);
+free(ymats[i]);
+free(ymatsj[i]);
+free(ymatsi[i]);
 }
-cfree(cmats);
-cfree(cmatsj);
-cfree(cmatsi);
-cfree(dmats);
-cfree(dmatsj);
-cfree(dmatsi);
-cfree(gmats);
-cfree(gmatsj);
-cfree(gmatsi);
-cfree(ymats);
-cfree(ymatsj);
-cfree(ymatsi);
+free(cmats);
+free(cmatsj);
+free(cmatsi);
+free(dmats);
+free(dmatsj);
+free(dmatsi);
+free(gmats);
+free(gmatsj);
+free(gmatsi);
+free(ymats);
+free(ymatsj);
+free(ymatsi);
 
 @}
 
@@ -1823,43 +1824,43 @@ pathNewtAssert(*ierr == 0);
 @}
 @d nxtFPGuess storage deallocations
 @{
-cfree(ma50bdIptru);
-cfree(ma50bdIptrl);
-cfree(ma50bdIrnf);
-cfree(ma50bdFact);
-cfree(ma50bdIq);
-cfree(ma50bdJob);
-cfree(hColumns);
-cfree(qColumns);
-cfree(rowDim);
+free(ma50bdIptru);
+free(ma50bdIptrl);
+free(ma50bdIrnf);
+free(ma50bdFact);
+free(ma50bdIq);
+free(ma50bdJob);
+free(hColumns);
+free(qColumns);
+free(rowDim);
 
-cfree(fullfvec);
-cfree(fulldfvec);
-cfree(ierr);
-cfree(aOne);
+free(fullfvec);
+free(fulldfvec);
+free(ierr);
+free(aOne);
 for(i=0;i<(*lags+*leads)+2;i++){
-cfree(cmats[i]);
-cfree(cmatsj[i]);
-cfree(cmatsi[i]);
-cfree(dmats[i]);
-cfree(dmatsj[i]);
-cfree(dmatsi[i]);
-cfree(ymats[i]);
-cfree(ymatsj[i]);
-cfree(ymatsi[i]);
+free(cmats[i]);
+free(cmatsj[i]);
+free(cmatsi[i]);
+free(dmats[i]);
+free(dmatsj[i]);
+free(dmatsi[i]);
+free(ymats[i]);
+free(ymatsj[i]);
+free(ymatsi[i]);
 }
-cfree(cmats);
-cfree(cmatsj);
-cfree(cmatsi);
-cfree(dmats);
-cfree(dmatsj);
-cfree(dmatsi);
-cfree(gmats);
-cfree(gmatsj);
-cfree(gmatsi);
-cfree(ymats);
-cfree(ymatsj);
-cfree(ymatsi);
+free(cmats);
+free(cmatsj);
+free(cmatsi);
+free(dmats);
+free(dmatsj);
+free(dmatsi);
+free(gmats);
+free(gmatsj);
+free(gmatsi);
+free(ymats);
+free(ymatsj);
+free(ymatsi);
 
 @}
 
@@ -1930,7 +1931,7 @@ aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
 pathNewtAssert(*ierr == 0);
 bump(fmatsi[*capT][*rowDim]-fmatsi[*capT][0]);
-cfree(zeroShockVec);
+free(zeroShockVec);
 }
 
 
@@ -2002,12 +2003,12 @@ double **ma50bdFact,
 int **ma50bdIq,
 int **ma50bdJob)
 {
-cfree(*ma50bdIptru);
-cfree(*ma50bdIptrl);
-cfree(*ma50bdIrnf);
-cfree(*ma50bdFact);
-cfree(*ma50bdIq);
-cfree(*ma50bdJob);
+free(*ma50bdIptru);
+free(*ma50bdIptrl);
+free(*ma50bdIrnf);
+free(*ma50bdFact);
+free(*ma50bdIq);
+free(*ma50bdJob);
 }
 void cfreeFPNewt(int lags, int pathLength,
 double ** genericFP,
@@ -2015,22 +2016,22 @@ double ** genericIntercept,
 double***fmats,int***fmatsj,int***fmatsi,
 double***smats,int***smatsj,int***smatsi)
 {int i;
-cfree(*genericFP);
-cfree(*genericIntercept);
+free(*genericFP);
+free(*genericIntercept);
 for(i=0;i<(pathLength)+lags+1;i++){
-cfree((*fmats)[i]);
-cfree((*fmatsj)[i]);
-cfree((*fmatsi)[i]);
-cfree((*smats)[i]);
-cfree((*smatsj)[i]);
-cfree((*smatsi)[i]);
+free((*fmats)[i]);
+free((*fmatsj)[i]);
+free((*fmatsi)[i]);
+free((*smats)[i]);
+free((*smatsj)[i]);
+free((*smatsi)[i]);
 }
-cfree(*fmats);
-cfree(*fmatsj);
-cfree(*fmatsi);
-cfree(*smats);
-cfree(*smatsj);
-cfree(*smatsi);
+free(*fmats);
+free(*fmatsj);
+free(*fmatsi);
+free(*smats);
+free(*smatsj);
+free(*smatsi);
 }
 void allocAltComputeAsymptoticQ(int numberOfEquations,int lags,int leads,
 int maxElements,double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
@@ -2053,11 +2054,11 @@ void cfreeAltComputeAsymptoticQ(
 double**AMqMatrix,int**AMqMatrixj,int**AMqMatrixi,
 double**rootr,double**rooti)
 {
-cfree(*AMqMatrix);
-cfree(*AMqMatrixj);
-cfree(*AMqMatrixi);
-cfree(*rootr);
-cfree(*rooti);
+free(*AMqMatrix);
+free(*AMqMatrixj);
+free(*AMqMatrixi);
+free(*rootr);
+free(*rooti);
 }
 
 
@@ -2129,24 +2130,24 @@ double**vartheta,int**varthetaj,int**varthetai,
 double**impact,int**impactj,int**impacti
 )
 {
-cfree(*psiMatrix);
-cfree(*psiMatrixj);
-cfree(*psiMatrixi);
-cfree(*upsilonMatrix);
-cfree(*upsilonMatrixj);
-cfree(*upsilonMatrixi);
-cfree(*phiMatrix);
-cfree(*phiMatrixj);
-cfree(*phiMatrixi);
-cfree(*fMatrix);
-cfree(*fMatrixj);
-cfree(*fMatrixi);
-cfree(*vartheta);
-cfree(*varthetaj);
-cfree(*varthetai);
-cfree(*impact);
-cfree(*impactj);
-cfree(*impacti);
+free(*psiMatrix);
+free(*psiMatrixj);
+free(*psiMatrixi);
+free(*upsilonMatrix);
+free(*upsilonMatrixj);
+free(*upsilonMatrixi);
+free(*phiMatrix);
+free(*phiMatrixj);
+free(*phiMatrixi);
+free(*fMatrix);
+free(*fMatrixj);
+free(*fMatrixi);
+free(*vartheta);
+free(*varthetaj);
+free(*varthetai);
+free(*impact);
+free(*impactj);
+free(*impacti);
 }
 
  
@@ -2268,44 +2269,44 @@ double**varthetaC,int**varthetaCj,int**varthetaCi,
 double**selectZmat,int**selectZmatj,int**selectZmati
 )
 {
-cfree(*upsilonMatrix);
-cfree(*upsilonMatrixj);
-cfree(*upsilonMatrixi);
-cfree(*hMat);
-cfree(*hMatj);
-cfree(*hMati);
-cfree(*hzMat);
-cfree(*hzMatj);
-cfree(*hzMati);
-cfree(*bMat);
-cfree(*bMatj);
-cfree(*bMati);
-cfree(*phiInvMat);
-cfree(*phiInvMatj);
-cfree(*phiInvMati);
-cfree(*fmat);
-cfree(*fmatj);
-cfree(*fmati);
-cfree(*impact);
-cfree(*impactj);
-cfree(*impacti);
-cfree(*varthetaC);
-cfree(*varthetaCj);
-cfree(*varthetaCi);
-cfree(*selectZmat);
-cfree(*selectZmatj);
-cfree(*selectZmati);
-cfree(*varthetaZstar);
-cfree(*varthetaZstarj);
-cfree(*varthetaZstari);
-cfree(*AMqMatrix);
-cfree(*AMqMatrixj);
-cfree(*AMqMatrixi);
-cfree(*cstar);
-cfree(*cstarj);
-cfree(*cstari);
-cfree(*rootr);
-cfree(*rooti);
+free(*upsilonMatrix);
+free(*upsilonMatrixj);
+free(*upsilonMatrixi);
+free(*hMat);
+free(*hMatj);
+free(*hMati);
+free(*hzMat);
+free(*hzMatj);
+free(*hzMati);
+free(*bMat);
+free(*bMatj);
+free(*bMati);
+free(*phiInvMat);
+free(*phiInvMatj);
+free(*phiInvMati);
+free(*fmat);
+free(*fmatj);
+free(*fmati);
+free(*impact);
+free(*impactj);
+free(*impacti);
+free(*varthetaC);
+free(*varthetaCj);
+free(*varthetaCi);
+free(*selectZmat);
+free(*selectZmatj);
+free(*selectZmati);
+free(*varthetaZstar);
+free(*varthetaZstarj);
+free(*varthetaZstari);
+free(*AMqMatrix);
+free(*AMqMatrixj);
+free(*AMqMatrixi);
+free(*cstar);
+free(*cstarj);
+free(*cstari);
+free(*rootr);
+free(*rooti);
 }
 
 
@@ -2336,7 +2337,7 @@ double**genericTargetPath
 }
 void cfreePathNewt(double ** genericPath)
 {
-cfree(*genericPath);
+free(*genericPath);
 }
 void allocShockVec(int numberOfEquations,double**shockVec)
 {
@@ -2345,7 +2346,7 @@ void allocShockVec(int numberOfEquations,double**shockVec)
 }
 void cfreeShockVec(double ** shockVec)
 {
-cfree(*shockVec);
+free(*shockVec);
 }
 void allocShocksData(int numberOfEquations,int numberOfShocks,int numberOfData,
 double**shockVec,double ** dataVec,double ** zeroShockVec)
@@ -2362,9 +2363,9 @@ for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
 void cfreeShocksData(double ** shockVec,double ** dataVec,
 double ** zeroShockVec)
 {
-cfree(*shockVec);
-cfree(*dataVec);
-cfree(*zeroShockVec);
+free(*shockVec);
+free(*dataVec);
+free(*zeroShockVec);
 }
 
 
@@ -2399,7 +2400,7 @@ __LINE__);
 		   __pathNewtAssert (expression, __FILE__, __LINE__)
 
 #define __pathNewtAssert(expression, file, lineno)  \
-  {printf("pathNewtAssert: processid=%ld\n",getpid());\
+  {printf("pathNewtAssert: processid=%ld\n",(long)getpid());\
    printf ("%s:%u: failed assertion\n", file, lineno);\
    	kill(getpid(),SIGUSR2);}
 
@@ -2410,6 +2411,7 @@ __LINE__);
 @{
 #include <stdio.h>
 //#include "stochProto.h"
+#include "stackC.h"
 #include "stochSims.h"
 
 /*taken from numerical recipes nrutil.h*/
@@ -2477,15 +2479,15 @@ FREERETURN
 int nn;
 double *fvec;
 #define FREERETURN {*homotopyAlpha=realAlpha; \
-cfree(fvec);cfree(xold);cfree(shockVec);\
-	cfree(p);cfree(g);cfree(aOne);cfree(ierr);\
-	cfree(indx);return;}
+free(fvec);free(xold);free(shockVec);\
+	free(p);free(g);free(aOne);free(ierr);\
+	free(indx);return;}
 #define PFREERETURN { assignRealizedTolf = testf;assignRealizedTolx=testx; \
-cfree(fvec);cfree(xold);cfree(xoldls);cfree(xdel);\
-cfree(deviations);cfree(fullfvec);\
-	cfree(p);cfree(g);cfree(aOne);cfree(aZero);cfree(ierr);\
-	cfree(indx);cfree(rowDim);cfree(qColumns);\
-cfree(compfvec);cfree(compfvecj);cfree(compfveci);cfree(chkfdrv);cfree(chkfdrvj);cfree(chkfdrvi);cfree(zeroShockVec);\
+free(fvec);free(xold);free(xoldls);free(xdel);\
+free(deviations);free(fullfvec);\
+	free(p);free(g);free(aOne);free(aZero);free(ierr);\
+	free(indx);free(rowDim);free(qColumns);\
+free(compfvec);free(compfvecj);free(compfveci);free(chkfdrv);free(chkfdrvj);free(chkfdrvi);free(zeroShockVec);\
 *maxNumberElements = maxElementsEncountered;\
 return;}
 @}
@@ -2851,10 +2853,10 @@ fclose(hFile);
 }
 
 *maxNumberElements=lclMaxElems;
-cfree(lastDel);
-cfree(trialX);
-cfree(zeroShock);
-cfree(trialShock);
+free(lastDel);
+free(trialX);
+free(zeroShock);
+free(trialShock);
 
 }
 
@@ -2962,19 +2964,19 @@ bump(*numberOfEquations);
 
 @d Anderson-Moore algorithm  variable deallocations
 @{
-cfree(asymptoticLinearization);
-cfree(cond);
-cfree(epsi);
-cfree(inform);
-cfree(iq);
-cfree(itsbad);
-cfree(nbig);
-cfree(nexa);
-cfree(nnum);
-cfree(nroot);
-cfree(uprbnd);
-cfree(qColumns);
-cfree(hColumns);
+free(asymptoticLinearization);
+free(cond);
+free(epsi);
+free(inform);
+free(iq);
+free(itsbad);
+free(nbig);
+free(nexa);
+free(nnum);
+free(nroot);
+free(uprbnd);
+free(qColumns);
+free(hColumns);
 @}
 
 
@@ -3300,9 +3302,9 @@ int * intOutputInfo, double * doubleOutputInfo
 @}
 @d altComputeAsymptoticQMatrix variable deallocations
 @{
-cfree(newH);
-cfree(newHj);
-cfree(newHi);
+free(newH);
+free(newHj);
+free(newHi);
 @}
 @d altComputeAsymptoticQMatrix variable allocations
 @{
@@ -3428,10 +3430,10 @@ psimati=(int *)calloc(*numberOfEquations+1,sizeof(int));
 
 @d linearTerminator frees
 @{
-cfree(zeroShock);
-cfree(psimat);
-cfree(psimatj);
-cfree(psimati);
+free(zeroShock);
+free(psimat);
+free(psimatj);
+free(psimati);
 @}
 
 @d linearTerminator argument list
@@ -3555,10 +3557,10 @@ cXstar = calloc(hrows,sizeof(double));
 @}
 @d computeIntercept frees
 @{
-cfree(zDeviation);
-cfree(zLin);
-cfree(zNew);
-cfree(cXstar);
+free(zDeviation);
+free(zLin);
+free(zNew);
+free(cXstar);
 @}
 
 @d computeIntercept argument list
@@ -3788,23 +3790,23 @@ tupsiloni = (int *)calloc(*maxNumberHElements,sizeof(int));
 
 @d computeF deallocations
 @{
-cfree(resultMat);
-cfree(resultMatj);
-cfree(resultMati);
-cfree(aMinusOne);
-cfree(columnVals);
-cfree(columnResult);
-cfree(thePhi);
-cfree(phipsi);
-cfree(longb);
-cfree(longbj);
-cfree(longbi);
-cfree(tfmat);
-cfree(tfmatj);
-cfree(tfmati);
-cfree(tupsilon);
-cfree(tupsilonj);
-cfree(tupsiloni);
+free(resultMat);
+free(resultMatj);
+free(resultMati);
+free(aMinusOne);
+free(columnVals);
+free(columnResult);
+free(thePhi);
+free(phipsi);
+free(longb);
+free(longbj);
+free(longbi);
+free(tfmat);
+free(tfmatj);
+free(tfmati);
+free(tupsilon);
+free(tupsilonj);
+free(tupsiloni);
 @}
 
 @d computeF declarations
@@ -3889,36 +3891,36 @@ lclphiInvmati= (int * )calloc((1+numberExogenous+hrows)*resultRows+1,sizeof(int)
 @}
 @d computeF deallocations
 @{
-cfree(ma50bdJob);
-cfree(ma50bdIq);
-cfree(ma50bdFact);
-cfree(ma50bdIrnf);
-cfree(ma50bdIptrl);
-cfree(ma50bdIptru);
+free(ma50bdJob);
+free(ma50bdIq);
+free(ma50bdFact);
+free(ma50bdIrnf);
+free(ma50bdIptrl);
+free(ma50bdIptru);
 
-cfree(lclphiInvmat);
-cfree(lclphiInvmatj);
-cfree(lclphiInvmati);
-cfree(notAOne);
-cfree(aOne);
-cfree(jcn );
-cfree(cntl);
-cfree(icntl);
-cfree(ip );
-cfree(np );
-cfree(jfirst );
-cfree(lenr );
-cfree(lastr );
-cfree(nextr );
-cfree(w);
-cfree(iw);
-cfree(ifirst );
-cfree(lenc );
-cfree(lastc );
-cfree(nextc );
-cfree(info );
-cfree(rinfo );
-cfree(lfact);
+free(lclphiInvmat);
+free(lclphiInvmatj);
+free(lclphiInvmati);
+free(notAOne);
+free(aOne);
+free(jcn );
+free(cntl);
+free(icntl);
+free(ip );
+free(np );
+free(jfirst );
+free(lenr );
+free(lastr );
+free(nextr );
+free(w);
+free(iw);
+free(ifirst );
+free(lenc );
+free(lastc );
+free(nextc );
+free(info );
+free(rinfo );
+free(lfact);
 @}
 
 @d factor phiInv
@@ -4270,19 +4272,19 @@ cPrintSparse(hrows,phiInvmat,phiInvmatj,phiInvmati);
 
 @d computePhiInv deallocations
 @{
-cfree(hzero);
-cfree(hzeroj);
-cfree(hzeroi);
-cfree(hplus);
-cfree(hplusj);
-cfree(hplusi);
-cfree(bright);
-cfree(brightj);
-cfree(brighti);
-cfree(hb);
-cfree(hbj);
-cfree(hbi);
-cfree(iw);
+free(hzero);
+free(hzeroj);
+free(hzeroi);
+free(hplus);
+free(hplusj);
+free(hplusi);
+free(bright);
+free(brightj);
+free(brighti);
+free(hb);
+free(hbj);
+free(hbi);
+free(iw);
 @}
 
 
@@ -4574,6 +4576,25 @@ p
 \subsection{lnsrch}
 \label{sec:lnsrch}
 
+@d lnsrch argument list
+@{
+int  n,int np,int reps,
+double xold[], double * fold, double g[], double p[], 
+		 double * params,double * shockVec,double * f,double stpmax, int *check,
+			void (*func)(double*,double*,double*,double*,int*,int*,double *,double*,int * exogRows,int * exogCols,int * exogenizeQ),double * x,
+            int ihomotopy,double * linPt,int * exogRows,int * exogCols,int * exogenizeQ,
+int * intControlParameters,double * doubleControlParameters,
+int * intOutputInfo, double * doubleOutputInfo
+@}
+@o stackC.h -d
+@{
+#include <unistd.h>
+
+pid_t getpid(void);
+
+
+void lnsrch(@<lnsrch argument list@>);
+@}
 @o myNewt.c -d
 @{
 #include <math.h>
@@ -4637,19 +4658,13 @@ printf("x[%d,%d]=%e ",((ja[kk]-1)/forMod)-1,((ja[kk]-1)%forMod)+1,x[ja[kk]-1]);
 }
 
 extern double  dnrm2_();
-void lnsrch(int  n,int np,int reps,
-double xold[], double * fold, double g[], double p[], 
-		 double * params,double * shockVec,double * f,double stpmax, int *check,
-			void (*func)(double*,double*,double*,double*,int*,int*,double *,double*,int * exogRows,int * exogCols,int * exogenizeQ),double * x,
-            int ihomotopy,double * linPt,int * exogRows,int * exogCols,int * exogenizeQ,
-int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo)
+void lnsrch(@<lnsrch argument list@>)
 {
 @< lnsrch declarations@>
 @< lnsrch preloop@>
 @< lnsrch loop@>
 @< lnsrch postloop@>
-cfree(aOne);cfree(aZero);cfree(aTwo);cfree(fvec);cfree(fvecj);cfree(fveci);
+free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 }
 
 #undef NRANSI
@@ -4749,21 +4764,21 @@ resetFailedQ;
 @d lnsrch free storage
 @{
 
-			cfree(transp);
-            cfree(ierr);
-			cfree(noTransp);
-			cfree(dir);
-			cfree(aDoubleZero);
-			cfree(aDoubleOne);
-			cfree(fnow);
-			cfree(xorig);
-			cfree(zeroShockVec);
-			cfree(fvec);
-			cfree(fvecj);
-			cfree(fveci);
-			cfree(aOne);
-			cfree(aZero);
-			cfree(aTwo);
+			free(transp);
+            free(ierr);
+			free(noTransp);
+			free(dir);
+			free(aDoubleZero);
+			free(aDoubleOne);
+			free(fnow);
+			free(xorig);
+			free(zeroShockVec);
+			free(fvec);
+			free(fvecj);
+			free(fveci);
+			free(aOne);
+			free(aZero);
+			free(aTwo);
 @}
 
 @d lnsrch loop
