@@ -387,9 +387,9 @@ bump(ib[*rowDim]-ib[0]);
 for(j=0;j<ib[*rowDim]-1;j++)
 {b[j]=(-1)*b[j];jb[j]=jb[j]+(*numberOfEquations*(timeOffset+*lagss+1));};
 
-aplb_(rowDim,cColumns,aOne,oddSumCA,oddSumCJA,oddSumCIA,
-b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,
-nzmax,iw,ierr);
+sparseAdd(rowDim,cColumns,
+nzmax,iw,aOne,oddSumCA,oddSumCJA,oddSumCIA,
+b,jb,ib,evenSumCA,evenSumCJA,evenSumCIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @}
@@ -424,10 +424,10 @@ bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1*/
 for(j=0;j<ib[*rowDim]-1;j++)b[j]=(-1)*b[j];
 
-aplb_(rowDim,aOne,aOne,oddSumDA,oddSumDJA,oddSumDIA,
+sparseAdd(rowDim,aOne,
+nzmax,iw,aOne,oddSumDA,oddSumDJA,oddSumDIA,
 b,jb,ib,
-evenSumDA,evenSumDJA,evenSumDIA,
-nzmax,iw,ierr);
+evenSumDA,evenSumDJA,evenSumDIA,ierr);
 pathNewtAssert(*ierr == 0);
 bump(evenSumDIA[*rowDim]-evenSumDIA[0]);
 
@@ -487,8 +487,8 @@ evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
 *nonZeroNow=oddSumCIA[*rowDim]-oddSumCIA[0];
 
-ma50id_(cntl,icntl);
-ma50ad_(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
+useMA50ID(cntl,icntl);
+useMA50AD(rowDim,rowDim,nonZeroNow,nzmax,oddSumCA,oddSumCJA,jcn,oddSumCIA,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 /*wordybump(info[3]);*/
 pathNewtAssert(info[0]>=0);
@@ -504,7 +504,7 @@ firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,jcn);
 if(*ma50bdJob==1){
-ma50bd_(rowDim,rowDim,nonZeroNow,ma50bdJob,
+useMA50BD(rowDim,rowDim,nonZeroNow,ma50bdJob,
 oddSumCA,oddSumCJA,jcn,
 cntl,icntl,ip,oddSumCIA,np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
@@ -512,7 +512,7 @@ wordybump(info[3]);
 pathNewtAssert(info[0]>=0);
 for(i=0;i<*rowDim+1;i++){ma50bdIq[i]=oddSumCIA[i];}
 } else {
-ma50bd_(rowDim,rowDim,nonZeroNow,ma50bdJob,
+useMA50BD(rowDim,rowDim,nonZeroNow,ma50bdJob,
 oddSumCA,oddSumCJA,jcn,
 cntl,icntl,ip,ma50bdIq,np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
@@ -551,7 +551,7 @@ csrToDns(rowDim,aOne,b,jb,ib,
 nsSumC,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
-ma50cd_(rowDim,rowDim,icntl,ma50bdIq,np,trans,
+useMA50CD(rowDim,rowDim,icntl,ma50bdIq,np,trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 nsSumC,x,
 w,info);
@@ -582,7 +582,7 @@ bump(*rowDim);
 /*code should use info from previous call to set lfact
 also can avoid calls to ma50ad once pattern settles down*/
 
-ma50cd_(rowDim,rowDim,icntl,ma50bdIq,np,
+useMA50CD(rowDim,rowDim,icntl,ma50bdIq,np,
 trans,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,nsSumD,x,w,info);
 pathNewtAssert(info[0]>=0);
 dnsToCsr(rowDim,aOne,rowDim,x,
@@ -911,11 +911,11 @@ filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
 pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
-  aplb_(rowDim,aOne,aOne,
+  sparseAdd(rowDim,aOne,
+  nzmax,iw,aOne,
   dmatsA[0],dmatsJA[0],dmatsIA[0],
   rcy,rcyj,rcyi,
-  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],
-  nzmax,iw,ierr);
+  yvecA[(0) ],yvecJA[(0) ],yvecIA[(0)],ierr);
 pathNewtAssert(*ierr == 0);
 } else {
   for(i=0;i<*rowDim;i++)
@@ -1246,7 +1246,7 @@ aOne = (unsigned int *)calloc(1,sizeof(unsigned int));
 copyMatrix(sysDim,aOne,fdrv,fdrvj,fdrvi,aOne,
 copychkfdrv,copychkfdrvj,copychkfdrvi);
 
-ma50id_(cntl,icntl);
+useMA50ID(cntl,icntl);
 cntl[1]=ma50Balance;
 cntl[2]=ma50DropEntry;
 cntl[3]=ma50DropCol;
@@ -1254,7 +1254,7 @@ icntl[3]=ma50PivotSearch;
 /*if(*sysDim>sysDimSwitchLevel){cntl[2]=ma50DropThreshold;}*/
 nzmax=*maxNumberHElements;
 nonZeroNow=copychkfdrvi[*sysDim]-copychkfdrvi[0];
-ma50ad_(sysDim,sysDim,&nonZeroNow,
+useMA50AD(sysDim,sysDim,&nonZeroNow,
 &nzmax,copychkfdrv,copychkfdrvj,jcn,copychkfdrvi,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 wordybump(info[3]);
@@ -1267,7 +1267,7 @@ printf("\n ma50ad info\n");
 #endif
 
 if(*ma50bdJob!=2){
-ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+useMA50BD(sysDim,sysDim,&nonZeroNow,ma50bdJob,
 fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -1285,7 +1285,7 @@ if(*ma50bdJob==1)*ma50bdJob=1;
 /*unless we're dropping terms with cntl[2]>0*/
 if(cntl[2]>0){*ma50bdJob=1;}
 } else {
-ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+useMA50BD(sysDim,sysDim,&nonZeroNow,ma50bdJob,
 fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -1300,7 +1300,7 @@ printf("small pivots, resetting to 3\n");
 *ma50bdJob=1;
 /*unless we're dropping terms with cntl[2]>0*/
 if(cntl[2]>0){*ma50bdJob=1;}
-ma50bd_(sysDim,sysDim,&nonZeroNow,ma50bdJob,
+useMA50BD(sysDim,sysDim,&nonZeroNow,ma50bdJob,
 fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -1310,7 +1310,7 @@ pathNewtAssert(info[0]>=0);
 }
 }
     trans = 1;
-ma50cd_(sysDim,sysDim,icntl,copychkfdrvi,np,&trans,
+useMA50CD(sysDim,sysDim,icntl,copychkfdrvi,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 fvec,xdel,
 w,info);
@@ -3710,7 +3710,7 @@ pathNewtAssert(ierr == 0);
 bump(hrows);
 
     trans = 1;
-ma50cd_(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,phipsi+(i*hrows),
 w,info);
@@ -3731,7 +3731,7 @@ for(i=0;i<hrows;i++){
 for(j=0;j<hrows;j++){columnVals[j]=0;}
 columnVals[i]=1;
     trans = 1;
-ma50cd_(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,thePhi+(i*hrows),
 w,info);
@@ -3995,7 +3995,7 @@ free(lfact);
 @{
 
 
-ma50id_(cntl,icntl);
+useMA50ID(cntl,icntl);
 ma50bdJob[0] =1;
 
 
@@ -4005,13 +4005,13 @@ nonZeroNow=phiInvmati[hrows]-phiInvmati[0];
 copyMatrix(&hrows,aOne,phiInvmat,phiInvmatj,phiInvmati,aOne,
 lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 
-ma50ad_(&hrows,&hrows,&nonZeroNow,
+useMA50AD(&hrows,&hrows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 wordybump(info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob!=2){
-ma50bd_(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
 phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4021,7 +4021,7 @@ pathNewtAssert(info[0]>=0);
 if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
                              to 3(ie conservative alternative)*/
 } else {
-ma50bd_(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
 phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4035,7 +4035,7 @@ reset to 3*/
 printf("small pivots, resetting to 3\n");
 #endif
 *ma50bdJob=1;
-ma50bd_(&hrows,&hrows,&nonZeroNow,ma50bdJob,
+useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
 phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4048,7 +4048,7 @@ pathNewtAssert(info[0]>=0);
 
 @d factor kron thing
 @{
-ma50id_(cntl,icntl);
+useMA50ID(cntl,icntl);
 ma50bdJob[0] =1;
 
 
@@ -4058,13 +4058,13 @@ nonZeroNow=resultMati[resultRows]-resultMati[0];
 copyMatrix(&resultRows,aOne,resultMat,resultMatj,resultMati,aOne,
 lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 
-ma50ad_(&resultRows,&resultRows,&nonZeroNow,
+useMA50AD(&resultRows,&resultRows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 wordybump(info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob!=2){
-ma50bd_(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
 resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4074,7 +4074,7 @@ pathNewtAssert(info[0]>=0);
 if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
                              to 3(ie conservative alternative)*/
 } else {
-ma50bd_(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
 resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4088,7 +4088,7 @@ reset to 3*/
 printf("small pivots, resetting to 3\n");
 #endif
 *ma50bdJob=1;
-ma50bd_(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
+useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
 resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
@@ -4118,7 +4118,7 @@ columnVals,&hrows,&ierr);
 pathNewtAssert(ierr == 0);
 bump(longbi[hrows]-longbi[0]);
     trans = 1;
-ma50cd_(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
+useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,columnResult,
 w,info);
@@ -4126,7 +4126,7 @@ wordybump(info[3]);
 pathNewtAssert(info[0]>=0);
 
 /*
-ma50cd_(&hrows,&hrows,icntl,qrmati,np,&trans,
+useMA50CD(&hrows,&hrows,icntl,qrmati,np,&trans,
 lfact,fact,irnf,iptrl,iptru,
 nsSumC,x,
 w,info);
@@ -4154,7 +4154,7 @@ for(i=0;i<fmati[hrows]-fmati[0];i++)fmat[i]=(-1)*fmat[i];
 @d compute vec vartheta
 @{
     trans = 1;
-ma50cd_(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
+useMA50CD(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 phipsi,columnResult,
 w,info);
@@ -4169,7 +4169,7 @@ pathNewtAssert(ierr == 0);
 @d compute vec varthetaC
 @{
     trans = 1;
-ma50cd_(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
+useMA50CD(&resultRows,&resultRows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 thePhi,columnResult,
 w,info);
@@ -4327,8 +4327,8 @@ cPrunsigned intSparse(hrows,hb,hbj,hbi);
 @}
 @d add hzero
 @{
-aplb_(&hrows,&hrows,aOne,hzero,hzeroj,hzeroi,hb,hbj,hbi,
-          phiInvmat,phiInvmatj,phiInvmati,maxNumberHElements,iw,ierr);
+sparseAdd(&hrows,&hrows,maxNumberHElements,iw,aOne,hzero,hzeroj,hzeroi,hb,hbj,hbi,
+          phiInvmat,phiInvmatj,phiInvmati,ierr);
 pathNewtAssert(ierr == 0);
 #ifdef DEBUG 
 printf("in computePhiInv prunsigned inting phiInvmat\n");
@@ -5246,7 +5246,7 @@ c-----------------------------------------------------------------------
 \subsubsection{aplb}
 @o stackC.h -d
 @{
-//void aplb_();
+//void sparseAdd();
 @}
 
 
@@ -5563,7 +5563,7 @@ c----------------------------------------------------------------------c
 
 @o stackC.h -d
 @{
-//void ma50ad_();
+//void useMA50AD();
 @}
 
 \begin{verbatim}
@@ -5752,7 +5752,7 @@ c-----------------------------------------------------------------
 
 @o stackC.h -d
 @{
-//void ma50bd_();
+//void useMA50BD();
 @}
 
 \begin{verbatim}
@@ -5902,7 +5902,7 @@ C    floating-pounsigned int operations performed.
 
 @o stackC.h -d
 @{
-//void ma50cd_();
+//void useMA50CD();
 @}
 
 \begin{verbatim}
