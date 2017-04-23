@@ -547,7 +547,7 @@ evenSumCA,evenSumCJA,evenSumCIA,
 nr,nc,
 b,jb,ib);
 
-csrdns_(rowDim,aOne,b,jb,ib,
+csrToDns(rowDim,aOne,b,jb,ib,
 nsSumC,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
@@ -559,7 +559,7 @@ bump(info[3]);
 pathNewtAssert(info[0]>=0);
 
 *nzmaxLeft= *nzmax-cmatsExtent-1;
-dnscsr_(aOne,rowDim,nzmaxLeft,x,
+dnsToCsr(aOne,rowDim,nzmaxLeft,x,
 aOne,tb+(itb[i]-1),jtb+(itb[i]-1),itb+i,
 ierr);
 pathNewtAssert(*ierr == 0);
@@ -576,7 +576,7 @@ pathNewtAssert(*ierr == 0);
 csrcsc_(balColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
-csrdns_(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
+csrToDns(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(*rowDim);
 /*code should use info from previous call to set lfact
@@ -585,7 +585,7 @@ also can avoid calls to ma50ad once pattern settles down*/
 ma50cd_(rowDim,rowDim,icntl,ma50bdIq,np,
 trans,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,nsSumD,x,w,info);
 pathNewtAssert(info[0]>=0);
-dnscsr_(rowDim,aOne,rowDim,x,
+dnsToCsr(rowDim,aOne,rowDim,x,
 rowDim,dmatsA[0],dmatsJA[0],dmatsIA[0],ierr);
 /*wordybump(info[3]);*/
 pathNewtAssert(*ierr == 0);
@@ -1491,7 +1491,7 @@ deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
 sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
-dnscsr_(rowDim,aOne,rowDim,fullfvec,
+dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
 pathNewtAssert(*ierr == 0);
@@ -1545,13 +1545,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*capT;i++){
-csrdns_(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
+csrToDns(numberOfEquations,aOne,ymats[i+*lags],ymatsj[i+*lags],ymatsi[i+*lags],
 updateDirection+((*lags + i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[i+*lags][*numberOfEquations]-ymatsi[i+*lags][0]);
 }
 if(*leads>0){
-csrdns_(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
+csrToDns(rowDim,aOne,ymats[*capT+*lags],ymatsj[*capT+*lags],ymatsi[*capT+*lags],
 updateDirection+((*lags + *capT) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ymatsi[*capT+*lags][*numberOfEquations]-ymatsi[*capT+*lags][0]);
@@ -1734,13 +1734,13 @@ dmatsj[i][0]=0;
 @d nxtFPGuess obtain sparse representation and compute next C and d
 @{
 /*
-dnscsr_(numberOfEquations,aOne,numberOfEquations,fullfvec,
+dnsToCsr(numberOfEquations,aOne,numberOfEquations,fullfvec,
 numberOfEquations,
 fmats,fmatsj,fmatsi,
 ierr);
 pathNewtAssert(*ierr == 0);
 bump(fmatsi[*numberOfEquations]-fmatsi[0]);
-dnscsr_(numberOfEquations,hColumns,maxNumberHElements,
+dnsToCsr(numberOfEquations,hColumns,maxNumberHElements,
 fulldfvec,
 numberOfEquations,
 smats,smatsj,smatsi,
@@ -1822,13 +1822,13 @@ oneStepBack(numberOfEquations,
 }
 
 for(i=0;i<*lags+1;i++){
-csrdns_(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
+csrToDns(numberOfEquations,aOne,ymats[i],ymatsj[i],ymatsi[i],
 updateDirection+(( i) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
 
 
 }
-csrdns_(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
+csrToDns(rowDim,aOne,ymats[*lags+1],ymatsj[*lags+1],ymatsi[*lags+1],
 updateDirection+((*lags+1 ) * *numberOfEquations),rowDim,ierr);
 pathNewtAssert(*ierr == 0);
 
@@ -1940,7 +1940,7 @@ deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
 sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
-dnscsr_(rowDim,aOne,rowDim,fullfvec,
+dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*capT],fmatsj[*capT],fmatsi[*capT],ierr);
 pathNewtAssert(*ierr == 0);
@@ -2562,7 +2562,7 @@ resetLnsrchSteps;
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]-fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations * *lags),numberOfEquations,ierr);
 /* modification end */
 	test=0.0;
@@ -2616,7 +2616,7 @@ intOutputInfo, doubleOutputInfo);
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]+fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations**lags),
         numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
@@ -2969,7 +2969,7 @@ deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i+*numberOfEquatio
 sparseMatTimesVec(rowDim,qMat,qMatj,qMati,deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
-dnscsr_(rowDim,aOne,rowDim,fullfvec,
+dnsToCsr(rowDim,aOne,rowDim,fullfvec,
 aOne,
 fmats[*pathLength],fmatsj[*pathLength],fmatsi[*pathLength],ierr);
 pathNewtAssert(*ierr == 0);
@@ -2992,7 +2992,7 @@ printf("%f}\n",deviations[*numberOfEquations* (*lags+ *leads)]);
 
 }
 for(tNow=0;tNow<*pathLength;tNow++) {
-        csrdns_(numberOfEquations,
+        csrToDns(numberOfEquations,
         aOne,fmats[tNow],fmatsj[tNow],fmatsi[tNow],
         fvec+((*lags+tNow) * *numberOfEquations),numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
@@ -3599,7 +3599,7 @@ for(i=0;i<hrows*leads;i++){unsigned intercept[i]=0;}
 for(i=0;i<numberExogenous;i++){zDeviation[i]=zNew[i]-zLin[i];}
         sparseMatTimesVec(&hrows,
         impact,impactj,impacti,zDeviation,unsigned intercept);
-csrdns_(&hrows,&aOne,cstar,cstarj,cstari,cXstar,&hrows,&ierr);
+csrToDns(&hrows,&aOne,cstar,cstarj,cstari,cXstar,&hrows,&ierr);
 pathNewtAssert(ierr == 0);
 bump(hrows);
         sparseMatTimesVec(&hrows,
@@ -3704,7 +3704,7 @@ hzMat,hzMatj,hzMati,
 psimat,psimatj,psimati);
 
 
-csrdns_(&hrows,aOne,psimat,psimatj,psimati,
+csrToDns(&hrows,aOne,psimat,psimatj,psimati,
 columnVals,&hrows,&ierr);
 pathNewtAssert(ierr == 0);
 bump(hrows);
@@ -4113,7 +4113,7 @@ hmat,hmatj,hmati,
 &nr,&nc,
 longb,longbj,longbi);
 
-csrdns_(&hrows,aOne,longb,longbj,longbi,
+csrToDns(&hrows,aOne,longb,longbj,longbi,
 columnVals,&hrows,&ierr);
 pathNewtAssert(ierr == 0);
 bump(longbi[hrows]-longbi[0]);
@@ -4134,7 +4134,7 @@ wordybump(info[3]);
 pathNewtAssert(info[0]>=0);
 */
 nzmaxLeft= nzmax-soFar-1;
-dnscsr_(aOne,&hrows,&nzmaxLeft,columnResult,
+dnsToCsr(aOne,&hrows,&nzmaxLeft,columnResult,
 aOne,tfmat+(tfmati[i]-1),tfmatj+(tfmati[i]-1),tfmati+i,
 &ierr);
 pathNewtAssert(ierr == 0);
@@ -4159,7 +4159,7 @@ lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 phipsi,columnResult,
 w,info);
 pathNewtAssert(info[0]>=0);
-dnscsr_(&hrows,&numberExogenous,&nzmaxLeft,columnResult,
+dnsToCsr(&hrows,&numberExogenous,&nzmaxLeft,columnResult,
 &hrows,vartheta,varthetaj,varthetai,
 &ierr);
 wordybump(info[3]);
@@ -4174,7 +4174,7 @@ lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 thePhi,columnResult,
 w,info);
 pathNewtAssert(info[0]>=0);
-dnscsr_(&hrows,&hrows,&nzmaxLeft,columnResult,
+dnsToCsr(&hrows,&hrows,&nzmaxLeft,columnResult,
 &hrows,varthetaC,varthetaCj,varthetaCi,
 &ierr);
 wordybump(info[3]);
@@ -4821,7 +4821,7 @@ addOneToFEvals;
       *fold *= 0.5;
 
 /*
-csrdns_(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
+csrToDns(&n,aOne,fvec,fvecj,fveci,xorig,&n,ierr);
 pathNewtAssert(ierr == 0);
 
     dgemm_(transp,noTransp,
@@ -5411,7 +5411,7 @@ c-----------------------------------------------------------------------
 \subsubsection{csrdns}
 @o stackC.h -d
 @{
-//void csrdns_();
+//void csrToDns();
 @}
 
 
@@ -5456,7 +5456,7 @@ c-----------------------------------------------------------------------
 \subsubsection{dnscsr}
 @o stackC.h -d
 @{
-//void dnscsr_();
+//void dnsToCsr();
 @}
 
 
