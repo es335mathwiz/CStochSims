@@ -353,7 +353,7 @@ timeOffset=i-*lagss;
 @{
 *firstColumn= 1+(i * *numberOfEquations);
 *lastColumn= *firstColumn+ *numberOfEquations-1;
-submat_(rowDim,aOne,aOne,rowDim,firstColumn,lastColumn,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,firstColumn,lastColumn,
 oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 @}
 
@@ -374,7 +374,7 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 
 @d multiply c matrices by appropriate s matrix and subtract
 @{
-amub_(rowDim,cColumns,aOne,ao,jao,iao,
+sparseMult(rowDim,cColumns,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
@@ -411,7 +411,7 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @d multiply d matrices by appropriate s matrix and subtract
 @{
 
-amub_(rowDim,aOne,aOne,ao,jao,iao,
+sparseMult(rowDim,aOne,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
 b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
@@ -481,7 +481,7 @@ for(i=0;i<*rowDim +1;i++)
 
 *firstColumn=(*numberOfEquations* *lagss)+1;
 *lastColumn=*firstColumn + *rowDim-1;
-submat_(rowDim,aOne,aOne,rowDim,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,oddSumCIA);
@@ -499,7 +499,7 @@ pathNewtAssert(info[0]>=0);
 @d factorize matrix
 @{
 /* restore odd since ad is destructive*/
-submat_(rowDim,aOne,aOne,rowDim,
+extractSubmatrix(rowDim,aOne,aOne,rowDim,
 firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,nr,nc,
 oddSumCA,oddSumCJA,jcn);
@@ -541,7 +541,7 @@ for(i=0;i<*balColumns;i++){
 
 *lastColumn = *firstColumn=(1+i+ *rowDim +*numberOfEquations *(*lagss));
 
-submat_(rowDim,aOne,
+extractSubmatrix(rowDim,aOne,
 aOne,rowDim,firstColumn,lastColumn,
 evenSumCA,evenSumCJA,evenSumCIA,
 nr,nc,
@@ -573,7 +573,7 @@ bump(cmatsExtent);
 aSmallDouble=DBL_EPSILON;
 dropSmallElements(balColumns,aOne,&aSmallDouble,nzmax,tb,jtb,itb,tb,jtb,itb,ierr);
 pathNewtAssert(*ierr == 0);
-csrcsc_(balColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
+csrToCsc(balColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
 /*expand sum of d's*/
 csrToDns(rowDim,aOne,oddSumDA,oddSumDJA,oddSumDIA,nsSumD,rowDim,ierr);
@@ -900,7 +900,7 @@ void oneStepBack(@<oneStepBack argument list@>)
 @<oneStepBack variable allocations@>
 /*cmat non zero then multiply else product is zero*/
 if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
-  amub_(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
+  sparseMult(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
   rcy,rcyj,rcyi,rowDim,iw,ierr);
 pathNewtAssert(*ierr == 0);
@@ -3697,7 +3697,7 @@ for(i=0;i<numberExogenous;i++){
 
 firstColumn=( numberExogenous*(bcols/hrows))+1+i;
 lastColumn=( numberExogenous*(bcols/hrows))+1+i;
-submat_(&hrows,aOne,
+extractSubmatrix(&hrows,aOne,
 aOne,&hrows,&firstColumn,&lastColumn,
 hzMat,hzMatj,hzMati,
 &nr,&nc,
@@ -3746,7 +3746,7 @@ for(i=0;i<hrows*hrows;i++)thePhi[i]=(-1)*thePhi[i];/*since the kron part is nega
 @d transpose upsilon compute kron subtract
 @{
 /*compute kron product*/
-csrcsc_(&numberExogenous,aOne,aOne,upsilonmat,upsilonmatj,upsilonmati,
+csrToCsc(&numberExogenous,aOne,aOne,upsilonmat,upsilonmatj,upsilonmati,
 tupsilon,tupsilonj,tupsiloni);
 
 kron(numberExogenous, 
@@ -4107,7 +4107,7 @@ for(i=0;i<hrows;i++){
 
 lastColumn = firstColumn=(hcols-hrows+1+i);
 for(j=0;j<hrows;j++){longbi[j]=1;}/*initialize to zero matrix*/
-submat_(&hrows,aOne,
+extractSubmatrix(&hrows,aOne,
 aOne,&hrows,&firstColumn,&lastColumn,
 hmat,hmatj,hmati,
 &nr,&nc,
@@ -4186,7 +4186,7 @@ pathNewtAssert(ierr == 0);
 copyMatrix(&hrows,aOne,vartheta,varthetaj,varthetai,aOne,
 impact,impactj,impacti);
 /*compute vartheta * upsilon*/
-amub_(&hrows,&numberExogenous,aOne,vartheta,varthetaj,varthetai,
+sparseMult(&hrows,&numberExogenous,aOne,vartheta,varthetaj,varthetai,
 upsilonmat,upsilonmatj,upsilonmati,tfmat,tfmatj,tfmati,maxNumberHElements,iw,&ierr);
 pathNewtAssert(ierr == 0);
 *notAOne=impacti[hrows]-impacti[0]+1;
@@ -4280,7 +4280,7 @@ iw = (unsigned int *)calloc(hrows,sizeof(unsigned int));
 printf("in computePhiInv prunsigned inting hmat\n");
 cPrunsigned intSparse(hrows,hmat,hmatj,hmati);
 #endif
-submat_(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
+extractSubmatrix(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
 hmat,hmatj,hmati,nr,nc,hzero,hzeroj,hzeroi);
 #ifdef DEBUG 
 printf("in computePhiInv prunsigned int hzero\n");
@@ -4291,7 +4291,7 @@ cPrunsigned intSparse(hrows,hzero,hzeroj,hzeroi);
 @{
 *firstColumn=bcols+hrows+1;
 *lastColumn=hcols;
-submat_(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
+extractSubmatrix(&hrows,aOne,aOne,&hrows,firstColumn,lastColumn,
 hmat,hmatj,hmati,nr,nc,hplus,hplusj,hplusi);
 #ifdef DEBUG 
 printf("in computePhiInv prunsigned inting hplus\n");
@@ -4306,7 +4306,7 @@ cPrunsigned intSparse(hrows,hplus,hplusj,hplusi);
 printf("in computePhiInv prunsigned inting bmat\n");
 cPrunsigned intSparse(brows,bmat,bmatj,bmati);
 #endif
-submat_(&brows,aOne,aOne,&brows,firstColumn,lastColumn,
+extractSubmatrix(&brows,aOne,aOne,&brows,firstColumn,lastColumn,
 bmat,bmatj,bmati,nr,nc,bright,brightj,brighti);
 #ifdef DEBUG 
 printf("in computePhiInv prunsigned inting bright\n");
@@ -4317,7 +4317,7 @@ cPrunsigned intSparse(hrows,bright,brightj,brighti);
 
 @d compute hplus times bright
 @{
-amub_(&hrows,&hrows,aOne,hplus,hplusj,hplusi,bright,brightj,brighti,
+sparseMult(&hrows,&hrows,aOne,hplus,hplusj,hplusi,bright,brightj,brighti,
                        hb,hbj,hbi,maxNumberHElements,iw,ierr);
 pathNewtAssert(ierr == 0);
 #ifdef DEBUG 
@@ -4550,8 +4550,8 @@ intControlParameters, doubleControlParameters,
 intOutputInfo, doubleOutputInfo);
 */
 }
-        atmux_(&n,compfvec,
-        g,chkfdrv,chkfdrvj,chkfdrvi);
+        sparseMatTimesVec(&n,chkfdrv,chkfdrvj,chkfdrvi,compfvec,
+        g);
 for(i=0;i<*pathLength;i++){
 sparseMatTimesVec(rowDim,smats[i],
 smatsj[i],smatsi[i],fvec+(i * *numberOfEquations),
@@ -4808,13 +4808,13 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 {/* use shock for first only*/
 addOneToFEvals;
 (*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
-        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
 (*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
-        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
 
@@ -4880,13 +4880,13 @@ resetFailedQ;
 {/*use shock first period only*/
 addOneToFEvals;
 (*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
-        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
 (*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
-        cnrms_(&np,aTwo,fvec,fvecj,fveci,xorig);
+        useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
 
@@ -5132,7 +5132,7 @@ c two digits of accuracy (D9.2). )
 \subsubsection{amub}
 @o stackC.h -d
 @{
-//void amub_();
+//void sparseMult();
 @}
 
 \begin{verbatim}
@@ -5359,7 +5359,7 @@ c-----------------------------------------------------------------------
 \end{verbatim}
 @o stackC.h -d
 @{
-//void csrcsc_();
+//void csrToCsc();
 @}
 
 
@@ -5506,7 +5506,7 @@ c-----------------------------------------------------------------------
 \subsubsection{submat}
 @o stackC.h -d
 @{
-//void submat_();
+//void extractSubmatrix();
 @}
 
 \begin{verbatim}
