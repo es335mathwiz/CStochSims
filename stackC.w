@@ -1243,8 +1243,8 @@ aOne = (unsigned int *)calloc(1,sizeof(unsigned int));
 @}
 @d nxtGuess definition
 @{
-copmat_(sysDim,fdrv,fdrvj,fdrvi,
-copychkfdrv,copychkfdrvj,copychkfdrvi,aOne,aOne);
+copyMatrix(sysDim,aOne,fdrv,fdrvj,fdrvi,aOne,
+copychkfdrv,copychkfdrvj,copychkfdrvi);
 
 ma50id_(cntl,icntl);
 cntl[1]=ma50Balance;
@@ -1482,8 +1482,8 @@ bump(*maxNumberHElements);
 
 
 
-copmat_(rowDim,termConstr,termConstrj,termConstri,
-smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
+copyMatrix(rowDim,aOne,termConstr,termConstrj,termConstri,aOne,
+smats[*capT],smatsj[*capT],smatsi[*capT]);
 
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
@@ -1931,8 +1931,8 @@ zeroShockVec,
 }
 
 
-copmat_(rowDim,termConstr,termConstrj,termConstri,
-smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
+copyMatrix(rowDim,aOne,termConstr,termConstrj,termConstri,aOne,
+smats[*capT],smatsj[*capT],smatsi[*capT]);
 
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
@@ -2956,9 +2956,9 @@ addOneToFEvals;
 @{
 if(*leads>0){
 /*
-copmat_(rowDim,qMat,qMatj,qMati,
-smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],
-aOne,aOne);
+copyMatrix(rowDim,aOne,qMat,qMatj,qMati,
+aOne,
+smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
 */
 
 /*xxxxxxxxx add code for deviations using gmat*/
@@ -4002,8 +4002,8 @@ ma50bdJob[0] =1;
 nzmax=*maxNumberHElements;
 nonZeroNow=phiInvmati[hrows]-phiInvmati[0];
 
-copmat_(&hrows,phiInvmat,phiInvmatj,phiInvmati,
-lclphiInvmat,lclphiInvmatj,lclphiInvmati,aOne,aOne);
+copyMatrix(&hrows,aOne,phiInvmat,phiInvmatj,phiInvmati,aOne,
+lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 
 ma50ad_(&hrows,&hrows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
@@ -4055,8 +4055,8 @@ ma50bdJob[0] =1;
 nzmax=*maxNumberHElements;
 nonZeroNow=resultMati[resultRows]-resultMati[0];
 
-copmat_(&resultRows,resultMat,resultMatj,resultMati,
-lclphiInvmat,lclphiInvmatj,lclphiInvmati,aOne,aOne);
+copyMatrix(&resultRows,aOne,resultMat,resultMatj,resultMati,aOne,
+lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 
 ma50ad_(&resultRows,&resultRows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
@@ -4183,8 +4183,8 @@ pathNewtAssert(ierr == 0);
 
 @d compute exogenous impact
 @{
-copmat_(&hrows,vartheta,varthetaj,varthetai,
-impact,impactj,impacti,aOne,aOne);
+copyMatrix(&hrows,aOne,vartheta,varthetaj,varthetai,aOne,
+impact,impactj,impacti);
 /*compute vartheta * upsilon*/
 amub_(&hrows,&numberExogenous,aOne,vartheta,varthetaj,varthetai,
 upsilonmat,upsilonmatj,upsilonmati,tfmat,tfmatj,tfmati,maxNumberHElements,iw,&ierr);
@@ -4192,8 +4192,8 @@ pathNewtAssert(ierr == 0);
 *notAOne=impacti[hrows]-impacti[0]+1;
 /*post mult by selector matrix*/
 
-copmat_(&hrows,tfmat,tfmatj,tfmati,
-impact,impactj,impacti+hrows,notAOne,aOne);
+copyMatrix(&hrows,aOne,tfmat,tfmatj,tfmati,notAOne,
+impact,impactj,impacti+hrows);
 
 @}
 
