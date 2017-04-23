@@ -380,7 +380,7 @@ b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
-filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
+dropSmallElements(rowDim,aOne,&aSmallDouble,nzmax,b,jb,ib,b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 /*actually want to subtract so mult elements by -1 also need to shift right*/
@@ -417,7 +417,7 @@ b,jb,ib,nzmax,iw,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
-filter_(rowDim,aOne,&aSmallDouble,b,jb,ib,b,jb,ib,nzmax,ierr);
+dropSmallElements(rowDim,aOne,&aSmallDouble,nzmax,b,jb,ib,b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 
@@ -571,7 +571,7 @@ cmatsExtent=itb[i+1]-1;
 bump(cmatsExtent);
 
 aSmallDouble=DBL_EPSILON;
-filter_(balColumns,aOne,&aSmallDouble,tb,jtb,itb,tb,jtb,itb,nzmax,ierr);
+dropSmallElements(balColumns,aOne,&aSmallDouble,nzmax,tb,jtb,itb,tb,jtb,itb,ierr);
 pathNewtAssert(*ierr == 0);
 csrcsc_(balColumns,aOne,aOne,tb,jtb,itb,cmatsA[0],cmatsJA[0],cmatsIA[0]);
 
@@ -907,7 +907,7 @@ pathNewtAssert(*ierr == 0);
 
 aSmallDouble=DBL_EPSILON;
 
-filter_(rowDim,aOne,&aSmallDouble,rcy,rcyj,rcyi,rcy,rcyj,rcyi,nzmax,ierr);
+dropSmallElements(rowDim,aOne,&aSmallDouble,nzmax,rcy,rcyj,rcyi,rcy,rcyj,rcyi,ierr);
 pathNewtAssert(*ierr == 0);
 
   for(i=0;i<rcyi[*rowDim]-rcyi[0];i++)rcy[i]=(-1)*rcy[i];
@@ -4144,7 +4144,7 @@ soFar=tfmati[i+1]-1;
 }
 
 
-filter_(&hrows,aOne,&aSmallDouble,tfmat,tfmatj,tfmati,tfmat,tfmatj,tfmati,&nzmax,&ierr);
+dropSmallElements(&hrows,aOne,&aSmallDouble,&nzmax,tfmat,tfmatj,tfmati,tfmat,tfmatj,tfmati,&ierr);
 pathNewtAssert(ierr == 0);
 csrcsc2_(&hrows,&hrows,aOne,aOne,tfmat,tfmatj,tfmati,fmat,fmatj,fmati);
 /*change sign*/
