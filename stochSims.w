@@ -448,13 +448,8 @@ __LINE__);
 
 
 @}
-
-@o compXEtm1.c -d
+@d compXEtm1 signature
 @{
-@<define assert bump@>
-#include "stochSims.h"
-#include <stdio.h>
-
 void compXEtm1(int * numberOfEquations,int * lags, int * leads,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, int ** fmatsj, int ** fmatsi,
@@ -471,7 +466,19 @@ double * compXMa50bdFact,
 int * compXMa50bdIrnf,
 int * compXMa50bdIptrl,
 int * compXMa50bdIptru
-)
+)@}
+
+@o stochSims.h -d
+@{@<compXEtm1 signature@>;@}
+
+@o compXEtm1.c -d
+@{
+@<define assert bump@>
+#include  "useSparseAMA.h"
+#include "stackC.h"
+#include "stochSims.h"
+#include <stdio.h>
+@<compXEtm1 signature@>
 {
 
 FILE * debFile;
@@ -604,19 +611,8 @@ free(qMati);
 }
 @}
 
-@o generateNextXTMinusOne.c -d
+@d generateNextXTMinusOne signature
 @{
-#include <stdio.h>
-#include  "useSparseAMA.h"
-#include  "stackC.h"
-#include  "stochSims.h"
-
-@<define assert bump@>
-
-
-
-
-
 void generateNextXTMinusOne(
 int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
@@ -645,7 +641,25 @@ double * compXMa50bdFact,
 int * compXMa50bdIrnf,
 int * compXMa50bdIptrl,
 int * compXMa50bdIptru
-)
+)@}
+
+@o stochSims.h -d
+@{
+@<generateNextXTMinusOne signature@>;
+@<generateNextXT signature@>;
+@}
+
+
+@o generateNextXTMinusOne.c -d
+@{
+#include <stdio.h>
+#include  "useSparseAMA.h"
+#include  "stackC.h"
+#include  "stochSims.h"
+
+@<define assert bump@>
+
+@<generateNextXTMinusOne signature@>
 {
 FILE * debFile;
 int maxElementsEncountered=0;
@@ -795,21 +809,8 @@ free(shockVec);free(zeroShockX);free(diffFromZeroShock);free(lastDel);free(safex
 
 
 @}
-
-@o generateNextXT.c -d
+@d generateNextXT signature
 @{
-#include <stdio.h>
-#include  "useSparseAMA.h"
-#include  "stackC.h"
-#include "stochSims.h"
-
-@<define assert bump@>
-
-
-
-
-#include <stdio.h>
-
 void generateNextXT(
 int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
@@ -838,7 +839,23 @@ double * compXMa50bdFact,
 int * compXMa50bdIrnf,
 int * compXMa50bdIptrl,
 int * compXMa50bdIptru
-)
+)@}
+
+@o generateNextXT.c -d
+@{
+#include <stdio.h>
+#include  "useSparseAMA.h"
+#include  "stackC.h"
+#include "stochSims.h"
+
+@<define assert bump@>
+
+
+
+
+#include <stdio.h>
+
+@<generateNextXT signature@>
 {
 FILE * debFile;
 int maxElementsEncountered=0;
@@ -986,6 +1003,15 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 
 
 @}
+@o stochSims.h
+@{
+@<currentRequestedQ signature@>;
+@}
+
+@d currentRequestedQ signature
+@{
+int currentRequestedQ(int * intControlParameters,int * intOutputInfo)
+@}
 
 @o generatePathX.c -d
 @{
@@ -993,6 +1019,7 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 
 @<define assert bump@>
 
+#include "stackC.h"
 #include "stochSims.h"
 void failNextX(int * numberOfEquations,double * x)
 {
@@ -1000,7 +1027,7 @@ int i;
 for(i=0;i<*numberOfEquations;i++){x[i]=-999999.999999;}
 }
 
-int currentRequestedQ(int * intControlParameters,int * intOutputInfo)
+@<currentRequestedQ signature@>
 {
   int result=0;int ii;
 for(ii=0;ii<numberOfDebugPairs;ii++){
@@ -1033,8 +1060,8 @@ int * pathNewtMa50bdIrnf,
 int * pathNewtMa50bdIptrl,
 int * pathNewtMa50bdIptru,
 int * compXMa50bdJob,
-double * compXMa50bdIq,
-int * compXMa50bdFact,
+int * compXMa50bdIq,
+double * compXMa50bdFact,
 int * compXMa50bdIrnf,
 int * compXMa50bdIptrl,
 int * compXMa50bdIptru
@@ -1157,7 +1184,15 @@ if(check[i]!=0)for(j=i;j<*numberOfShocks;j++){check[j]=1;}
 *maxNumberElements=maxElementsEncountered;
 free(lclFixedPoint);
 }
+
+@}
+@o stochSims.h -d
+@{
 #include <stdio.h>
+@<streamingGeneratePath signature@>;
+@}
+@d streamingGeneratePath signature
+@{
 void streamingGeneratePathX(FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,
 FILE * streamPathOut,
 int * numberOfEquations,int * lags, int * leads,int * pathLength,
@@ -1183,12 +1218,19 @@ int * pathNewtMa50bdIrnf,
 int * pathNewtMa50bdIptrl,
 int * pathNewtMa50bdIptru,
 int * compXMa50bdJob,
-double * compXMa50bdIq,
-int * compXMa50bdFact,
+int * compXMa50bdIq,
+double * compXMa50bdFact,
 int * compXMa50bdIrnf,
 int * compXMa50bdIptrl,
-int * compXMa50bdIptru
-)
+int * compXMa50bdIptru)
+@}
+
+@o generatePathX.c -d
+@{
+#include <stdio.h>
+#include "stackC.h"
+#include "stochSims.h"
+@<streamingGeneratePath signature@>
 {
 double * lclFixedPoint;
 int maxElementsEncountered=0;

@@ -266,6 +266,9 @@ MA50CD operates on the transpose.
 
 @d nxtCDmats definition
 @{
+#include <unistd.h>
+pid_t getpid(void);
+
 void nxtCDmats(@<nxtCDmats argument list@>){
 @<nxtCDmats variable declarations@>
 @<nxtCDmats scalar variable allocations@>
@@ -1050,7 +1053,7 @@ void chkDrv(int n, double * fdrv,int * fdrvj,int * fdrvi,
 double * fvec,double * delxvec)
 {
 int i;
-int aOne=1;
+//int aOne=1;
 double * fvals;
 fvals = (double * ) calloc(n,sizeof(double));
 #ifdef DEBUG 
@@ -2723,18 +2726,20 @@ printf("IGNORING FAILED CONVERGENCE!!!!!!!!\n");
 }
 PFREERETURN
 }
-
-void putBadHomotopy(
-int  numberOfEquations,int  lags,int leads,int pathLength,
-double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
-					double * shock, FILE * hFile);
+@}
+@o stackC.h -d
+@{
+@<homotopyPathNewt signature@>;
+@}
+@d homotopyPathNewt signature
+@{
 void homotopyPathNewt(int * numberOfEquations,int * lags, int * leads,
 int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, int ** fmatsj, int ** fmatsi,
 double ** smats, int ** smatsj, int ** smatsi,
 int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
+double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRow, int * exogCols, int * exogenizeQ,
 double easyX[],double targetX[],int * exogQ,double x[],
 int *check,int * intControlParameters,double * doubleControlParameters,
 int * intOutputInfo, double * doubleOutputInfo,
@@ -2745,6 +2750,17 @@ int * ma50bdIrnf,
 int * ma50bdIptrl,
 int * ma50bdIptru
 )
+@}
+@o nyNewt.c -d
+@{
+
+ void putBadHomotopy(
+ int  numberOfEquations,int  lags,int leads,int pathLength,
+ double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
+					double * shock, FILE * hFile);
+
+
+@<homotopyPathNewt signature@>
 {
 
 FILE * debFile;
@@ -3108,8 +3124,8 @@ int * nroots,double * rootr,double * rooti,FILE * qFile){
 	fscanf(qFile,"%le ",rooti+ii);}
 }
 /*vecLength corresponds to actual number of shocks -- typically less than the numberOfEquations. routine pads vector with zeros to make the shockVec numberOfEquations long  numShocks is how many shocks vec to get*/
-void getShocks(int  numShocks,int  vecLength,int numberOfEquations,
-double * shockArray,FILE * sFile,int lowLim,int upLim){
+@<getShocks signature@>
+{
 
   int ii=0;int jj=0;int kk=0;int ll=0;double ignore[1];
 ll=lowLim;
@@ -3124,16 +3140,44 @@ jj=0;ll++;
 for(kk=0;kk<numberOfEquations-vecLength;kk++){shockArray[ii]=0;ii++;}
 }
 }
+@}
+@o stackC.h -d
+@(
+@<getShocks signature@>;
+@<getData signature@>;
 
-void putData(int numberOfEquations,double * q,FILE * qFile){
+@}
+
+@d getShocks signature
+@{
+void getShocks(int  numShocks,int  vecLength,int numberOfEquations,
+double * shockArray,FILE * sFile,int lowLim,int upLim)
+@}
+@d getData signature
+@{
+void getData(int  numPeriods,int  vecLength,int numberOfEquations,
+double * shockArray,FILE * sFile,int lowLim,int upLim)
+@}
+@d putData signature
+@{
+void putData(int numberOfEquations,double * q,FILE * qFile)
+@}
+@o stackC.h -d
+@{
+@<putData signature@>;
+@}
+@o myNewt.c -d
+@{
+
+@<putData signature@>
+{
 
   int ii;
   for(ii=0;ii<numberOfEquations;ii++){
 	fprintf(qFile,"%30.15e ",q[ii]);}
 }
 
-void getData(int  numPeriods,int  vecLength,int numberOfEquations,
-double * shockArray,FILE * sFile,int lowLim,int upLim){
+@<getData signature@>{
 
   int ii=0;int jj=0;int kk=0;int ll=0;double ignore[1];
 ll=lowLim;
@@ -4603,7 +4647,6 @@ int * intOutputInfo, double * doubleOutputInfo
 @o stackC.h -d
 @{
 #include <unistd.h>
-
 pid_t getpid(void);
 
 
