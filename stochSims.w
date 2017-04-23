@@ -206,30 +206,30 @@ Map[iterFunc,shockSeqList]
 
 
 /*void free();*/
-/*void * calloc(unsigned num,int amt);*/
-/*void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
+/*void * calloc(unsigned num,unsigned int amt);*/
+/*void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPath,double * intercept,double * linearizationPoint,
-int * exogRows, int * exogCols, int * exogenizeQ,
+unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double x[],
-int *check,double * lastDel,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *check,double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru
 );*/
 long ignuin(long low,long high);
 void phrtsd(char* phrase,long* seed1,long* seed2);
 void setall(long iseed1,long iseed2);
 
-void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
-int * iarray,char * str);
+void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
+unsigned int * iarray,char * str);
 #include <stdlib.h>
 void free(void * ptr);
 void * calloc(size_t amt,size_t size);
@@ -267,35 +267,35 @@ void sendHaltMessage(int);
 void buildResultType(double*, int*, int*, int, int, MPI_Datatype*);
 void error(int, int, int, int);
 void stochSim(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),int * exogRow, int * exogCol, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),unsigned int * exogRow, unsigned int * exogCol, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * replications,
-int * t0,int * tf,int * permVecs,
-double * shockTable,int * shocksAvailable,
-double * dataTable,int * dataAvailable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
 double x[],
-int *failedQ,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 );
 @}
 
@@ -381,7 +381,7 @@ With[{expectations=
 
 The {\bf aimType2} routine applies the STACK and AIM algorithms to compute perfect foresight
 solutions for the model. Note that the qMat[model] provides the precomputed AIM constraint.
-Also, fp[model] provides the precomputed fixed point for the model. This version of the
+Also, fp[model] provides the precomputed fixed pounsigned int for the model. This version of the
 routine initializes the path beyond the lagged values to the fp[model] values.
 
 @o generateDraws.c -d
@@ -390,23 +390,23 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 
 #include "stochSims.h"
 
-void allocGenerateDraws(int t0Index,int tfIndex, int replications,int ** iarray)
+void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
 {
-*iarray=(int *)calloc((tfIndex-t0Index+1)*replications,sizeof(int));
+*iarray=(unsigned int *)calloc((tfIndex-t0Index+1)*replications,sizeof(int));
 }
-void cfreeGenerateDraws(int ** iarray)
+void cfreeGenerateDraws(unsigned int ** iarray)
 {
 free(*iarray);
 }
 
 
-void generateDraws(int t0Index,int tfIndex,int replications,int shocksAvailable,
-int * iarray,char * seedString)
+void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
+unsigned int * iarray,char * seedString)
 {
 long seed1;
 long seed2;
 static  long K1=1;
-int ntot,i;
+unsigned int ntot,i;
 long mxint;
 ntot=(tfIndex-t0Index+1)*replications;
 if(strcmp(seedString,"sequential")){/*need to generate random numbers*/
@@ -450,22 +450,22 @@ __LINE__);
 @}
 @d compXEtm1 signature
 @{
-void compXEtm1(int * numberOfEquations,int * lags, int * leads,
+void compXEtm1(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,
-double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *check,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )@}
 
 @o stochSims.h -d
@@ -482,25 +482,25 @@ int * compXMa50bdIptru
 {
 
 FILE * debFile;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
 double * lastDel;
 double * fixedPath;
 double * intercept;
 double * qMat;
-int * qMatj;
-int * qMati;
-int i;
+unsigned int * qMatj;
+unsigned int * qMati;
+unsigned int i;
 double * safex;
-int aOne[1];
+unsigned int aOne[1];
 aOne[0]=1;
 intercept =(double *)calloc(*numberOfEquations*(*leads),sizeof(double));
 lastDel =(double *)calloc(*numberOfEquations*(*lags+1+ *leads),sizeof(double));
 safex =(double *)calloc(*numberOfEquations*(*lags+1+ *leads),sizeof(double));
 fixedPath =(double *)calloc(*numberOfEquations*(*lags+1+ *leads),sizeof(double));
 qMat=(double *)calloc(*numberOfEquations* *leads,sizeof(double));
-qMatj=(int *)calloc(*numberOfEquations* *leads,sizeof(int));
-qMati=(int *)calloc(*numberOfEquations* *leads+1,sizeof(int));
+qMatj=(unsigned int *)calloc(*numberOfEquations* *leads,sizeof(int));
+qMati=(unsigned int *)calloc(*numberOfEquations* *leads+1,sizeof(int));
 for(i=0;i<*numberOfEquations* *leads;i++)
 qMat[i]=0.0;
 for(i=0;i<*numberOfEquations* *leads;i++){
@@ -614,33 +614,33 @@ free(qMati);
 @d generateNextXTMinusOne signature
 @{
 void generateNextXTMinusOne(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * shockIndex,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * shockIndex,
 double * shockTable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
-double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *check,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int *compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int *compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )@}
 
 @o stochSims.h -d
@@ -662,11 +662,11 @@ int * compXMa50bdIptru
 @<generateNextXTMinusOne signature@>
 {
 FILE * debFile;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
 double * lastDel;
 double * shockVec;double * safex;
-int i;int ii;double *zeroShockX;double * diffFromZeroShock;
+unsigned int i;unsigned int ii;double *zeroShockX;double * diffFromZeroShock;
 lastDel= (double *) calloc(*numberOfEquations*(*lags+*leads+*pathLength),sizeof(double));
 safex= (double *) calloc(*numberOfEquations*(*lags+*leads+*pathLength),sizeof(double));
 shockVec= (double *) calloc(*numberOfEquations,sizeof(double));
@@ -812,33 +812,33 @@ free(shockVec);free(zeroShockX);free(diffFromZeroShock);free(lastDel);free(safex
 @d generateNextXT signature
 @{
 void generateNextXT(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * shockIndex,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * shockIndex,
 double * shockTable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
-double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *check,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int *compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int *compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )@}
 
 @o generateNextXT.c -d
@@ -858,10 +858,10 @@ int * compXMa50bdIptru
 @<generateNextXT signature@>
 {
 FILE * debFile;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
 double * shockVec;double * lastDel;
-int i;int ii;double *lclTargetX;double *lclEasyX;double * diffFromZeroShock;
+unsigned int i;unsigned int ii;double *lclTargetX;double *lclEasyX;double * diffFromZeroShock;
 double * safex;
 shockVec= (double *) calloc(*numberOfEquations,sizeof(double));
 lastDel= (double *) calloc(*numberOfEquations*(*lags+*leads+*pathLength),sizeof(double));
@@ -1010,7 +1010,7 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 
 @d currentRequestedQ signature
 @{
-int currentRequestedQ(int * intControlParameters,int * intOutputInfo)
+unsigned int currentRequestedQ(unsigned int * intControlParameters,unsigned int * intOutputInfo)
 @}
 
 @o generatePathX.c -d
@@ -1021,15 +1021,15 @@ int currentRequestedQ(int * intControlParameters,int * intOutputInfo)
 
 #include "stackC.h"
 #include "stochSims.h"
-void failNextX(int * numberOfEquations,double * x)
+void failNextX(unsigned int * numberOfEquations,double * x)
 {
-int i;
+unsigned int i;
 for(i=0;i<*numberOfEquations;i++){x[i]=-999999.999999;}
 }
 
 @<currentRequestedQ signature@>
 {
-  int result=0;int ii;
+  unsigned int result=0;unsigned int ii;
 for(ii=0;ii<numberOfDebugPairs;ii++){
 result=result+((currentReplication==*((&debugPairs)+2*ii))&&(currentDate==*(&(debugPairs)+2*ii+1)));
 }
@@ -1037,40 +1037,40 @@ return(result);
 }
 
 void generatePathX(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * numberOfShocks,
-int * shockIndices,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * numberOfShocks,
+unsigned int * shockIndices,
 double * shockTable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
-double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *check,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )
 {
 double * lclFixedPoint;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
-int i;int j;int ii;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
+unsigned int i;unsigned int j;unsigned int ii;
 
 
  lclFixedPoint=(double *)calloc(*numberOfEquations*(*lags+*leads+*pathLength),sizeof(double));
@@ -1195,34 +1195,34 @@ free(lclFixedPoint);
 @{
 void streamingGeneratePathX(FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,
 FILE * streamPathOut,
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * numberOfShocks,
-int * shockIndices,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * numberOfShocks,
+unsigned int * shockIndices,
 double * shockTable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
-double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *check,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru)
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru)
 @}
 
 @o generatePathX.c -d
@@ -1233,10 +1233,10 @@ int * compXMa50bdIptru)
 @<streamingGeneratePath signature@>
 {
 double * lclFixedPoint;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
-int i;int j;int ii;
-int aOne=1;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
+unsigned int i;unsigned int j;unsigned int ii;
+unsigned int aOne=1;
 
  lclFixedPoint=(double *)calloc(*numberOfEquations*(*lags+*leads+*pathLength),sizeof(double));
  for(ii=0;ii<*numberOfEquations*(*lags+*leads+1);ii++){
@@ -1381,11 +1381,11 @@ free(lclFixedPoint);
 
 #include "stochSims.h"
 
-void allocStochSims(int stochasticPathLength,int replications,int ** failedQ)
+void allocStochSims(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
 {
-*failedQ=(int *)calloc(stochasticPathLength*replications,sizeof(int));
+*failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(int));
 }
-void cfreeStochSims(int ** failedQ)
+void cfreeStochSims(unsigned int ** failedQ)
 {
 free(*failedQ);
 }
@@ -1395,43 +1395,43 @@ free(*failedQ);
 void streamingStochSim(
 FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,
 FILE * streamPathOut,
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),
 double * params,
-int * numberExog,double * upsilonmat,int * upsilonmatj,int * upsilonmati,
+unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
 void (* exdfunc)(),
-int * replications,
-int * t0,int * tf,int * permVecs,
-double * shockTable,int * shocksAvailable,
-double * dataTable,int * dataAvailable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,double * linearizationPoint,
-int *exogRows,int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *failedQ,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )
 {
-int check[1]={0};
-int * stochasticPathLength;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
-int i,j;
+unsigned int check[1]={0};
+unsigned int * stochasticPathLength;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
+unsigned int i,j;
 FILE * debFile;
 printf("streaming shocks data and path\n");
 getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
@@ -1448,7 +1448,7 @@ fclose(debFile);
 }
 
 
-stochasticPathLength=(int *)calloc(1,sizeof(int));
+stochasticPathLength=(unsigned int *)calloc(1,sizeof(int));
 *stochasticPathLength=*tf-*t0+1;
 /*for(i=0;i<*stochasticPathLength;i++)failedQ[i]=0;*/
 maxElementsSpecified=*maxNumberElements;
@@ -1500,43 +1500,43 @@ free(stochasticPathLength);
 }
 
 void stochSim(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),
 double * params,
-int * numberExog,double * upsilonmat,int * upsilonmatj,int * upsilonmati,
+unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
 void (* exdfunc)(),
-int * replications,
-int * t0,int * tf,int * permVecs,
-double * shockTable,int * shocksAvailable,
-double * dataTable,int * dataAvailable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,double * linearizationPoint,
-int *exogRows,int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *failedQ,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
 )
 {
-int check[1]={0};
-int * stochasticPathLength;
-int maxElementsEncountered=0;
-int maxElementsSpecified;
-int i,j;
+unsigned int check[1]={0};
+unsigned int * stochasticPathLength;
+unsigned int maxElementsEncountered=0;
+unsigned int maxElementsSpecified;
+unsigned int i,j;
 FILE * debFile;
 
 resetHomotopies;
@@ -1547,7 +1547,7 @@ fclose(debFile);
 }
 
 
-stochasticPathLength=(int *)calloc(1,sizeof(int));
+stochasticPathLength=(unsigned int *)calloc(1,sizeof(int));
 *stochasticPathLength=*tf-*t0+1;
 for(i=0;i<*stochasticPathLength;i++)failedQ[i]=0;
 maxElementsSpecified=*maxNumberElements;
@@ -1606,43 +1606,43 @@ free(stochasticPathLength);
 
 
 void distStochSim(
-int * numberOfEquations,int * lags, int * leads,int * pathLength,
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),
 double * params,
-int * numberExog,
-double * upsilonmat,int * upsilonmatj,int * upsilonmati,void (* exdfunc)(),
-int * replications,
-int * t0,int * tf,int * permVecs,
-double * shockTable,int * shocksAvailable,
-double * dataTable,int * dataAvailable,
-double ** fmats, int ** fmatsj, int ** fmatsi,
-double ** smats, int ** smatsj, int ** smatsi,
-int * maxNumberElements,double * qMat,int * qMatj,int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,int * exogRows, int * exogCols, int * exogenizeQ,
-double easyX[],double targetX[],int * exogQ,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-int *failedQ,int * intControlParameters,double * doubleControlParameters,
-int * intOutputInfo, double * doubleOutputInfo,
-int * pathNewtMa50bdJob,
-int * pathNewtMa50bdIq,
+unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
-int * pathNewtMa50bdIrnf,
-int * pathNewtMa50bdIptrl,
-int * pathNewtMa50bdIptru,
-int * compXMa50bdJob,
-int * compXMa50bdIq,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
-int * compXMa50bdIrnf,
-int * compXMa50bdIptrl,
-int * compXMa50bdIptru,
-int draw,
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru,
+unsigned int draw,
 FILE * outFile
 )
 {
-int check[1]={0};
-int * stochasticPathLength;
-int j;
-stochasticPathLength=(int *)calloc(1,sizeof(int));
+unsigned int check[1]={0};
+unsigned int * stochasticPathLength;
+unsigned int j;
+stochasticPathLength=(unsigned int *)calloc(1,sizeof(int));
 *stochasticPathLength=*tf-*t0+1;
 
 printf("computing for draw=%d\n",draw);

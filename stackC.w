@@ -987,11 +987,11 @@ impactPart1=calloc(numberOfEquations*leads,sizeof(double));
 impactPart2=calloc(numberOfEquations*leads,sizeof(double));
 /*xxxxxxxxx add code for deviations*/
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,expansionPoint,rvec,termConstr,termConstrj,termConstri);
-amux_(&rowDim,expansionPoint,impactPart1+(numberOfEuations*lags),
-impactr,impactrj,impactri);
-amux_(&rowDim,impactPart1,impactPart2,
-impactr,impactrj,impactri);
+sparseMatTimesVec(&rowDim,termConstr,termConstrj,termConstri,expansionPoint,rvec);
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,expansionPoint,impactPart1+(numberOfEuations*lags));
+sparseMatTimesVec(&rowDim,
+impactr,impactrj,impactri,impactPart1,impactPart2);
 for(i=0;i<numberOfEquations*leads;i++){rvec[i]=rvec[i]-impactPart2[i];
 }
 free(impactPart1);
@@ -1061,7 +1061,7 @@ printf("chkDrv:beginning\n");
 #endif
 
 
-amux_(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
+sparseMatTimesVec(&n,delxvec,fvals,fdrv,fdrvj,fdrvi);
 for(i=0;i<n;i++){
 if(fabs(fvals[i]-fvec[i])>NEGLIGIBLEDOUBLE){
 #ifdef DEBUG 
@@ -1147,8 +1147,8 @@ fdrvi[numberOfEquations*(lags+pathLength)+i]=termConstri[i]+soFar;
 for(i=0;i<numberOfEquations* (lags+ leads);i++){
 deviations[i]=xvec[numberOfEquations* pathLength+i]-fixedPoint[i+numberOfEquations];}
 rowDim=numberOfEquations*leads;
-amux_(&rowDim,deviations,fvec+(numberOfEquations*(lags+pathLength)),
-termConstr,termConstrj,termConstri);
+sparseMatTimesVec(&rowDim,termConstrj,termConstri,fvec+(numberOfEquations*(lags+pathLength)),deviations,
+termConstr);
 for(i=0;i<numberOfEquations*leads;i++){fvec[numberOfEquations*(lags+pathLength)+i]=fvec[numberOfEquations*(lags+pathLength)+i]-intercept[i];}
 free(ignore);
 free(fvecj);
@@ -1488,7 +1488,7 @@ smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
-amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
+sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
@@ -1937,7 +1937,7 @@ smats[*capT],smatsj[*capT],smatsi[*capT],aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=initialX[*numberOfEquations* *capT+i]-fp[i+*numberOfEquations];}
-amux_(rowDim,deviations,fullfvec,smats[*capT],smatsj[*capT],smatsi[*capT]);
+sparseMatTimesVec(rowDim,smats[*capT],smatsj[*capT],smatsi[*capT],deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
@@ -2574,9 +2574,9 @@ resetLnsrchSteps;
 	stpmax=(*lags+*leads+1)*STPMX*FMAX(sqrt(sum),(double)n);
 
 
-        amux_(numberOfEquations,fvec,
-        g+(*numberOfEquations * *lags),
-        smats[0],smatsj[0],smatsi[0]);
+        sparseMatTimesVec(numberOfEquations,
+        smats[0],smatsj[0],smatsi[0],fvec,
+        g+(*numberOfEquations * *lags));
         for(i=0;i>*numberOfEquations;i++){
           g[(*numberOfEquations* (*lags-1))+i]=fvec[(*numberOfEquations* *lags)+i];
           g[(*numberOfEquations* (*lags+1))+i]= -fvec[(*numberOfEquations* *lags)+i];
@@ -2620,9 +2620,9 @@ intOutputInfo, doubleOutputInfo);
         aOne,fmats[0],fmatsj[0],fmatsi[0],fvec+(*numberOfEquations**lags),
         numberOfEquations,ierr);
 pathNewtAssert(*ierr == 0);
-amux_(numberOfEquations,fvec,
-        g+(*numberOfEquations * *lags),
-        smats[0],smatsj[0],smatsi[0]);
+sparseMatTimesVec(numberOfEquations,
+        smats[0],smatsj[0],smatsi[0],fvec,
+        g+(*numberOfEquations * *lags));
         for(i=0;i>*numberOfEquations;i++){
           g[(*numberOfEquations* (*lags-1))+i]=fvec[(*numberOfEquations* *lags)+i];
           g[(*numberOfEquations* (*lags+1))+i]= -fvec[(*numberOfEquations* *lags)+i];
@@ -2658,6 +2658,31 @@ done=1;
 
 
 
+@d pathNewt signature
+@{
+void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double x[],
+unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * ma50bdJob,
+unsigned int * ma50bdIq,
+double * ma50bdFact,
+unsigned int * ma50bdIrnf,
+unsigned int * ma50bdIptrl,
+unsigned int * ma50bdIptru
+)
+@}
+
+@o stackC.h -d 
+@{
+@<pathNewt signature@>;
+@}
+
 @o myNewt.c -d 
 @{
 
@@ -2675,22 +2700,7 @@ if(ja[i+strt]==col){a[i+strt]=1.0;} else {a[i+strt]=0.0;}
 }
 }
 
-void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double x[],
-unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * ma50bdJob,
-unsigned int * ma50bdIq,
-double * ma50bdFact,
-unsigned int * ma50bdIrnf,
-unsigned int * ma50bdIptrl,
-unsigned int * ma50bdIptru
-)
+@<pathNewt signature@>
 {
 @<pathNewt declarations@>
 @<pathNewt initializations@>
@@ -2954,9 +2964,9 @@ aOne,aOne);
 /*xxxxxxxxx add code for deviations using gmat*/
 for(i=0;i<*numberOfEquations* (*lags+ *leads);i++){
 deviations[i]=x[*numberOfEquations* *pathLength+i]-fixedPoint[i+*numberOfEquations];}
-/*amux_(rowDim,deviations,fullfvec,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength]);
+/*sparseMatTimesVec(rowDim,smats[*pathLength],smatsj[*pathLength],smatsi[*pathLength],deviations,fullfvec);
 */
-amux_(rowDim,deviations,fullfvec,qMat,qMatj,qMati);
+sparseMatTimesVec(rowDim,qMat,qMatj,qMati,deviations,fullfvec);
 for(i=0;i<*numberOfEquations* *leads;i++){fullfvec[i]=
 fullfvec[i]-intercept[i];}
 dnscsr_(rowDim,aOne,rowDim,fullfvec,
@@ -3582,18 +3592,18 @@ for(i=0;i<hrows*leads;i++){unsigned intercept[i]=0;}
 @}
 @d compute zdeviation at time t
 @{
-        amux_(&numberExogenous,linearizationPt,zLin,
-        selectZmat,selectZmatj,selectZmati);
-        amux_(&numberExogenous,newPt,zNew,
-        selectZmat,selectZmatj,selectZmati);
+        sparseMatTimesVec(&numberExogenous,
+        selectZmat,selectZmatj,selectZmati,linearizationPt,zLin);
+        sparseMatTimesVec(&numberExogenous,
+        selectZmat,selectZmatj,selectZmati,newPt,zNew);
 for(i=0;i<numberExogenous;i++){zDeviation[i]=zNew[i]-zLin[i];}
-        amux_(&hrows,zDeviation,unsigned intercept,
-        impact,impactj,impacti);
+        sparseMatTimesVec(&hrows,
+        impact,impactj,impacti,zDeviation,unsigned intercept);
 csrdns_(&hrows,&aOne,cstar,cstarj,cstari,cXstar,&hrows,&ierr);
 pathNewtAssert(ierr == 0);
 bump(hrows);
-        amux_(&hrows,cXstar,unsigned intercept,
-        varthetaC,varthetaCj,varthetaCi);
+        sparseMatTimesVec(&hrows,
+        varthetaC,varthetaCj,varthetaCi,cXstar,unsigned intercept);
 
 @}
 
@@ -4543,9 +4553,9 @@ intOutputInfo, doubleOutputInfo);
         atmux_(&n,compfvec,
         g,chkfdrv,chkfdrvj,chkfdrvi);
 for(i=0;i<*pathLength;i++){
-amux_(rowDim,fvec+(i * *numberOfEquations),
-g+(*numberOfEquations * (*lags+i)),smats[i],
-smatsj[i],smatsi[i]);}
+sparseMatTimesVec(rowDim,smats[i],
+smatsj[i],smatsi[i],fvec+(i * *numberOfEquations),
+g+(*numberOfEquations * (*lags+i)));}
 
 @}
 
@@ -5186,7 +5196,7 @@ c-----------------------------------------------------------------------
 
 @o stackC.h -d
 @{
-//void amux_();
+//void sparseMatTimesVec();
 
 
 
