@@ -207,7 +207,7 @@ Map[iterFunc,shockSeqList]
 
 /*void free();*/
 /*void * calloc(unsigned num,int amt);*/
-void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
+/*void pathNewt(int * numberOfEquations,int * lags, int * leads,int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, int ** fmatsj, int ** fmatsi,
 double ** smats, int ** smatsj, int ** smatsi,
@@ -223,7 +223,7 @@ double * pathNewtMa50bdFact,
 int * pathNewtMa50bdIrnf,
 int * pathNewtMa50bdIptrl,
 int * pathNewtMa50bdIptru
-);
+);*/
 long ignuin(long low,long high);
 void phrtsd(char* phrase,long* seed1,long* seed2);
 void setall(long iseed1,long iseed2);
