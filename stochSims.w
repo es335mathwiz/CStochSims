@@ -100,6 +100,9 @@ Map[iterFunc,shockSeqList]
 @}
 @o stochSims.h -d
 @{
+#define MAXELEMENTS 20000
+#define PATHLENGTH 10
+#define REPLICATIONS 5000
 
 
 #define widthIntControlInfo 70
@@ -224,9 +227,9 @@ unsigned int * pathNewtMa50bdIrnf,
 unsigned int * pathNewtMa50bdIptrl,
 unsigned int * pathNewtMa50bdIptru
 );*/
-long ignuin(long low,long high);
-void phrtsd(char* phrase,long* seed1,long* seed2);
-void setall(long iseed1,long iseed2);
+long ignuin_(long low,long high);
+void phrtsd_(char* phrase,long* seed1,long* seed2);
+void setall_(long iseed1,long iseed2);
 
 void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
 unsigned int * iarray,char * str);
@@ -242,7 +245,7 @@ void * calloc(size_t amt,size_t size);
 #define MPI_Datatype int
 @}
 
-@o distStochSims.h -d
+@o stochSims.h -d
 @{
 /*what goes here?*/
 #include <stdio.h>
@@ -254,6 +257,7 @@ void * calloc(size_t amt,size_t size);
 #include <math.h>
 #include "mpi.h"
 #define TRUE 1
+#define FALSE 0
 #define DATA_MSG_TAG 0
 #define RESULT_MSG_TAG 1
 #define HALT_MSG_TAG 2
@@ -266,37 +270,7 @@ void sendDataMessage(int,int*);
 void sendHaltMessage(int);
 void buildResultType(double*, int*, int*, int, int, MPI_Datatype*);
 void error(int, int, int, int);
-void stochSim(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),unsigned int * exogRow, unsigned int * exogCol, unsigned int * exogenizeQ,
-double easyX[],double targetX[],unsigned int * exogQ,
-double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
-unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,
-double x[],
-unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * pathNewtMa50bdJob,
-unsigned int * pathNewtMa50bdIq,
-double * pathNewtMa50bdFact,
-unsigned int * pathNewtMa50bdIrnf,
-unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru,
-unsigned int * compXMa50bdJob,
-unsigned int * compXMa50bdIq,
-double * compXMa50bdFact,
-unsigned int * compXMa50bdIrnf,
-unsigned int * compXMa50bdIptrl,
-unsigned int * compXMa50bdIptru
-);
+@<stochSim signature@>;
 @}
 
 
@@ -394,7 +368,7 @@ void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int 
 {
 *iarray=(unsigned int *)calloc((tfIndex-t0Index+1)*replications,sizeof(int));
 }
-void cfreeGenerateDraws(unsigned int ** iarray)
+void freeGenerateDraws(unsigned int ** iarray)
 {
 free(*iarray);
 }
@@ -410,11 +384,11 @@ unsigned int ntot,i;
 long mxint;
 ntot=(tfIndex-t0Index+1)*replications;
 if(strcmp(seedString,"sequential")){/*need to generate random numbers*/
-phrtsd(seedString,& seed1,& seed2);
-setall(seed1,seed2);
+phrtsd_(seedString,& seed1,& seed2);
+setall_(seed1,seed2);
 mxint=shocksAvailable;
     for(i=0; i<ntot; i++) {
-        *(iarray+i) = ignuin(K1,mxint);
+        *(iarray+i) = ignuin_(K1,mxint);
     }
 } else {/*generate 1...min(stochpathlength,numshocks) to fill up stochpathlength*/
 for(i=0;i<ntot;i++){
@@ -1375,17 +1349,52 @@ free(lclFixedPoint);
 }
 @}
 
+@d stochSim signature
+@{
+void stochSim(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),
+double * params,
+unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
+void (* exdfunc)(),
+unsigned int * replications,
+unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+double * shockTable,unsigned int * shocksAvailable,
+double * dataTable,unsigned int * dataAvailable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,double * linearizationPoint,
+unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
+double x[],
+unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
+double * pathNewtMa50bdFact,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
+double * compXMa50bdFact,
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
+)
+@}
 @o stochSims.c -d
 @{
 @<define assert bump@>
 
 #include "stochSims.h"
 
-void allocStochSims(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
+void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
 {
 *failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(int));
 }
-void cfreeStochSims(unsigned int ** failedQ)
+void freeStochSim(unsigned int ** failedQ)
 {
 free(*failedQ);
 }
@@ -1499,38 +1508,8 @@ fclose(debFile);
 free(stochasticPathLength);
 }
 
-void stochSim(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),
-double * params,
-unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
-void (* exdfunc)(),
-unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,
-unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
-double easyX[],double targetX[],unsigned int * exogQ,
-double x[],
-unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * pathNewtMa50bdJob,
-unsigned int * pathNewtMa50bdIq,
-double * pathNewtMa50bdFact,
-unsigned int * pathNewtMa50bdIrnf,
-unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru,
-unsigned int * compXMa50bdJob,
-unsigned int * compXMa50bdIq,
-double * compXMa50bdFact,
-unsigned int * compXMa50bdIrnf,
-unsigned int * compXMa50bdIptrl,
-unsigned int * compXMa50bdIptru
-)
+
+@<stochSim signature@>
 {
 unsigned int check[1]={0};
 unsigned int * stochasticPathLength;
@@ -1602,7 +1581,7 @@ free(stochasticPathLength);
 @{
 @<define assert bump@>
 #include "stochSims.h"
-#include "distStochSims.h"
+//#include "distStochSims.h"
 
 
 void distStochSim(

@@ -2009,7 +2009,7 @@ for(i=0;i<(pathLength)+lags+1;i++){
      numberOfEquations*(lags+leads)+1,sizeof(unsigned int));
 }
 }
-void cfreeMa50(
+void freeMa50(
 unsigned int **ma50bdIptru,
 unsigned int **ma50bdIptrl,
 unsigned int **ma50bdIrnf,
@@ -2024,7 +2024,7 @@ free(*ma50bdFact);
 free(*ma50bdIq);
 free(*ma50bdJob);
 }
-void cfreeFPNewt(unsigned int lags, unsigned int pathLength,
+void freeFPNewt(unsigned int lags, unsigned int pathLength,
 double ** genericFP,
 double ** genericIntercept,
 double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
@@ -2064,7 +2064,7 @@ double** rootr,double**rooti)
 }
 
 
-void cfreeAltComputeAsymptoticQ(
+void freeAltComputeAsymptoticQ(
 double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
 double**rootr,double**rooti)
 {
@@ -2135,7 +2135,7 @@ double**impact,unsigned int**impactj,unsigned int**impacti
         sizeof(unsigned int));
 }
 
-void cfreePhiF(
+void freePhiF(
 double**psiMatrix,unsigned int**psiMatrixj,unsigned int**psiMatrixi,
 double**upsilonMatrix,unsigned int**upsilonMatrixj,unsigned int**upsilonMatrixi,
 double**phiMatrix,unsigned int**phiMatrixj,unsigned int**phiMatrixi,
@@ -2267,7 +2267,7 @@ double**selectZmat,unsigned int**selectZmatj,unsigned int**selectZmati
 *rooti=(double *) calloc((numberOfEquations)*((lags)+(leads)),sizeof(double));
 }
 
-void cfreeLinearTerminator(
+void freeLinearTerminator(
 double**upsilonMatrix,unsigned int**upsilonMatrixj,unsigned int**upsilonMatrixi,
 double**hMat,unsigned int**hMatj,unsigned int**hMati,
 double**hzMat,unsigned int**hzMatj,unsigned int**hzMati,
@@ -2349,7 +2349,7 @@ double**genericTargetPath
     numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
     sizeof(double));
 }
-void cfreePathNewt(double ** genericPath)
+void freePathNewt(double ** genericPath)
 {
 free(*genericPath);
 }
@@ -2358,7 +2358,7 @@ void allocShockVec(unsigned int numberOfEquations,double**shockVec)
 *shockVec=(double *)calloc(
     numberOfEquations,sizeof(double));
 }
-void cfreeShockVec(double ** shockVec)
+void freeShockVec(double ** shockVec)
 {
 free(*shockVec);
 }
@@ -2374,7 +2374,7 @@ unsigned int i;
     numberOfEquations,sizeof(double));
 for(i=0;i<numberOfEquations;i++){(*zeroShockVec)[i]=0.0;}
 }
-void cfreeShocksData(double ** shockVec,double ** dataVec,
+void freeShocksData(double ** shockVec,double ** dataVec,
 double ** zeroShockVec)
 {
 free(*shockVec);
@@ -2709,14 +2709,14 @@ for(ihomotopy=0;(ihomotopy<numberAlphas)&&(!(*check));ihomotopy++){
 #ifdef DEBUG 
 printf("%d-th homotopy -- %f\n",ihomotopy,*(homotopyAlpha+ihomotopy));
 #endif
-@<q terminal constraunsigned int computation@>
+@<q terminal constraint computation@>
 
 its=0;
 @<pathNewt check for convergence @>
 	for (its=1;(its<=(maxitsInput))&&(!done);its++) {
 if(*check == 0){
 @<pathNewt update path@>
-@<q terminal constraunsigned int computation@>
+@<q terminal constraint computation@>
 @<another pn check for convergence@>
 	}
 }
@@ -2749,7 +2749,7 @@ void (* vecfunc)(),void (* fdjac)(),double * params,double * shockVec,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRow, unsigned int * exogCols, unsigned int * exogenizeQ,
+double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,double x[],
 unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
@@ -2761,7 +2761,7 @@ unsigned int * ma50bdIptrl,
 unsigned int * ma50bdIptru
 )
 @}
-@o nyNewt.c -d
+@o myNewt.c -d
 @{
 
  void putBadHomotopy(
@@ -2832,7 +2832,7 @@ vecfunc,fdjac,params,trialShock,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
-fixedPoint,unsigned intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
 trialX,
 check,lastDel,intControlParameters,doubleControlParameters,
 intOutputInfo,doubleOutputInfo,
@@ -2865,17 +2865,17 @@ if(*check){
 addOneToHomotopyFailures;
 debFile=fopen("codeGenDebHFile","w");
 fprintf(debFile,"homotopy failing\n");
-fPrunsigned intMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
 targetX,"hom$fail$targetX");
-fPrunsigned intMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
 easyX,"hom$fail$easyX");
-fPrunsigned intMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
 x,"hom$fail$x");
-fPrunsigned intMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
 lastDel,"hom$fail$xdel");
-fPrunsigned intMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
+fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
 targetX,"hom$fail$fixedPt");
-fPrunsigned intMathDbl(debFile,*numberOfEquations,
+fPrintMathDbl(debFile,*numberOfEquations,
 trialShock,"hom$fail$shock");
 fclose(debFile);
 }
@@ -2903,12 +2903,12 @@ free(trialShock);
 @}
 
 
-@d q terminal constraunsigned int computation
+@d q terminal constraint computation
 @{
 
 @<compute fmats for path@>
 
-@<apply q terminal constraunsigned int@>
+@<apply q terminal constraint@>
 {/*use shock first period only*/
 addOneToFDrvEvals;
       fdjac(x,params,shockVec,
@@ -2952,7 +2952,7 @@ addOneToFEvals;
 @}
 
 
-@d apply q terminal constraunsigned int
+@d apply q terminal constraint
 @{
 if(*leads>0){
 /*

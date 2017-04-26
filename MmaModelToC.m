@@ -808,12 +808,13 @@ With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 writeModelDotC[outFile_String,aList_Association]:=
 With[{theStr=TemplateApply[mmaToCTemplate,aList]},
 WriteString[outFile<>".c",
-	theStr]]
+	    theStr];Close[outFile<>".c"]]
 
 
 writeModelDotCDrv[outFile_String,aList_Association]:=
+  Module[{},
 WriteString[outFile<>"Drv.c",
-	TemplateApply[mmaToCDrvTemplate,aList]]
+	    TemplateApply[mmaToCDrvTemplate,aList]];Close[outFile<>"Drv.c"]]
 
 mmaToCDrvTemplate="
 
@@ -880,8 +881,9 @@ aMat,jaMat,iaMat,&maxNumberHElements,okay,&ierr);
 
 
 writeMakefile[outFile_String,aList_Association]:=
+  Module[{},
 WriteString[outFile<>"Makefile",
-	TemplateApply[makefileTemplate,aList]]
+	    TemplateApply[makefileTemplate,aList]];Close[outFile<>"Makefile"]]
 
 
 
@@ -976,7 +978,7 @@ debrun`outFile`:	deb`outFile`.o debrun`outFile`.o \
 
 writeMPIRun[outFile_String,aList_Association]:=
 WriteString["runmpi"<>outFile<>".c",
-	TemplateApply[mpiRunTemplate,aList]]
+	    TemplateApply[mpiRunTemplate,aList];Close["runmpi"<>outFile<>".c"]]
 
 mpiRunTemplate="
 
@@ -1043,6 +1045,12 @@ for(i=0;i<numberOfDataValues;i++){`functionName`Data(i,
 for(i=0;i<numberOfShocks;i++){`functionName`Shocks(i,
 	`functionName`ShockVals+(i*numberOfEquations));}
 
+
+unsigned int * intControlParameters;
+double * doubleControlParameters;
+
+unsigned int * intOutputInfo;
+double * doubleOutputInfo;
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
 paramNamesArray,numberOfParameters,parameters,
@@ -1541,12 +1549,13 @@ dataVals[t*numberOfEquations+vbl]=(t-t0)*val2/(tf-t0) + (tf-t)*val1/(tf-t0);
 }
  
  
-#include \"runItOther.h\"
+//#include \"runItOther.h\"
 
 "
 writeDataInclude[outFile_String,aList_Association]:=
+Module[{},
 WriteString[outFile<>"DataForInclude.h",
-	TemplateApply[dataIncludeTemplate,aList]]
+  TemplateApply[dataIncludeTemplate,aList]];Close[outFile<>"DataForInclude.h"]]
 
 dataIncludeTemplate=
 "
@@ -1560,8 +1569,9 @@ static double theData[`dataRows`][`dataCols`]=
 
 "
 writeShocksInclude[outFile_String,aList_Association]:=
+Module[{},
 WriteString[outFile<>"ShocksForInclude.h",
-	TemplateApply[shocksIncludeTemplate,aList]]
+  TemplateApply[shocksIncludeTemplate,aList]];Close[outFile<>"ShocksForInclude.h"]]
 
 shocksIncludeTemplate=
 "
@@ -1574,8 +1584,9 @@ static double theShocks[`shocksRows`][`shocksCols`]=
 
 "
 writeShocks[outFile_String,aList_Association]:=
+Module[{},
 WriteString[outFile<>"Shocks.c",
-	TemplateApply[shocksTemplate,aList]]
+  TemplateApply[shocksTemplate,aList]];Close[outFile<>"Shocks.c"]]
 
 shocksTemplate=
 "
@@ -1592,8 +1603,9 @@ for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++)vectorOfVals[i]=theShocks[t][i
 "
 
 writeRunLocalDefs[outFile_String,aList_Association]:=
+Module[{},
 WriteString["run"<>outFile<>"LocalDefs.h",
-	TemplateApply[runItLocalDefsTemplate,aList]]
+  TemplateApply[runItLocalDefsTemplate,aList]];Close["run"<>outFile<>"LocalDefs.h"]]
 
 runItLocalDefsTemplate=
 "
@@ -1646,8 +1658,9 @@ double * `functionName`ZeroPathQ;
 "
 
 writeData[outFile_String,aList_Association]:=
+Module[{},
 WriteString[outFile<>"Data.c",
-	TemplateApply[dataTemplate,aList]]
+  TemplateApply[dataTemplate,aList]];Close[outFile<>"Data.c"]]
 
 dataTemplate=
 "
@@ -1665,8 +1678,9 @@ for(i=0;i<`dataCols`;i++)vectorOfVals[i]=theData[t][i];
 "
 
 writeRun[outFile_String,aList_Association]:=
+Module[{},
 WriteString["run"<>outFile<>".c",
-	TemplateApply[runItTemplate,aList]]
+  TemplateApply[runItTemplate,aList]];Close["run"<>outFile<>".c"]]
 
 runItTemplate=
 "
@@ -1678,20 +1692,22 @@ runItTemplate=
 #include <stdlib.h>
 #include <stdio.h>
 #include \"stackC.h\"
-#include \"stochProto.h\"
+#include \"stochSims.h\"
+#include \"runItOther.h\"
+//#include \"stochProto.h\"
 
 
 
 
 #define PATHLENGTH 1000
-unsigned int Parameters=0;
+unsigned int numParameters=0;
 unsigned int NEQS=`modelNumberOfEquations`;
 unsigned int NLAGS=`lags`;
 unsigned int NLEADS=`leads`;
 unsigned int numDATA=`dataRows`;
 unsigned int numSHOCKS=`shocksRows`;
 double * theData;
-#include \"runItInvariantLocalDefs.h\"
+//#include \"runItInvariantLocalDefs.h\"
 unsigned int i;
 #include \"run`outFile`LocalDefs.h\"
 
@@ -1699,19 +1715,28 @@ int main(int argc, char * argv[])
 {
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
 
-`functionName`DataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
-for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(*numberOfEquations)));}
+`functionName`DataVals=(double *)calloc(NEQS*numDATA,sizeof(double));
+for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(NEQS)));}
 
-`functionName`ShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
-for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
+`functionName`ShockVals=(double *)calloc(NEQS*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(NEQS)));}
 
 
 
-processCommandLine(argc,argv,namesArray,*numberOfEquations,
-paramNamesArray,numberOfParameters,parameters,
+unsigned int * intControlParameters;
+double * doubleControlParameters;
+
+unsigned int * intOutputInfo;
+double * doubleOutputInfo;
+
+processCommandLine(argc,argv,namesArray,&NEQS,
+paramNamesArray,&numParameters,parameters,
 	`functionName`DataVals,numDATA,numSHOCKS,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
+
+
+
 
 unsigned int exogRows[0];
 unsigned int exogCols[0];
@@ -1723,18 +1748,18 @@ unsigned int * `functionName`FailedQ;
 unsigned int maxNumberElements=100;
 double ** fmats, ** smats;
 unsigned int ** fmatsj, ** smatsj,** fmatsi, **smatsi;
-allocFPNewt(*numberOfEquations,NLAGS,NLEADS,*pathLength,maxNumberElements,
+allocFPNewt(NEQS,NLAGS,NLEADS,*pathLength,maxNumberElements,
 &`functionName`FP,&`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
 
-double *`functionName`DataVals=(double *)calloc(*numberOfEquations*numDATA,sizeof(double));
+double *`functionName`DataVals=(double *)calloc(NEQS*numDATA,sizeof(double));
 unsigned int i;
-for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(*numberOfEquations)));}
+for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(NEQS)));}
 
-double *`functionName`ShockVals=(double *)calloc(*numberOfEquations*numSHOCKS,sizeof(double));
-for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(*numberOfEquations)));}
+double *`functionName`ShockVals=(double *)calloc(NEQS*numSHOCKS,sizeof(double));
+for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(NEQS)));}
 double * AMqMatrix;
 unsigned int * AMqMatrixi;
 unsigned int * AMqMatrixj;
@@ -1743,7 +1768,7 @@ unsigned int * AMqMatrixj;
 double * rootr;
 double * rooti;
 
-allocAltComputeAsymptoticQ(*numberOfEquations,NLAGS,NLEADS,
+allocAltComputeAsymptoticQ(NEQS,NLAGS,NLEADS,
 maxNumberElements,&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
 &rootr,&rooti);
 
@@ -1753,7 +1778,7 @@ double*`functionName`EasyPath;
 double*`functionName`TargetPath;
 
 
-allocPathNewt(*numberOfEquations,NLAGS,NLEADS,
+allocPathNewt(NEQS,NLAGS,NLEADS,
 *pathLength,*replications,*stochasticPathLength,
 &`functionName`Path,
 &`functionName`ZeroPath,
@@ -1764,11 +1789,11 @@ unsigned int j;
 allocStochSim(*stochasticPathLength,*replications,&`functionName`FailedQ);
 /*initialize  whole path to data values at t0*/
 for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
-  for(j=0;j<*numberOfEquations;j++){
-	`functionName`ZeroPathQ[i* (*numberOfEquations)+j]=
-	  `functionName`DataVals[(i+*t0)*(*numberOfEquations)+j];
-	`functionName`PathQ[i* (*numberOfEquations)+j]=
-	  `functionName`DataVals[(i+*t0)*(*numberOfEquations)+j];
+  for(j=0;j<NEQS;j++){
+	`functionName`ZeroPathQ[i* (NEQS)+j]=
+	  `functionName`DataVals[(i+*t0)*(NEQS)+j];
+	`functionName`PathQ[i* (NEQS)+j]=
+	  `functionName`DataVals[(i+*t0)*(NEQS)+j];
   }}
 
 
@@ -1777,11 +1802,11 @@ for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
      (*stochasticPathLength)*(*replications),sizeof(unsigned int));
 
 printf(\"generating perm vec\\n\");
- generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec);
+ generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec,\"huh\");
 printf(\"done generating perm vec\\n\");
 
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
-FPnewt(numberOfEquations,&NLAGS,&NLEADS,
+FPnewt(&NEQS,&NLAGS,&NLEADS,
 `functionName`,`functionName`Derivative,parameters,
 `functionName`FP,`functionName`Intercept,exogRows,exogCols,exogenizeQ,
 fmats,fmatsj,fmatsi,
@@ -1800,7 +1825,7 @@ unsigned int ihomotopy[1]={0};
 
 
 altComputeAsymptoticQMatrix(
-numberOfEquations,lags,leads,
+&NEQS,&NLAGS,&NLEADS,
 `functionName`,`functionName`Derivative,parameters,
 shockVecStandIn,`functionName`FP,exogRows,exogCols,exogenizeQ,pathLength,
 fmats,fmatsj,fmatsi,
@@ -1813,19 +1838,61 @@ intControlParameters,doubleControlParameters,
 intOutputInfo, doubleOutputInfo
 );
 
+unsigned int * pathNewtMa50bdJob;
+unsigned int * pathNewtMa50bdIq;
+unsigned int * pathNewtMa50bdFact;
+unsigned int * pathNewtMa50bdIrnf;
+unsigned int * pathNewtMa50bdIptrl;
+unsigned int * pathNewtMa50bdIptru;
+unsigned int * compXMa50bdJob;
+unsigned int * compXMa50bdIq;
+unsigned int * compXMa50bdFact;
+unsigned int * compXMa50bdIrnf;
+unsigned int * compXMa50bdIptrl;
+unsigned int * compXMa50bdIptru;
+unsigned int * exogQ;
+unsigned int * exogCol;
+unsigned int * exogRow;
+unsigned int * numExog;
+double * targetX;
+double * easyX;
+double * linearizationPoint;
+double * tf;
+double * intercept;
+double * upsilonmat;
+unsigned int * upsilonmatj;
+unsigned int * upsilonmati;
+void exdfunc(){};
 
 
-stochSim(numberOfEquations,lags,leads,pathLength,
+stochSim(&NEQS,&NLAGS,&NLEADS,pathLength,
 `functionName`,`functionName`Derivative,parameters,
+numExog,upsilonmat,upsilonmatj,upsilonmati,&exdfunc,
 replications,t0,tf,`functionName`PermVec,
 `functionName`ShockVals,&numSHOCKS,
 `functionName`DataVals,&numDATA,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
-`functionName`FP,
+`functionName`FP,intercept,linearizationPoint,
+exogRow,exogCol,exogenizeQ,
+easyX,targetX,exogQ,
 `functionName`PathQ,
-`functionName`FailedQ);
+`functionName`FailedQ,
+intControlParameters,doubleControlParameters,
+intOutputInfo, doubleOutputInfo,
+pathNewtMa50bdJob,
+pathNewtMa50bdIq,
+pathNewtMa50bdFact,
+pathNewtMa50bdIrnf,
+pathNewtMa50bdIptrl,
+pathNewtMa50bdIptru,
+compXMa50bdJob,
+compXMa50bdIq,
+compXMa50bdFact,
+compXMa50bdIrnf,
+compXMa50bdIptrl,
+compXMa50bdIptru);
 
 
 
@@ -1871,7 +1938,7 @@ freeStochSim(&`functionName`FailedQ);
 return(0);
 }
 
-#include \"`runItOth`\"
+//#include \"`runItOth`\"
 
 /*
 */
@@ -1898,7 +1965,7 @@ printf(\"after computing Q matrix\ntotalTime=%f,userSystemTime=%f,systemTime=%f\
 printf(\"using q matrix\n\");*/
 /*
 
-stochSim(numberOfEquations,lags,leads,pathLength,
+stochSim(&NEQS,&NLAGS,&NLEADS,pathLength,
 `functionName`,`functionName`Derivative,parameters,
 replications,t0,tf,julliardPermVec,
 julliardShocks,numberOfShocks,
@@ -1915,8 +1982,9 @@ failedQ);
 "
 
 writeCSupport[outFile_String,aList_Association]:=
+Module[{},
 WriteString[outFile<>"Support.c",
-	TemplateApply[cSupportTemplate,aList]]
+  TemplateApply[cSupportTemplate,aList]];Close[outFile<>"Support.c"]]
 
 cSupportTemplate="
 
@@ -1925,7 +1993,10 @@ cSupportTemplate="
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
-#include \"useSparseAMA.h\"
+//#include \"useSparseAMA.h\"
+#include \"stackC.h\"
+#include \"stochSims.h\"
+#include \"runItOther.h\"
 //static double maxarg1,maxarg2;
 #include <math.h>
 
@@ -1980,7 +2051,7 @@ void `functionName`ModelDimensions(int * numberOfEquations, int * lags,
 int * leads, int * numberOfParameters,
 int * numberOfDataValues, int * numberOfShocks,int * numberExogenous)
 {
-*numberOfEquations=`modelNumberOfEquations`;
+unsigned int NEQS=`modelNumberOfEquations`;
 *lags=`lags`;
 *leads=`leads`;
 *numberOfParameters=`numberOfParameters`;
