@@ -2043,9 +2043,7 @@ free(*smats);
 free(*smatsj);
 free(*smatsi);
 }
-void allocAltComputeAsymptoticQ(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
-unsigned int maxElements,double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
-double** rootr,double**rooti)
+@<allocAltComputeAsymptoticQ signature@>
 {
 *AMqMatrix=(double *)
    calloc(maxElements,sizeof(double));
@@ -2347,6 +2345,13 @@ double**genericTargetPath
 }
 @}
 
+@d allocAltComputeAsymptoticQ signature
+@{
+void allocAltComputeAsymptoticQ(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+unsigned int maxElements,double**AMqMatrix,unsigned int**AMqMatrixj,unsigned int**AMqMatrixi,
+double** rootr,double**rooti)
+@}
+
 @d freePathNewt signature
 @{
 void freePathNewt(double ** genericPath)
@@ -2354,6 +2359,7 @@ void freePathNewt(double ** genericPath)
 
 @o stackC.h -d
 @{
+@<allocAltComputeAsymptoticQ signature@>;
 @<freePathNewt signature@>;
 @}
 
