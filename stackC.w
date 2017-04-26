@@ -3402,6 +3402,20 @@ qMati[j]=(2*j)+1;
 qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 }
 
+@<altComputeAsymptoticQMatrix signature@>
+{
+@<altComputeAsymptoticQMatrix variable declarations@>
+@<altComputeAsymptoticQMatrix variable allocations@>
+  *ierr=0;
+
+@<create asymptotic linearization for Anderson-Moore algorithm@>
+@<alt apply the Anderson-Moore algorithm  to get AMqMatrix@>
+
+@<altComputeAsymptoticQMatrix variable deallocations@>
+}
+@}
+@d altComputeAsymptoticQMatrix signature
+@{
 void altComputeAsymptoticQMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (* func)(),void (* dfunc)(),double * params,double * shockVec,
@@ -3415,17 +3429,8 @@ unsigned int * ierr,unsigned int ihomotopy,
 unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 )
-{
-@<altComputeAsymptoticQMatrix variable declarations@>
-@<altComputeAsymptoticQMatrix variable allocations@>
-  *ierr=0;
-
-@<create asymptotic linearization for Anderson-Moore algorithm@>
-@<alt apply the Anderson-Moore algorithm  to get AMqMatrix@>
-
-@<altComputeAsymptoticQMatrix variable deallocations@>
-}
 @}
+
 @d altComputeAsymptoticQMatrix variable deallocations
 @{
 free(newH);
