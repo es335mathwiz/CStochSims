@@ -1840,13 +1840,13 @@ intOutputInfo, doubleOutputInfo
 
 unsigned int * pathNewtMa50bdJob;
 unsigned int * pathNewtMa50bdIq;
-unsigned int * pathNewtMa50bdFact;
+double * pathNewtMa50bdFact;
 unsigned int * pathNewtMa50bdIrnf;
 unsigned int * pathNewtMa50bdIptrl;
 unsigned int * pathNewtMa50bdIptru;
 unsigned int * compXMa50bdJob;
 unsigned int * compXMa50bdIq;
-unsigned int * compXMa50bdFact;
+double * compXMa50bdFact;
 unsigned int * compXMa50bdIrnf;
 unsigned int * compXMa50bdIptrl;
 unsigned int * compXMa50bdIptru;
@@ -1857,7 +1857,7 @@ unsigned int * numExog;
 double * targetX;
 double * easyX;
 double * linearizationPoint;
-double * tf;
+unsigned int * tf;
 double * intercept;
 double * upsilonmat;
 unsigned int * upsilonmatj;

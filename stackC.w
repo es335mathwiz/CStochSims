@@ -2020,11 +2020,7 @@ free(*ma50bdFact);
 free(*ma50bdIq);
 free(*ma50bdJob);
 }
-void freeFPNewt(unsigned int lags, unsigned int pathLength,
-double ** genericFP,
-double ** genericIntercept,
-double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
-double***smats,unsigned int***smatsj,unsigned int***smatsi)
+@<freeFPNewt signature@>
 {unsigned int i;
 free(*genericFP);
 free(*genericIntercept);
@@ -2335,6 +2331,19 @@ free(*rooti);
     numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
     sizeof(double));
 }
+@}
+@d freeFPNewt signature
+@{
+void freeFPNewt(unsigned int lags, unsigned int pathLength,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
+double***smats,unsigned int***smatsj,unsigned int***smatsi)
+@}
+@o stackC.h -d
+@{
+@<freeFPNewt signature@>;
+@<freeAltComputeAsymptoticQ signature@>;
 @}
 
 @d freeAltComputeAsymptoticQ signature
@@ -3368,6 +3377,7 @@ double***smats,unsigned int***smatsj,unsigned int***smatsi)
 @o stackC.h -d
 @{
 @<allocFPNewt signature@>;
+@<altComputeAsymptoticQMatrix signature@>;
 @}
 @o myNewt.c -d
 @{
