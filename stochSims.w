@@ -362,6 +362,7 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 @{
 @<define assert bump@>
 
+#include <string.h>
 #include "stochSims.h"
 
 void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
@@ -977,8 +978,44 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 
 
 @}
+@d generatePathX signature
+@{
+void generatePathX(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(),void (* fdjac)(),double * params,
+unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+unsigned int * numberOfShocks,
+unsigned int * shockIndices,
+double * shockTable,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+double * fixedPoint,double * intercept,
+double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double easyX[],double targetX[],unsigned int * exogQ,
+double x[],
+unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int * pathNewtMa50bdJob,
+unsigned int * pathNewtMa50bdIq,
+double * pathNewtMa50bdFact,
+unsigned int * pathNewtMa50bdIrnf,
+unsigned int * pathNewtMa50bdIptrl,
+unsigned int * pathNewtMa50bdIptru,
+unsigned int * compXMa50bdJob,
+unsigned int * compXMa50bdIq,
+double * compXMa50bdFact,
+unsigned int * compXMa50bdIrnf,
+unsigned int * compXMa50bdIptrl,
+unsigned int * compXMa50bdIptru
+)
+@}
+
+
 @o stochSims.h
 @{
+@<generatePathX signature@>;
 @<currentRequestedQ signature@>;
 @}
 
@@ -1010,36 +1047,7 @@ result=result+((currentReplication==*((&debugPairs)+2*ii))&&(currentDate==*(&(de
 return(result);
 }
 
-void generatePathX(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
-unsigned int * numberOfShocks,
-unsigned int * shockIndices,
-double * shockTable,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,
-double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double easyX[],double targetX[],unsigned int * exogQ,
-double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * pathNewtMa50bdJob,
-unsigned int * pathNewtMa50bdIq,
-double * pathNewtMa50bdFact,
-unsigned int * pathNewtMa50bdIrnf,
-unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru,
-unsigned int * compXMa50bdJob,
-unsigned int * compXMa50bdIq,
-double * compXMa50bdFact,
-unsigned int * compXMa50bdIrnf,
-unsigned int * compXMa50bdIptrl,
-unsigned int * compXMa50bdIptru
-)
+@<generatePathX signature@>
 {
 double * lclFixedPoint;
 unsigned int maxElementsEncountered=0;
@@ -1436,11 +1444,11 @@ unsigned int * compXMa50bdIptrl,
 unsigned int * compXMa50bdIptru
 )
 {
-unsigned int check[1]={0};
+//unsigned int check[1]={0};
 unsigned int * stochasticPathLength;
 unsigned int maxElementsEncountered=0;
 unsigned int maxElementsSpecified;
-unsigned int i,j;
+unsigned int i/*,j*/;
 FILE * debFile;
 printf("streaming shocks data and path\n");
 getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
@@ -1511,11 +1519,11 @@ free(stochasticPathLength);
 
 @<stochSim signature@>
 {
-unsigned int check[1]={0};
+//unsigned int check[1]={0};
 unsigned int * stochasticPathLength;
 unsigned int maxElementsEncountered=0;
 unsigned int maxElementsSpecified;
-unsigned int i,j;
+unsigned int i/*,j*/;
 FILE * debFile;
 
 resetHomotopies;
