@@ -2369,7 +2369,7 @@ void freePathNewt(double ** genericPath)
 
 @}
 
-@d freeAltComputeAsymptoticQ signature
+@d altComputeAsymptoticQ signature
 @{
 void altComputeAsymptoticIMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
@@ -2380,7 +2380,7 @@ unsigned int * ierr
 
 @o stackC.h -d
 @{
-@<freeAltComputeAsymptoticQ signature@>;
+@<altComputeAsymptoticQ signature@>;
 @}
 
 @o stackC.c -d
@@ -3367,7 +3367,7 @@ double***smats,unsigned int***smatsj,unsigned int***smatsi)
 @}
 @o myNewt.c -d
 @{
-@<freeAltComputeAsymptoticQ signature@>
+@<altComputeAsymptoticQ signature@>
 {
 unsigned int j;
 /*construct identity matrices*/
