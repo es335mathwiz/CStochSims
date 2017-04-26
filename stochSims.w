@@ -1396,10 +1396,15 @@ unsigned int * compXMa50bdIptru
 @{
 void freeStochSim(unsigned int ** failedQ)
 @}
+@d allocStochSims signature
+@{
+void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
+@}
 
 @o stochSims.h -d
 @{
 @<freeStochSims signature@>;
+@<allocStochSims signature@>;
 @}
 @o stochSims.c -d
 @{
@@ -1407,7 +1412,7 @@ void freeStochSim(unsigned int ** failedQ)
 
 #include "stochSims.h"
 
-void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,unsigned int ** failedQ)
+@<allocStochSims signature@>
 {
 *failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(int));
 }

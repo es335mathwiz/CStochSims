@@ -2318,13 +2318,7 @@ free(*rooti);
 }
 
 
-void allocPathNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
-unsigned int pathLength,unsigned int replications,unsigned int stochasticPathLength,
-double**genericPath,
-double**genericZeroPath,
-double**genericEasyPath,
-double**genericTargetPath
-)
+@<allocPathNewt signature@>
 {
 *genericPath=(double *)calloc(
     replications*
@@ -2345,6 +2339,16 @@ double**genericTargetPath
 }
 @}
 
+@d allocPathNewt signature
+@{
+void allocPathNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+unsigned int pathLength,unsigned int replications,unsigned int stochasticPathLength,
+double**genericPath,
+double**genericZeroPath,
+double**genericEasyPath,
+double**genericTargetPath
+)@}
+
 @d allocAltComputeAsymptoticQ signature
 @{
 void allocAltComputeAsymptoticQ(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
@@ -2361,6 +2365,8 @@ void freePathNewt(double ** genericPath)
 @{
 @<allocAltComputeAsymptoticQ signature@>;
 @<freePathNewt signature@>;
+@<allocPathNewt signature@>;
+
 @}
 
 @d freeAltComputeAsymptoticQ signature
@@ -2424,6 +2430,7 @@ routine for find the root of a system of equations\cite{press92}
 @{
 
 @}
+
 @d define assert bump
 @{
 
@@ -2476,15 +2483,7 @@ static float minarg1,minarg2;
         (minarg1) : (minarg2))
 
 @<FPnewt defines@>
-void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
-double x[],double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-unsigned int *check,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo)
+@<FPNewt signature@>
 {
 @<FPnewt declarations@>
 *check=0;done=0;
@@ -2537,6 +2536,23 @@ free(deviations);free(fullfvec);\
 free(compfvec);free(compfvecj);free(compfveci);free(chkfdrv);free(chkfdrvj);free(chkfdrvi);free(zeroShockVec);\
 *maxNumberElements = maxElementsEncountered;\
 return;}
+@}
+
+@d FPNewt signature
+@{
+void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+void (* func)(),void (* dfunc)(),double * params,
+double x[],double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+unsigned int * maxNumberElements,
+unsigned int *check,
+unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int * intOutputInfo, double * doubleOutputInfo)
+@}
+@o stackC.h -d
+@{
+@<FPNewt signature@>;
 @}
 
 @d FPnewt declarations
