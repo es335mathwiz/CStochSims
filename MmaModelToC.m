@@ -1699,7 +1699,7 @@ runItTemplate=
 
 
 
-#define PATHLENGTH 1000
+//#define PATHLENGTH 1000
 unsigned int numParameters=0;
 unsigned int NEQS=`modelNumberOfEquations`;
 unsigned int NLAGS=`lags`;
@@ -1729,8 +1729,8 @@ double * doubleControlParameters;
 unsigned int * intOutputInfo;
 double * doubleOutputInfo;
 
-processCommandLine(argc,argv,namesArray,&NEQS,
-paramNamesArray,&numParameters,parameters,
+processCommandLine(argc,argv,namesArray,NEQS,
+paramNamesArray,numParameters,parameters,
 	`functionName`DataVals,numDATA,numSHOCKS,
 	pathLength,replications,t0,stochasticPathLength,
 intControlParameters,doubleControlParameters,flnm);
@@ -2051,7 +2051,7 @@ void `functionName`ModelDimensions(int * numberOfEquations, int * lags,
 int * leads, int * numberOfParameters,
 int * numberOfDataValues, int * numberOfShocks,int * numberExogenous)
 {
-unsigned int NEQS=`modelNumberOfEquations`;
+//unsigned int NEQS=`modelNumberOfEquations`;
 *lags=`lags`;
 *leads=`leads`;
 *numberOfParameters=`numberOfParameters`;

@@ -100,7 +100,7 @@ Map[iterFunc,shockSeqList]
 @}
 @o stochSims.h -d
 @{
-#define MAXELEMENTS 20000
+//#define MAXELEMENTS 20000
 #define PATHLENGTH 10
 #define REPLICATIONS 5000
 
@@ -1392,6 +1392,15 @@ unsigned int * compXMa50bdIptrl,
 unsigned int * compXMa50bdIptru
 )
 @}
+@d freeStochSims signature
+@{
+void freeStochSim(unsigned int ** failedQ)
+@}
+
+@o stochSims.h -d
+@{
+@<freeStochSims signature@>;
+@}
 @o stochSims.c -d
 @{
 @<define assert bump@>
@@ -1402,12 +1411,13 @@ void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,u
 {
 *failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(int));
 }
-void freeStochSim(unsigned int ** failedQ)
+@<freeStochSims signature@>
 {
 free(*failedQ);
 }
 
 #include <stdio.h>
+#include "stackC.h"
 
 void streamingStochSim(
 FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,

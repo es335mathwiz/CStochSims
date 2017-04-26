@@ -1958,6 +1958,7 @@ free(zeroShockVec);
 \subsection{array allocation program}
 \label{sec:allocarray}
 
+
 @o stackC.c -d
 @{
 #include "stochSims.h"
@@ -1980,12 +1981,7 @@ sysDim= numberOfEquations*(lags+pathLength+leads);
 *ma50bdJob = (unsigned int *)calloc(1,sizeof(unsigned int));
 }
 
-void allocFPNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
-unsigned int pathLength,unsigned int maxElements,
-double ** genericFP,
-double ** genericIntercept,
-double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
-double***smats,unsigned int***smatsj,unsigned int***smatsi)
+@<allocFPNewt signature@>
 {unsigned int i;
 if(pathLength<1)pathLength=1;
 *genericFP=(double *) calloc(numberOfEquations*(lags+leads+1+pathLength),
@@ -2349,7 +2345,35 @@ double**genericTargetPath
     numberOfEquations*(lags+leads+pathLength+stochasticPathLength),
     sizeof(double));
 }
+@}
+
+@d freePathNewt signature
+@{
 void freePathNewt(double ** genericPath)
+@}
+
+@o stackC.h -d
+@{
+@<freePathNewt signature@>;
+@}
+
+@d freeAltComputeAsymptoticQ signature
+@{
+void altComputeAsymptoticIMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * ierr
+)
+@}
+
+@o stackC.h -d
+@{
+@<freeAltComputeAsymptoticQ signature@>;
+@}
+
+@o stackC.c -d
+@{
+@<freePathNewt signature@>
 {
 free(*genericPath);
 }
@@ -3305,15 +3329,23 @@ double * uprbnd;
 unsigned int * hColumns;
 //unsigned int i;
 @}
+@d allocFPNewt signature
+@{
+void allocFPNewt(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
+unsigned int pathLength,unsigned int maxElements,
+double ** genericFP,
+double ** genericIntercept,
+double***fmats,unsigned int***fmatsj,unsigned int***fmatsi,
+double***smats,unsigned int***smatsj,unsigned int***smatsi)
+@}
 
+@o stackC.h -d
+@{
+@<allocFPNewt signature@>;
+@}
 @o myNewt.c -d
 @{
-
-void altComputeAsymptoticIMatrix(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,
-unsigned int * ierr
-)
+@<freeAltComputeAsymptoticQ signature@>
 {
 unsigned int j;
 /*construct identity matrices*/
