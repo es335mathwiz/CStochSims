@@ -206,7 +206,10 @@ Map[iterFunc,shockSeqList]
 
 
 
-
+unsigned int intControlParameters[100];
+double doubleControlParameters[100];
+unsigned int intOutputInfo[100];
+double doubleOutputInfo[100];
 
 /*void free();*/
 /*void * calloc(unsigned num,unsigned int amt);*/

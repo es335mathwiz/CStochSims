@@ -1046,11 +1046,11 @@ for(i=0;i<numberOfShocks;i++){`functionName`Shocks(i,
 	`functionName`ShockVals+(i*numberOfEquations));}
 
 
-unsigned int * intControlParameters;
-double * doubleControlParameters;
+unsigned int  intControlParameters[1]={0};
+double  doubleControlParameters[1]={0};
 
-unsigned int * intOutputInfo;
-double * doubleOutputInfo;
+unsigned int  intOutputInfo[1]={0};
+double  doubleOutputInfo[1]={0};
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
 paramNamesArray,numberOfParameters,parameters,
@@ -1723,11 +1723,11 @@ for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(NEQS
 
 
 
-unsigned int * intControlParameters;
-double * doubleControlParameters;
+unsigned int  intControlParameters[1]={0};
+double  doubleControlParameters[1]={0};
 
-unsigned int * intOutputInfo;
-double * doubleOutputInfo;
+unsigned int  intOutputInfo[1]={0};
+double  doubleOutputInfo[1]={0};
 
 processCommandLine(argc,argv,namesArray,NEQS,
 paramNamesArray,numParameters,parameters,
@@ -1838,30 +1838,30 @@ intControlParameters,doubleControlParameters,
 intOutputInfo, doubleOutputInfo
 );
 
-unsigned int * pathNewtMa50bdJob;
-unsigned int * pathNewtMa50bdIq;
-double * pathNewtMa50bdFact;
-unsigned int * pathNewtMa50bdIrnf;
-unsigned int * pathNewtMa50bdIptrl;
-unsigned int * pathNewtMa50bdIptru;
-unsigned int * compXMa50bdJob;
-unsigned int * compXMa50bdIq;
-double * compXMa50bdFact;
-unsigned int * compXMa50bdIrnf;
-unsigned int * compXMa50bdIptrl;
-unsigned int * compXMa50bdIptru;
-unsigned int * exogQ;
-unsigned int * exogCol;
-unsigned int * exogRow;
-unsigned int * numExog;
-double * targetX;
-double * easyX;
-double * linearizationPoint;
-unsigned int * tf;
-double * intercept;
-double * upsilonmat;
-unsigned int * upsilonmatj;
-unsigned int * upsilonmati;
+unsigned int  pathNewtMa50bdJob[1]={0};
+unsigned int  pathNewtMa50bdIq[1]={0};
+double  pathNewtMa50bdFact[1]={0};
+unsigned int  pathNewtMa50bdIrnf[1]={0};
+unsigned int  pathNewtMa50bdIptrl[1]={0};
+unsigned int  pathNewtMa50bdIptru[1]={0};
+unsigned int  compXMa50bdJob[1]={0};
+unsigned int  compXMa50bdIq[1]={0};
+double  compXMa50bdFact[1]={0};
+unsigned int  compXMa50bdIrnf[1]={0};
+unsigned int  compXMa50bdIptrl[1]={0};
+unsigned int  compXMa50bdIptru[1]={0};
+unsigned int  exogQ[1]={0};
+unsigned int  exogCol[1]={0};
+unsigned int  exogRow[1]={0};
+unsigned int  numExog[1]={0};
+double  targetX[1]={0};
+double  easyX[1]={0};
+double  linearizationPoint[1]={0};
+unsigned int  tf[1]={0};
+double  intercept[1]={0};
+double  upsilonmat[1]={0};
+unsigned int  upsilonmatj[1]={0};
+unsigned int  upsilonmati[1]={0};
 void exdfunc(){};
 
 

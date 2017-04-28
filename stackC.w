@@ -4686,7 +4686,7 @@ chkfdrvi=(unsigned int * ) calloc(n+1,sizeof(unsigned int));
 @d pathNewt declarations
 @{    unsigned int  n; unsigned int done;/*unsigned unsigned int ihomotopy=1;*/
 unsigned int ihomotopy=0;double * zeroShockVec;
-#include "stochSims.h"
+//#include "stochSims.h"
 unsigned int forQ/*;double  dignore[1]={1.0}*/;
 unsigned int maxElementsEncountered=0;
 unsigned int icnt;
