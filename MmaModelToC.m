@@ -646,7 +646,8 @@ exogPos=Flatten[Position[lngendg,#]& /@ exg];
 exogQ=Table[0,{Length[lngendg]}];
 exogQ[[exogPos]]=1;
 theNamesArray=Union[("\""<>ToString[Head[#]]<>"\"")& /@ allVars[modelEquations]];
-theParamNamesArray=("\""<>ToString[#]<>"\"")& /@ coeffs[modelEquations];
+theParamNamesArray=paramNamesArrayInitializer[modelEquations];
+theParamersArray=parametersArrayInitializer[modelEquations];
 numberOfParameters=Length[coeffs[modelEquations]];
 {dataRows,dataCols}=Dimensions[modelData[modelEquations]];
 {shocksRows,shocksCols}=Dimensions[modelShocks[modelEquations]];
@@ -678,8 +679,7 @@ ll=lagsLeads[modelEquations];
 lags=-ll[[1]];
 leads=ll[[-1]];
 modelColumns=Abs[ll[[1]]]+ll[[-1]] +1;
-defaultParams=N[Flatten[
-modelDefaultParameters[modelEquations]]];
+defaultParams=parametersArrayInitializer[modelEquations];
 numParams=Length[Flatten[
 modelDefaultParameters[modelEquations]]];
 endg=endog[modelEquations];
@@ -803,7 +803,14 @@ With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 "dstr"->dstr
 |>]]]]]
 
-
+paramNamesArrayInitializer[modelEquations_List]:=
+  With[{cList=coeffs[modelEquations]},
+       If[cList=={},"",Print["paramNamesArrayInitializer for non null probably wrong"];
+       ("\""<>ToString[#]<>"\"")& /@ cList]]
+parametersArrayInitializer[modelEquations_List]:=
+  With[{cList=coeffs[modelEquations]},
+       If[cList=={},"",Print["parameterNamesArrayInitializer for non null probably wrong"];
+       ("\""<>ToString[#]<>"\"")& /@ cList]]
 
 writeModelDotC[outFile_String,aList_Association]:=
 With[{theStr=TemplateApply[mmaToCTemplate,aList]},
@@ -1638,10 +1645,8 @@ int * ialhs);
 /*model specific names and data*/
 char * namesArray[] =  
 `theNamesArray`;
-char * paramNamesArray[] =  
-`theParamNamesArray`;
-double parameters[]=
-`defaultParams`;
+char * paramNamesArray[]`theParamNamesArray`;
+double parameters[]`defaultParams`;
 int `functionName`exogQ[]=
 `exogQ`;
 
