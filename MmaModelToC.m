@@ -1743,8 +1743,8 @@ intControlParameters,doubleControlParameters,flnm);
 
 
 
-unsigned int exogRows[0];
-unsigned int exogCols[0];
+unsigned int exogRows[1];
+unsigned int exogCols[1];
 unsigned int exogenizeQ[1]={0};
 
 
