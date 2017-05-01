@@ -594,8 +594,8 @@ free(qMati);
 void generateNextXTMinusOne(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+/*unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),*/
 unsigned int * shockIndex,
 double * shockTable,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
@@ -1098,8 +1098,8 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 if(tMinusOneQ){
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/*numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 shockIndices+i,
 shockTable,
 fmats,fmatsj,fmatsi,
@@ -1264,8 +1264,8 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 if(tMinusOneQ){
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/*numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 &aOne,
 shockTable,
 fmats,fmatsj,fmatsi,
@@ -1436,7 +1436,7 @@ double * params,
 unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
 void (* exdfunc)(),
 unsigned int * replications,
-unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
+unsigned int * t0,unsigned int * tf,/*unsigned int * permVecs,*/
 double * shockTable,/*unsigned int * shocksAvailable,*/
 /*double * dataTable,unsigned int * dataAvailable,*/
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
