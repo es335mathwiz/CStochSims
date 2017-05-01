@@ -1874,8 +1874,8 @@ stochSim(&NEQS,&NLAGS,&NLEADS,pathLength,
 `functionName`,`functionName`Derivative,parameters,
 numExog,upsilonmat,upsilonmatj,upsilonmati,&exdfunc,
 replications,t0,tf,`functionName`PermVec,
-/*`functionName`ShockVals,&numSHOCKS,
-`functionName`DataVals,&numDATA,*/
+`functionName`ShockVals,/*&numSHOCKS,*/
+/*`functionName`DataVals,&numDATA,*/
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,

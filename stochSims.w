@@ -792,8 +792,8 @@ free(shockVec);free(zeroShockX);free(diffFromZeroShock);free(lastDel);free(safex
 void generateNextXT(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+/*unsigned int * numberExog,*/
+/*double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),*/
 unsigned int * shockIndex,
 double * shockTable,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
@@ -801,7 +801,7 @@ double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
 double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double easyX[],double targetX[],unsigned int * exogQ,
+double easyX[],/*double targetX[],*/unsigned int * exogQ,
 double x[],
 unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
@@ -810,13 +810,13 @@ unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
 unsigned int * pathNewtMa50bdIrnf,
 unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru,
+unsigned int * pathNewtMa50bdIptru/*,
 unsigned int *compXMa50bdJob,
 unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
 unsigned int * compXMa50bdIrnf,
 unsigned int * compXMa50bdIptrl,
-unsigned int * compXMa50bdIptru
+unsigned int * compXMa50bdIptru*/
 )@}
 
 @o generateNextXT.c -d
@@ -1125,15 +1125,15 @@ compXMa50bdIptru
 } else {
 generateNextXT(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/*numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 shockIndices+i,
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
-easyX+(*numberOfEquations*i),targetX+(*numberOfEquations*i),exogQ,
+easyX+(*numberOfEquations*i),/*targetX+(*numberOfEquations*i),*/exogQ,
 x+(*numberOfEquations*i),check+i,intControlParameters,doubleControlParameters,
 intOutputInfo,doubleOutputInfo,
 pathNewtMa50bdJob,
@@ -1141,14 +1141,14 @@ pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
-pathNewtMa50bdIptru,
+pathNewtMa50bdIptru/*,
 compXMa50bdJob,
 compXMa50bdIq,
 compXMa50bdFact,
 compXMa50bdIrnf,
 compXMa50bdIptrl,
 compXMa50bdIptru
-);bump(*maxNumberElements);
+*/);bump(*maxNumberElements);
 }
 printf("QUICK PATCH to improve guess of next time period!!!!!!!!!!!!!!!\n");
 for(j=0;j<*numberOfEquations;j++){
@@ -1185,7 +1185,7 @@ void (* vecfunc)(),void (* fdjac)(),double * params,
 unsigned int * numberExog,
 double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
 unsigned int * numberOfShocks,
-unsigned int * shockIndices,
+/*unsigned int * shockIndices,*/
 double * shockTable,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
@@ -1291,15 +1291,15 @@ compXMa50bdIptru
 } else {
 generateNextXT(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/*numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 &aOne,
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
-easyX,targetX,exogQ,
+easyX,/*targetX,*/exogQ,
 x,check,intControlParameters,doubleControlParameters,
 intOutputInfo,doubleOutputInfo,
 pathNewtMa50bdJob,
@@ -1307,14 +1307,14 @@ pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
-pathNewtMa50bdIptru,
+pathNewtMa50bdIptru/*(,
 compXMa50bdJob,
 compXMa50bdIq,
 compXMa50bdFact,
 compXMa50bdIrnf,
 compXMa50bdIptrl,
 compXMa50bdIptru
-);bump(*maxNumberElements);
+*/);bump(*maxNumberElements);
 }
 
 putData(*numberOfEquations,x+(*lags)**numberOfEquations,streamPathOut);
@@ -1370,7 +1370,7 @@ unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigne
 void (* exdfunc)(),
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-/*double * shockTable,unsigned int * shocksAvailable,*/
+double * shockTable,/*unsigned int * shocksAvailable,*/
 /*double * dataTable,unsigned int * dataAvailable,*/
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
@@ -1437,7 +1437,7 @@ unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigne
 void (* exdfunc)(),
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-/*double * shockTable,unsigned int * shocksAvailable,*/
+double * shockTable,/*unsigned int * shocksAvailable,*/
 /*double * dataTable,unsigned int * dataAvailable,*/
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
@@ -1495,9 +1495,9 @@ streamingGeneratePathX(streamShocksIn,streamEasyIn,streamTargetIn,
 streamPathOut,
 numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
- numberExog,
+numberExog,
 upsilonmat,upsilonmatj,upsilonmati,exdfunc,
-stochasticPathLength,permVecs+i**stochasticPathLength,
+stochasticPathLength,/*permVecs+i**stochasticPathLength,*/
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
