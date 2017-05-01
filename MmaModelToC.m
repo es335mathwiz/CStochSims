@@ -1872,7 +1872,7 @@ void exdfunc(){};
 
 stochSim(&NEQS,&NLAGS,&NLEADS,pathLength,
 `functionName`,`functionName`Derivative,parameters,
-numExog,upsilonmat,upsilonmatj,upsilonmati,&exdfunc,
+/*numExog,upsilonmat,upsilonmatj,upsilonmati,&exdfunc,*/
 replications,t0,tf,`functionName`PermVec,
 `functionName`ShockVals,/*&numSHOCKS,*/
 /*`functionName`DataVals,&numDATA,*/

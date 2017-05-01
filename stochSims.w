@@ -1366,8 +1366,8 @@ void stochSim(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),
 double * params,
-unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
-void (* exdfunc)(),
+/*unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
+void (* exdfunc)(),*/
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
 double * shockTable,/*unsigned int * shocksAvailable,*/
@@ -1433,8 +1433,8 @@ FILE * streamPathOut,
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),
 double * params,
-unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
-void (* exdfunc)(),
+/*unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
+void (* exdfunc)(),*/
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,/*unsigned int * permVecs,*/
 double * shockTable,/*unsigned int * shocksAvailable,*/
