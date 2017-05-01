@@ -364,10 +364,10 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 @o generateDraws.c -d
 @{
 @<define assert bump@>
-
+#include <stdlib.h>
 #include <string.h>
 #include "stochSims.h"
-#include <random>
+#include <random.h>
 
 void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
 {
