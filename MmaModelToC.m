@@ -844,11 +844,12 @@ mmaToCDrvTemplate="
 
 
 void `functionName`Derivative(double *stateVector,double *parameters,
-/*double * shockVec,*/
+double * shockVec,
 double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {int i;
 parameters[0]=parameters[0];
+shockVec[0]=shockVec[0];
 double bMat[`bLength`];
 int ibMat[`modelNumberOfEquations`+1];
 int jbMat[`bLength`];
@@ -1629,15 +1630,15 @@ runItLocalDefsTemplate=
 int  maxNumberElements=MAXELEMENTS;
 int  spaMaxNumberElements=SPAMAXELEMENTS;
 void `functionName`(double * xvec,double * pvec,double * shock,
-double * alhs,
-unsigned int * jalhs,unsigned int * ialhs,unsigned int * alphas,double * linPt
-);
+double * alhs,unsigned int * jalhs,unsigned int * ialhs,
+double * alphas,double * linPt);
 void `functionName`Data(int t,double * vectorOfVals);
 void `functionName`Shocks(int t,double * vectorOfVals);
 void `functionName`Derivative(double * xvec,double * pvec,
 double * alhs,
 unsigned int * jalhs,
-unsigned int * ialhs);
+unsigned int * ialhs,
+double * alphas,double * linPt);
 void `functionName`PeriodicPointGuesser
 (double * parameters,int period,
 	double guessVector[(`lags`+`leads`+1)*`modelNumberOfEquations`]);

@@ -2554,8 +2554,9 @@ return;}
 @d FPNewt signature
 @{
 void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,unsigned int*,double*),
-void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*),double * params,
+void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+double * params,
 double x[],double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
@@ -2618,7 +2619,7 @@ resetLnsrchSteps;
 
 
 /* modification begin */
-      func(x,params,shockVec,fmats[0],fmatsj[0],fmatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+      func(x,params,shockVec,fmats[0],fmatsj[0],fmatsi[0],homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
         for (normSum=0.0,i=0;i<=fmatsi[0][*numberOfEquations]-fmatsi[0][0];i++) 
             normSum += SQR(fmats[0][i]);
         f= 0.5 * normSum * (*lags+*leads+1);
@@ -3429,8 +3430,8 @@ qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 @{
 void altComputeAsymptoticQMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-/*void (*func)(double*, double*, double*,double*,unsigned  int*,unsigned  int*,unsigned int*,double*),*/
-void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*),
+/*void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),*/
+void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * params,double * shockVec,
 double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,/*unsigned int * pthLngth,*//*
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,*/
@@ -4725,7 +4726,8 @@ p
 unsigned int  n,unsigned int np,unsigned int reps,
 double xold[], double * fold, double g[], double p[], 
 		 double * params,double * shockVec,double * f,double stpmax, unsigned int *check,
-			void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*,double *,double*,unsigned int * exogRows,unsigned int * exogCols,unsigned int * exogenizeQ),double * x,
+void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+double * x,
             unsigned int ihomotopy,double * linPt,unsigned int * exogRows,unsigned int * exogCols,unsigned int * exogenizeQ,
 /*unsigned int * intControlParameters,*/double * doubleControlParameters/*,
 unsigned int * intOutputInfo, double * doubleOutputInfo*/
