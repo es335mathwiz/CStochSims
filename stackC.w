@@ -2555,7 +2555,7 @@ return;}
 @{
 void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
-void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+void (*dfunc)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * params,
 double x[],double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
@@ -2647,7 +2647,7 @@ resetLnsrchSteps;
 
 @d get newton update
 @{
-dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 		for (i=0;i<n;i++) xold[i]=x[i];
 		/*modification begin*/
 nxtFPGuess(numberOfEquations,lags,leads,
@@ -3431,7 +3431,7 @@ qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 void altComputeAsymptoticQMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 /*void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),*/
-void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+void (*dfunc)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * params,double * shockVec,
 double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,/*unsigned int * pthLngth,*//*
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,*/

@@ -1634,7 +1634,7 @@ double * alhs,unsigned int * jalhs,unsigned int * ialhs,
 double * alphas,double * linPt);
 void `functionName`Data(int t,double * vectorOfVals);
 void `functionName`Shocks(int t,double * vectorOfVals);
-void `functionName`Derivative(double * xvec,double * pvec,
+void `functionName`Derivative(double * xvec,double * pvec,double * shock,
 double * alhs,
 unsigned int * jalhs,
 unsigned int * ialhs,

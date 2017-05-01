@@ -1371,7 +1371,7 @@ free(lclFixedPoint);
 void stochSim(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (*vecfunc)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
-void (*fdjac)(double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+void (*fdjac)(double *, double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * params,
 /*unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
 void (* exdfunc)(),*/
