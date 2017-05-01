@@ -1370,8 +1370,8 @@ unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigne
 void (* exdfunc)(),
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
+/*double * shockTable,unsigned int * shocksAvailable,*/
+/*double * dataTable,unsigned int * dataAvailable,*/
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
@@ -1437,8 +1437,8 @@ unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigne
 void (* exdfunc)(),
 unsigned int * replications,
 unsigned int * t0,unsigned int * tf,unsigned int * permVecs,
-double * shockTable,unsigned int * shocksAvailable,
-double * dataTable,unsigned int * dataAvailable,
+/*double * shockTable,unsigned int * shocksAvailable,*/
+/*double * dataTable,unsigned int * dataAvailable,*/
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
