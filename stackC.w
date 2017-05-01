@@ -256,8 +256,8 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 @{
 #include <stdio.h>
 #include <stdlib.h>
-void free(void * ptr);
-void * calloc(size_t amt,size_t size);
+//void free(void * ptr);
+//void * calloc(size_t amt,size_t size);
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
 Function uses SPARSEKIT's CSR format.
@@ -2554,7 +2554,8 @@ return;}
 @d FPNewt signature
 @{
 void FPnewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,
+void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,unsigned int*,double*),
+void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*),double * params,
 double x[],double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
@@ -3428,16 +3429,18 @@ qMati[*numberOfEquations* *leads]= 2*(*numberOfEquations * *leads)+1;
 @{
 void altComputeAsymptoticQMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,double * shockVec,
-double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
+/*void (*func)(double*, double*, double*,double*,unsigned  int*,unsigned  int*,unsigned int*,double*),*/
+void (*dfunc)(double*, double*, double*,unsigned  int*,unsigned  int*),
+double * params,double * shockVec,
+double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,/*unsigned int * pthLngth,*//*
+double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,*/
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
 double * rootr, double * rooti,
-unsigned int * ierr,unsigned int ihomotopy,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo
+unsigned int * ierr,unsigned int ihomotopy/*,*/
+/*unsigned int * intControlParameters,double * doubleControlParameters,*/
+/*unsigned int * intOutputInfo, double * doubleOutputInfo*/
 )
 @}
 
@@ -4724,13 +4727,13 @@ double xold[], double * fold, double g[], double p[],
 		 double * params,double * shockVec,double * f,double stpmax, unsigned int *check,
 			void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*,double *,double*,unsigned int * exogRows,unsigned int * exogCols,unsigned int * exogenizeQ),double * x,
             unsigned int ihomotopy,double * linPt,unsigned int * exogRows,unsigned int * exogCols,unsigned int * exogenizeQ,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo
+/*unsigned int * intControlParameters,*/double * doubleControlParameters/*,
+unsigned int * intOutputInfo, double * doubleOutputInfo*/
 @}
 @o stackC.h -d
 @{
 #include <unistd.h>
-pid_t getpid(void);
+//pid_t getpid(void);
 
 
 void lnsrch(@<lnsrch argument list@>);

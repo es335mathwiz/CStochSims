@@ -550,6 +550,7 @@ double * shockVec,
 double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {
+parameters[0]=parameters[0];
 int i;
 double bMat[`modelNumberOfEquations`];
 int ibMat[`modelNumberOfEquations`+1];
@@ -576,6 +577,7 @@ double * shockVec,
 double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {
+parameters[0]=parameters[0];
 int i;
 double bMat[`modelNumberOfEquations`];
 //int ibMat[`modelNumberOfEquations`+1];
@@ -805,11 +807,11 @@ With[{neq=Length[Union[endog[modelEquations],modelExogenous[modelEquations]]]},
 
 paramNamesArrayInitializer[modelEquations_List]:=
   With[{cList=coeffs[modelEquations]},
-       If[cList=={},"",Print["paramNamesArrayInitializer for non null probably wrong"];
+       If[cList=={},"={\"no parameters\"}",Print["paramNamesArrayInitializer for non null probably wrong"];
        ("\""<>ToString[#]<>"\"")& /@ cList]]
 parametersArrayInitializer[modelEquations_List]:=
   With[{cList=coeffs[modelEquations]},
-       If[cList=={},"",Print["parameterNamesArrayInitializer for non null probably wrong"];
+       If[cList=={},"={999}",Print["parameterNamesArrayInitializer for non null probably wrong"];
        ("\""<>ToString[#]<>"\"")& /@ cList]]
 
 writeModelDotC[outFile_String,aList_Association]:=
@@ -842,10 +844,11 @@ mmaToCDrvTemplate="
 
 
 void `functionName`Derivative(double *stateVector,double *parameters,
-double * shockVec,
+/*double * shockVec,*/
 double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {int i;
+parameters[0]=parameters[0];
 double bMat[`bLength`];
 int ibMat[`modelNumberOfEquations`+1];
 int jbMat[`bLength`];
@@ -993,7 +996,7 @@ mpiRunTemplate="
 /*`modelCreationInfo`*/
 #include \"runItExternalDefs.h\"
 #include \"distStochSims.h\"
-int main(int argc, char * argv[])
+int main(int argc,const char * argv[])
 {
 #include \"runItInvariantLocalDefs.h\"
 #include \"run`outFile`LocalDefs.h\"
@@ -1627,14 +1630,14 @@ int  maxNumberElements=MAXELEMENTS;
 int  spaMaxNumberElements=SPAMAXELEMENTS;
 void `functionName`(double * xvec,double * pvec,double * shock,
 double * alhs,
-int * jalhs,int * ialhs,int * alphas,double * linPt
+unsigned int * jalhs,unsigned int * ialhs,unsigned int * alphas,double * linPt
 );
 void `functionName`Data(int t,double * vectorOfVals);
 void `functionName`Shocks(int t,double * vectorOfVals);
 void `functionName`Derivative(double * xvec,double * pvec,
 double * alhs,
-int * jalhs,
-int * ialhs);
+unsigned int * jalhs,
+unsigned int * ialhs);
 void `functionName`PeriodicPointGuesser
 (double * parameters,int period,
 	double guessVector[(`lags`+`leads`+1)*`modelNumberOfEquations`]);
@@ -1643,9 +1646,9 @@ double * alhs,
 int * jalhs,
 int * ialhs);
 /*model specific names and data*/
-char * namesArray[] =  
+const char * namesArray[] =  
 `theNamesArray`;
-char * paramNamesArray[]`theParamNamesArray`;
+const char * paramNamesArray[]`theParamNamesArray`;
 double parameters[]`defaultParams`;
 int `functionName`exogQ[]=
 `exogQ`;
@@ -1716,7 +1719,7 @@ double * theData;
 unsigned int i;
 #include \"run`outFile`LocalDefs.h\"
 
-int main(int argc, char * argv[])
+int main(int argc,const char * argv[])
 {
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
 
@@ -1805,9 +1808,10 @@ for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
 
 `functionName`PermVec=(unsigned int *)calloc(
      (*stochasticPathLength)*(*replications),sizeof(unsigned int));
+char aStr[]=\"huh\";
 
 printf(\"generating perm vec\\n\");
- generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec,\"huh\");
+ generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec,aStr);
 printf(\"done generating perm vec\\n\");
 
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
@@ -1831,16 +1835,16 @@ unsigned int ihomotopy[1]={0};
 
 altComputeAsymptoticQMatrix(
 &NEQS,&NLAGS,&NLEADS,
-`functionName`,`functionName`Derivative,parameters,
-shockVecStandIn,`functionName`FP,exogRows,exogCols,exogenizeQ,pathLength,
-fmats,fmatsj,fmatsi,
+/*`functionName`,*/`functionName`Derivative,parameters,
+shockVecStandIn,`functionName`FP,exogRows,exogCols,exogenizeQ,/*pathLength,
+fmats,fmatsj,fmatsi,*/
 smats,smatsj,smatsi,
 &maxNumberElements,
 AMqMatrix,AMqMatrixj,AMqMatrixi,auxInit,qRows,
 rootr,rooti,
-ierr,*ihomotopy,
+ierr,*ihomotopy/*,
 intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo
+intOutputInfo, doubleOutputInfo*/
 );
 
 unsigned int  pathNewtMa50bdJob[1]={0};
@@ -1858,16 +1862,16 @@ unsigned int  compXMa50bdIptru[1]={0};
 unsigned int  exogQ[1]={0};
 unsigned int  exogCol[1]={0};
 unsigned int  exogRow[1]={0};
-unsigned int  numExog[1]={0};
+/*unsigned int  numExog[1]={0};*/
 double  targetX[1]={0};
 double  easyX[1]={0};
 double  linearizationPoint[1]={0};
 unsigned int  tf[1]={0};
 double  intercept[1]={0};
-double  upsilonmat[1]={0};
+/*double  upsilonmat[1]={0};
 unsigned int  upsilonmatj[1]={0};
-unsigned int  upsilonmati[1]={0};
-void exdfunc(){};
+unsigned int  upsilonmati[1]={0};*/
+/*void exdfunc(){};*/
 
 
 stochSim(&NEQS,&NLAGS,&NLEADS,pathLength,
@@ -2043,6 +2047,7 @@ void `functionName`PeriodicPointGuesser
 {
 //int i,j;
 //double svalue;
+parameters[0]=parameters[0];
 int timeOffset;
 for(timeOffset=0;
 	timeOffset<period+ `modelColumns` - 1;
@@ -2052,11 +2057,11 @@ for(timeOffset=0;
 }
 }
 
-void `functionName`ModelDimensions(int * numberOfEquations, int * lags,
-int * leads, int * numberOfParameters,
-int * numberOfDataValues, int * numberOfShocks,int * numberExogenous)
+void `functionName`ModelDimensions(unsigned int * numberOfEquations,unsigned  int * lags,
+unsigned int * leads,unsigned  int * numberOfParameters,
+unsigned int * numberOfDataValues,unsigned  int * numberOfShocks,unsigned int * numberExogenous)
 {
-//unsigned int NEQS=`modelNumberOfEquations`;
+*numberOfEquations=`modelNumberOfEquations`;
 *lags=`lags`;
 *leads=`leads`;
 *numberOfParameters=`numberOfParameters`;
@@ -2068,6 +2073,7 @@ void `functionName`Upsilon(double *parameters,
 double * aMat,int * jaMat,int *iaMat
 )
 {
+parameters[0]=parameters[0];
 `upsilonMatA`
 `upsilonMatIA`
 `upsilonMatJA`
@@ -2076,11 +2082,14 @@ void `functionName`ExogH(double *parameters,double *stateVector,
 double * aMat,int * jaMat,int *iaMat
 )
 {
+parameters[0]=parameters[0];
+stateVector[0]=stateVector[0];
+    
 `exogHMatA`
 `exogHMatIA`
 `exogHMatJA`
 }
-void `functionName`SelectZ(double * aMat,int * jaMat,int *iaMat
+void `functionName`SelectZ(/*double * aMat,int * jaMat,int *iaMat*/
 )
 {
 `selectZMatA`

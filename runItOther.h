@@ -31,14 +31,18 @@ dataVals[t*numberOfEquations+vbl]= (val2+val1)/2;} else {
 
 unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
 //unsigned int * intControlParameters;double* doubleControlParameters;
-char  flnm[300];
+
+char  * flnm;
 
 
-void processCommandLine(int argc, char * argv[],char ** namesArray,unsigned int modelNEQS,char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
+
+void processCommandLine(int argc, const char * argv[],const char ** namesArray,unsigned int modelNEQS,const char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
 double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
 unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
 unsigned int * intControlParameters,double* doubleControlParameters,char * flnm)
 {
+flnm=(char *)calloc(500,sizeof(char));
+
   float aFloat;unsigned int i;unsigned int anInt;
  unsigned int pl;unsigned int t1;unsigned int t2; double val1; double val2; unsigned int vbl;
 

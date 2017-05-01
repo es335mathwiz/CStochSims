@@ -237,8 +237,8 @@ void setall_(long iseed1,long iseed2);
 void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
 unsigned int * iarray,char * str);
 #include <stdlib.h>
-void free(void * ptr);
-void * calloc(size_t amt,size_t size);
+//void free(void * ptr);
+//void * calloc(size_t amt,size_t size);
 
 @}
 
@@ -367,7 +367,7 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 #include <stdlib.h>
 #include <string.h>
 #include "stochSims.h"
-#include <random.h>
+#include <random>
 
 void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
 {
@@ -1366,12 +1366,12 @@ targetX[ii+(*lags+*leads+*pathLength-1)**numberOfEquations];}
 free(lclFixedPoint);
 }
 @}
-
 @d stochSim signature
 @{
 void stochSim(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(),void (* fdjac)(),
+void (*vecfunc)(double*, double*, double*,double*,unsigned  int*,unsigned  int*,unsigned int*,double*),
+void (*fdjac)(double*, double*, double*,unsigned  int*,unsigned  int*),
 double * params,
 /*unsigned int * numberExog,double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,
 void (* exdfunc)(),*/
