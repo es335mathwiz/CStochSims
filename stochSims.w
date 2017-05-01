@@ -986,8 +986,8 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 void generatePathX(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+/*unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),*/
 unsigned int * numberOfShocks,
 unsigned int * shockIndices,
 double * shockTable,
@@ -1182,8 +1182,8 @@ void streamingGeneratePathX(FILE * streamShocksIn,FILE * streamEasyIn,FILE * str
 FILE * streamPathOut,
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
 void (* vecfunc)(),void (* fdjac)(),double * params,
-unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),
+/*unsigned int * numberExog,
+double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),*/
 unsigned int * numberOfShocks,
 /*unsigned int * shockIndices,*/
 double * shockTable,
@@ -1495,8 +1495,8 @@ streamingGeneratePathX(streamShocksIn,streamEasyIn,streamTargetIn,
 streamPathOut,
 numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/*numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 stochasticPathLength,/*permVecs+i**stochasticPathLength,*/
 shockTable,
 fmats,fmatsj,fmatsi,
@@ -1562,8 +1562,8 @@ currentReplication=i;
 
 generatePathX(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
- numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,
+/* numberExog,
+upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 stochasticPathLength,permVecs+i**stochasticPathLength,
 shockTable,
 fmats,fmatsj,fmatsi,
