@@ -367,6 +367,7 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 
 #include <string.h>
 #include "stochSims.h"
+#include <random>
 
 void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
 {
@@ -381,11 +382,17 @@ free(*iarray);
 void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replications,unsigned int shocksAvailable,
 unsigned int * iarray,char * seedString)
 {
+
 long seed1;
 long seed2;
 static  long K1=1;
 unsigned int ntot,i;
 long mxint;
+
+std::default_random_engine generator;
+std::uniform_int_distribution<int> distribution(K1,mxint);
+
+
 ntot=(tfIndex-t0Index+1)*replications;
 if(strcmp(seedString,"sequential")){/*need to generate random numbers*/
 phrtsd_(seedString,& seed1,& seed2);
