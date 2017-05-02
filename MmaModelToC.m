@@ -1165,9 +1165,9 @@ systemTime=%f\n\",*totalTime,*userSystemTime,*(userSystemTime+1));
 
 
 
-
+/*
 unsigned int exogRows[1]={0};
-unsigned int exogCols[1]={0};
+unsigned int exogCols[1]={0};*/
 unsigned int exogenizeQ[1]={0};
 
 /*compute asymptotic Q constraint*/
@@ -1746,9 +1746,9 @@ intControlParameters,doubleControlParameters,flnm);
 
 
 
-
+/*
 unsigned int exogRows[1];
-unsigned int exogCols[1];
+unsigned int exogCols[1];*/
 unsigned int exogenizeQ[1]={0};
 
 
@@ -1818,7 +1818,7 @@ printf(\"done generating perm vec\\n\");
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
 FPnewt(&NEQS,&NLAGS,&NLEADS,
 `functionName`,`functionName`Derivative,parameters,
-`functionName`FP,`functionName`Intercept,exogRows,exogCols,exogenizeQ,
+`functionName`FP,`functionName`Intercept,/*exogRows,exogCols,exogenizeQ,*/
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,
