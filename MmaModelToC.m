@@ -1175,7 +1175,7 @@ if(!useIdentityQ){
 altComputeAsymptoticQMatrix(
 &numberOfEquations,&lags,&leads,
 `functionName`,`functionName`Derivative,parameters,
-`functionName`FP,exogRows,exogCols,exogenizeQ,pathLength,
+`functionName`FP,/*exogRows,exogCols,exogenizeQ,pathLength,*/
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &spaMaxNumberElements,
@@ -1837,7 +1837,7 @@ unsigned int ihomotopy[1]={0};
 altComputeAsymptoticQMatrix(
 &NEQS,&NLAGS,&NLEADS,
 /*`functionName`,*/`functionName`Derivative,parameters,
-shockVecStandIn,`functionName`FP,exogRows,exogCols,exogenizeQ,/*pathLength,
+shockVecStandIn,`functionName`FP,/*exogRows,exogCols,exogenizeQ,*//*pathLength,
 fmats,fmatsj,fmatsi,*/
 smats,smatsj,smatsi,
 &maxNumberElements,

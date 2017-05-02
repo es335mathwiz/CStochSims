@@ -2386,8 +2386,8 @@ void freePathNewt(double ** genericPath)
 @{
 void altComputeAsymptoticIMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,
-unsigned int * ierr
+double * qMat,unsigned int * qMatj,unsigned int * qMati/*,
+unsigned int * ierr*/
 )
 @}
 
@@ -3144,7 +3144,7 @@ qMat,qMatj,qMati,
 @d create asymptotic linearization for Anderson-Moore algorithm
 @{
 dfunc(genericModelFP,params,shockVec,
-smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,genericModelFP,exogRows,exogCols,exogenizeQ);
+smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,genericModelFP/*,exogRows,exogCols,exogenizeQ*/);
 
 
 
@@ -3237,8 +3237,28 @@ void putData(unsigned int numberOfEquations,double * q,FILE * qFile)
 @{
 @<putData signature@>;
 @}
+@d computeAsymptoticQMatrix signature
+@{
+void computeAsymptoticQMatrix(
+unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
+/*void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),*/
+void (*dfunc)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+double * params,double * shockVec,
+double genericModelFP[],/*unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,*/
+/*double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,*/
+double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
+/*unsigned int * maxNumberElements,*/
+/*double * AMqMatrix,*/
+/*unsigned int * ierr,*/unsigned int ihomotopy,
+/*unsigned int * intControlParameters,*/double * doubleControlParameters/*,
+unsigned int * intOutputInfo, double * doubleOutputInfo*/
+)
+@}
+
 @o myNewt.c -d
 @{
+
+ 
 
 @<putData signature@>
 {
@@ -3297,7 +3317,7 @@ double * easyX,double * targetX,double * x,double * lastDel,double * fixedPt,
 {
 
 unsigned int ii;unsigned int bigVecLength;
-  fscanf(hFile,"%10d %10d %10d %10d",
+  fscanf(hFile,"%10u %10u %10u %10u",
   numberOfEquations,lags,leads,pathLength);
 bigVecLength=*numberOfEquations*(*lags+*leads+*pathLength);
   for(ii=0;ii<bigVecLength;ii++){
@@ -3317,22 +3337,11 @@ bigVecLength=*numberOfEquations*(*lags+*leads+*pathLength);
 
 
 
-void computeAsymptoticQMatrix(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-void (* func)(),void (* dfunc)(),double * params,double * shockVec,
-double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,unsigned int * pthLngth,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,
-double * AMqMatrix,
-unsigned int * ierr,unsigned int ihomotopy,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo
-)
+@<computeAsymptoticQMatrix signature@>
 {
 @<computeAsymptoticQMatrix variable declarations@>
 @<computeAsymptoticQMatrix variable allocations@>
-  *ierr=0;
+//  *ierr=0;
 @<Anderson-Moore algorithm  variable allocations@>
 @<create asymptotic linearization for Anderson-Moore algorithm@>
 @<apply the Anderson-Moore algorithm  to get AMqMatrix@>
@@ -3398,8 +3407,8 @@ qMati[*numberOfEquations* *leads]= (*numberOfEquations * *leads)+1;
 
 void altComputeAsymptoticDMatrix(
 unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
-double * qMat,unsigned int * qMatj,unsigned int * qMati,
-unsigned int * ierr
+double * qMat,unsigned int * qMatj,unsigned int * qMati/*,
+unsigned int * ierr*/
 )
 {
 unsigned int j;
@@ -3433,7 +3442,7 @@ unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 /*void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),*/
 void (*dfunc)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * params,double * shockVec,
-double genericModelFP[],unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,/*unsigned int * pthLngth,*//*
+double genericModelFP[],/*unsigned int *exogRows,unsigned int *exogCols,unsigned int *exogenizeQ,*//*unsigned int * pthLngth,*//*
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,*/
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
@@ -4728,7 +4737,8 @@ double xold[], double * fold, double g[], double p[],
 		 double * params,double * shockVec,double * f,double stpmax, unsigned int *check,
 void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
 double * x,
-            unsigned int ihomotopy,double * linPt,unsigned int * exogRows,unsigned int * exogCols,unsigned int * exogenizeQ,
+            unsigned int ihomotopy,double * linPt,/*unsigned int * exogRows,*/
+/*unsigned int * exogCols,unsigned int * exogenizeQ,*/
 /*unsigned int * intControlParameters,*/double * doubleControlParameters/*,
 unsigned int * intOutputInfo, double * doubleOutputInfo*/
 @}
@@ -4885,13 +4895,13 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 *fold=0;
 {/* use shock for first only*/
 addOneToFEvals;
-(*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+(*func)(xold,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt/*,exogRows,exogCols,exogenizeQ*/);
         useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
-(*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+(*func)(xold+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt/*,exogRows,exogCols,exogenizeQ*/);
         useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *fold += xorig[0];
         }
@@ -4957,13 +4967,13 @@ resetFailedQ;
 *f=0;
 {/*use shock first period only*/
 addOneToFEvals;
-(*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+(*func)(x,params,shockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt/*,exogRows,exogCols,exogenizeQ*/);
         useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
 		for(i=1;i<reps;i++){
 addOneToFEvals;
-(*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt,exogRows,exogCols,exogenizeQ);
+(*func)(x+(i*np),params,zeroShockVec,fvec,fvecj,fveci,homotopyAlpha+ihomotopy,linPt/*,exogRows,exogCols,exogenizeQ*/);
         useCNRMS(&np,aTwo,fvec,fvecj,fveci,xorig);
         *f += xorig[0];
         }
