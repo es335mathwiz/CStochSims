@@ -1892,7 +1892,7 @@ free(ymatsi);
 @d compPathError definition
 @{
 void compPathError(unsigned int * numberOfEquations,unsigned int * lags,unsigned int * leads,
-void (* theFunction)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+void (* theFunction)(double*, double*, double*,double*,unsigned int*,unsigned int*/*,double *,double**/),
 double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double * fp,double * intercept,
 double * initialX,
 double * shockVec,
@@ -6316,4 +6316,5 @@ C      -1  M < 1 or N < 1
 \bibliographystyle{plain}
 \bibliography{files,anderson}
 \end{document}
+
 
