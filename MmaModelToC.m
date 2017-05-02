@@ -1168,7 +1168,7 @@ systemTime=%f\n\",*totalTime,*userSystemTime,*(userSystemTime+1));
 /*
 unsigned int exogRows[1]={0};
 unsigned int exogCols[1]={0};*/
-unsigned int exogenizeQ[1]={0};
+/*unsigned int exogenizeQ[1]={0};*/
 
 /*compute asymptotic Q constraint*/
 if(!useIdentityQ){
@@ -1749,7 +1749,7 @@ intControlParameters,doubleControlParameters,flnm);
 /*
 unsigned int exogRows[1];
 unsigned int exogCols[1];*/
-unsigned int exogenizeQ[1]={0};
+/*unsigned int exogenizeQ[1]={0};*/
 
 
 unsigned int * `functionName`FailedQ;
@@ -1849,20 +1849,20 @@ intOutputInfo, doubleOutputInfo*/
 );
 
 unsigned int  pathNewtMa50bdJob[1]={0};
-unsigned int  pathNewtMa50bdIq[1]={0};
+//unsigned int  pathNewtMa50bdIq[1]={0};
 double  pathNewtMa50bdFact[1]={0};
 unsigned int  pathNewtMa50bdIrnf[1]={0};
 unsigned int  pathNewtMa50bdIptrl[1]={0};
 unsigned int  pathNewtMa50bdIptru[1]={0};
 unsigned int  compXMa50bdJob[1]={0};
-unsigned int  compXMa50bdIq[1]={0};
+//unsigned int  compXMa50bdIq[1]={0};
 double  compXMa50bdFact[1]={0};
 unsigned int  compXMa50bdIrnf[1]={0};
 unsigned int  compXMa50bdIptrl[1]={0};
 unsigned int  compXMa50bdIptru[1]={0};
 unsigned int  exogQ[1]={0};
-unsigned int  exogCol[1]={0};
-unsigned int  exogRow[1]={0};
+//unsigned int  exogCol[1]={0};
+//unsigned int  exogRow[1]={0};
 /*unsigned int  numExog[1]={0};*/
 double  targetX[1]={0};
 double  easyX[1]={0};
