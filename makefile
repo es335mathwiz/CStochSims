@@ -18,7 +18,7 @@ endif
 
 ifeq ($(UNAME),Darwin)
 #compilers
-CC = gcc-6
+CC = g++-6
 FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
 -I /usr/local/Cellar/libmatio/1.5.10/include
 FCFLAGS = -c  -std=gnu++11 -D_GNU_SOURCE -Wextra -Wpedantic -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
