@@ -1969,7 +1969,7 @@ free(zeroShockVec);
 
 @o stackC.c -d
 @{
-#include "stochSims.h"
+//#include "stochSims.h"
 void allocMa50(unsigned int numberOfEquations,unsigned int lags,unsigned int leads,
 unsigned int pathLength,unsigned int maxElements,
 unsigned int **ma50bdIptru,
