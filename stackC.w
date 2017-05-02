@@ -1024,9 +1024,9 @@ double **smats,unsigned int  **smatsj,unsigned int  **smatsi,
 unsigned int *maxNumberHElements,
 double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double * fp,double * intercept,
 double * initialX,
-double * shockVec,
-double * updateDirection,
-unsigned int * intControlParameters,double * doubleControlParameters
+/*double * shockVec,*/
+double * updateDirection/*,
+unsigned int * intControlParameters,double * doubleControlParameters*/
  @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
@@ -1171,7 +1171,7 @@ double * fvec,
 double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,
 double * xdel,
 unsigned int * ma50bdJob,
-unsigned int * ma50bdIq,
+/*unsigned int * ma50bdIq,*/
 double * ma50bdFact,
 unsigned int * ma50bdIrnf,
 unsigned int * ma50bdIptrl,
@@ -1204,7 +1204,7 @@ unsigned int * ifirst;
 unsigned int * lenc;
 unsigned int * lastc;
 unsigned int * nextc;
-unsigned int * info;
+int * info;
 double * rinfo;
 unsigned int *lfact;
 //double * fact;
@@ -1262,7 +1262,7 @@ nonZeroNow=copychkfdrvi[*sysDim]-copychkfdrvi[0];
 useMA50AD(sysDim,sysDim,&nonZeroNow,
 &nzmax,copychkfdrv,copychkfdrvj,jcn,copychkfdrvi,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 //pathNewtAssert(info[0]>=0);
 
 #ifdef DEBUG 
@@ -1277,7 +1277,7 @@ fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 #ifdef DEBUG 
 printf("\n ma50bd info\n");
 for(i=0;i<7;i++)printf(" %d ",info[i]);
@@ -1295,7 +1295,7 @@ fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 //pathNewtAssert(info[0]>=0);
 if(info[0]<-7){/* small pivot values,
 reset to 3*/
@@ -1310,7 +1310,7 @@ fdrv,fdrvj,fdrvi,
 cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 }
 }
@@ -1384,6 +1384,7 @@ double **cmats;unsigned int  **cmatsj;unsigned int  **cmatsi;
 double **dmats;unsigned int **dmatsj;unsigned int **dmatsi;
 double **ymats;unsigned int  **ymatsj;unsigned int  **ymatsi;
 double *gmats;unsigned int  *gmatsj;unsigned int  *gmatsi;
+int iSigned;
 unsigned int i,j;
 unsigned int *hColumns;
 unsigned int *qColumns;
@@ -1542,11 +1543,11 @@ oneStepBack(rowDim,
    cmats+*lags+*capT,cmatsj+*lags+*capT,cmatsi+*lags+*capT,
    dmats+*lags+*capT,dmatsj+*lags+*capT,dmatsi+*lags+*capT);
 }
-for(i=*capT-1;i>-1;i--){
+for(iSigned=*capT-1;iSigned>-1;iSigned--){
 oneStepBack(numberOfEquations,
-   ymats+*lags+i,ymatsj+*lags+i,ymatsi+*lags+i,
-   cmats+*lags+i,cmatsj+*lags+i,cmatsi+*lags+i,
-   dmats+*lags+i,dmatsj+*lags+i,dmatsi+*lags+i);
+   ymats+*lags+iSigned,ymatsj+*lags+iSigned,ymatsi+*lags+iSigned,
+   cmats+*lags+iSigned,cmatsj+*lags+iSigned,cmatsi+*lags+iSigned,
+   dmats+*lags+iSigned,dmatsj+*lags+iSigned,dmatsi+*lags+iSigned);
 }
 
 for(i=0;i<*capT;i++){
@@ -1819,11 +1820,12 @@ oneStepBack(rowDim,
    ymats+*lags+1,ymatsj+*lags+1,ymatsi+*lags+1,
    cmats+*lags+1,cmatsj+*lags+1,cmatsi+*lags+1,
    dmats+*lags+1,dmatsj+*lags+1,dmatsi+i+1);
-for(i=*lags;i>-1;i--){
+int iSigned;
+for(iSigned=*lags;iSigned>-1;iSigned--){
 oneStepBack(numberOfEquations,
-   ymats+i,ymatsj+i,ymatsi+i,
-   cmats+i,cmatsj+i,cmatsi+i,
-   dmats+i,dmatsj+i,dmatsi+i);
+   ymats+iSigned,ymatsj+iSigned,ymatsi+iSigned,
+   cmats+iSigned,cmatsj+iSigned,cmatsi+iSigned,
+   dmats+iSigned,dmatsj+iSigned,dmatsi+iSigned);
 }
 
 for(i=0;i<*lags+1;i++){
@@ -4010,7 +4012,7 @@ useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,phipsi+(i*hrows),
 w,info);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 /*change sign*/
 
@@ -4031,7 +4033,7 @@ useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,thePhi+(i*hrows),
 w,info);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 /*change sign*/
 }
@@ -4304,7 +4306,7 @@ lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 useMA50AD(&hrows,&hrows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob!=2){
 useMA50BD(&hrows,&hrows,&nonZeroNow,ma50bdJob,
@@ -4312,7 +4314,7 @@ phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
                              to 3(ie conservative alternative)*/
@@ -4322,7 +4324,7 @@ phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(info[0]<-7){
 /* small pivot values,
@@ -4336,7 +4338,7 @@ phiInvmat,phiInvmatj,phiInvmati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 }
 }
@@ -4357,7 +4359,7 @@ lclphiInvmat,lclphiInvmatj,lclphiInvmati);
 useMA50AD(&resultRows,&resultRows,&nonZeroNow,
 &nzmax,lclphiInvmat,lclphiInvmatj,jcn,lclphiInvmati,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob!=2){
 useMA50BD(&resultRows,&resultRows,&nonZeroNow,ma50bdJob,
@@ -4365,7 +4367,7 @@ resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(*ma50bdJob=1)*ma50bdJob=1;/* if it was 1 promote 
                              to 3(ie conservative alternative)*/
@@ -4375,7 +4377,7 @@ resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 if(info[0]<-7){
 /* small pivot values,
@@ -4389,7 +4391,7 @@ resultMat,resultMatj,resultMati,
 cntl,icntl,ip,lclphiInvmati,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 }
 }
@@ -4418,7 +4420,7 @@ useMA50CD(&hrows,&hrows,icntl,lclphiInvmati,np,&trans,
 lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 columnVals,columnResult,
 w,info);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 
 /*
@@ -4426,7 +4428,7 @@ useMA50CD(&hrows,&hrows,icntl,qrmati,np,&trans,
 lfact,fact,irnf,iptrl,iptru,
 nsSumC,x,
 w,info);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(info[0]>=0);
 */
 nzmaxLeft= nzmax-soFar-1;
@@ -4458,7 +4460,7 @@ pathNewtAssert(info[0]>=0);
 dnsToCsr(&hrows,&numberExogenous,&nzmaxLeft,columnResult,
 &hrows,vartheta,varthetaj,varthetai,
 &ierr);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(ierr == 0);
 @}
 
@@ -4473,7 +4475,7 @@ pathNewtAssert(info[0]>=0);
 dnsToCsr(&hrows,&hrows,&nzmaxLeft,columnResult,
 &hrows,varthetaC,varthetaCj,varthetaCi,
 &ierr);
-wordybump(info[3]);
+wordybump((unsigned int)info[3]);
 pathNewtAssert(ierr == 0);
 @}
 
@@ -4722,8 +4724,8 @@ printf("using stack\n");
 nxtGuess(numberOfEquations,lags,leads,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
-maxNumberElements,qMat,qMatj,qMati,fixedPoint,intercept,x,shockVec,xdel,
-intControlParameters,doubleControlParameters);
+maxNumberElements,qMat,qMatj,qMati,fixedPoint,intercept,x,/*shockVec,*/xdel/*,
+intControlParameters,doubleControlParameters*/);
 bump(*maxNumberElements);
 } else {
 /* code to replace stack with sparse inversion*/
@@ -4739,7 +4741,7 @@ multMax=  (*pathLength)* *maxNumberElements+forQ;/* try 10 for multmax*/
 newNxtGuess(&n,&multMax,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,xdel,
 ma50bdJob,
-ma50bdIq,
+/*ma50bdIq,*/
 ma50bdFact,
 ma50bdIrnf,
 ma50bdIptrl,
