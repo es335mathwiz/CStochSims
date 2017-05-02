@@ -1040,15 +1040,16 @@ void constructFdrv(@<constructFdrv argument list@>);
 @{
 unsigned int numberOfEquations,unsigned int lags, unsigned int leads,unsigned int pathLength,
 double * xvec,double * params,
-void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
-void (*dfunc)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
+void (*vFunc)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+void (*vFuncDrv)(double *,double*, double*, double*,unsigned  int*,unsigned  int*,double *, double *),
 double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,
-double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double * fixedPoint,double * intercept,double * linearizationPoint,
+/*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double * shockVec,
 double * fvec,
 double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,unsigned int ihomotopy,
 unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo@}
+unsigned int * intOutputInfo/*, double * doubleOutputInfo*/@}
 
 @d chkDrv definition
 @{
@@ -1105,10 +1106,10 @@ soFar=numberOfEquations*lags;
 {/*shock only applies for first period*/
 addOneToFEvals;
 vFunc(xvec,params,shockVec,
-fvec+numberOfEquations*lags,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+fvec+numberOfEquations*lags,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 addOneToFDrvEvals;
 vFuncDrv(xvec,params,shockVec,
-fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags,homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 for(j=0;j<numberOfEquations+1;j++){
 fdrvi[numberOfEquations*lags+j]=
 fdrvi[numberOfEquations*lags+j]+soFar;
@@ -1123,10 +1124,10 @@ soFar=fdrvi[numberOfEquations*(lags+1)]-1;
 for(i=1;i<pathLength;i++){
 addOneToFEvals;
 vFunc(xvec+i*numberOfEquations,params,zeroShockVec,
-fvec+numberOfEquations*lags+i*numberOfEquations,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+fvec+numberOfEquations*lags+i*numberOfEquations,fvecj,fveci,homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 addOneToFDrvEvals;
 vFuncDrv(xvec+i*numberOfEquations,params,zeroShockVec,
-fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags+(i*numberOfEquations),homotopyAlpha+ihomotopy,linearizationPoint,exogRows,exogCols,exogenizeQ);
+fdrv+soFar,fdrvj+soFar,fdrvi+numberOfEquations*lags+(i*numberOfEquations),homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 for(j=0;j<numberOfEquations+1;j++){
 fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]=
 fdrvi[(i*numberOfEquations)+numberOfEquations*lags+j]+soFar;
@@ -1625,7 +1626,7 @@ unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,
 double * fmats,unsigned int * fmatsj,unsigned int * fmatsi,
 double * smats,unsigned int * smatsj,unsigned int * smatsi,
 unsigned int *maxNumberHElements,
-double * initialX,double * updateDirection @| termConstr fp initialX 
+/*double * initialX,*/double * updateDirection @| termConstr fp initialX 
 theFunc theDrvFunc capT 
 @}
 
@@ -2660,7 +2661,7 @@ dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,lin
 nxtFPGuess(numberOfEquations,lags,leads,
 fmats[0],fmatsj[0],fmatsi[0],
 smats[0],smatsj[0],smatsi[0],
-maxNumberElements,x,p);
+maxNumberElements,/*x,*/p);
 
 
 
@@ -2735,12 +2736,13 @@ double * params,double * shockVec,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double * fixedPoint,double * intercept,double * linearizationPoint,
+/*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double x[],
 unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
-unsigned int * ma50bdIq,
+/*unsigned int * ma50bdIq,*/
 double * ma50bdFact,
 unsigned int * ma50bdIrnf,
 unsigned int * ma50bdIptrl,
@@ -2914,7 +2916,7 @@ dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],homotopyAlpha+ihomotopy,lin
 nxtFPGuess(numberOfEquations,lags,leads,
 fmats[0],fmatsj[0],fmatsi[0],
 smats[0],smatsj[0],smatsi[0],
-maxNumberElements,x,p);
+maxNumberElements,/*x,*/p);
 
 
 
@@ -3022,12 +3024,13 @@ double * params,double * shockVec,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
+double * fixedPoint,double * intercept,double * linearizationPoint,
+/*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double easyX[],double targetX[],unsigned int * exogQ,double x[],
 unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
-unsigned int * ma50bdIq,
+/*unsigned int * ma50bdIq,*/
 double * ma50bdFact,
 unsigned int * ma50bdIrnf,
 unsigned int * ma50bdIptrl,
@@ -3105,12 +3108,12 @@ vecfunc,fdjac,params,trialShock,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
-fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+fixedPoint,intercept,linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 trialX,
 check,lastDel,intControlParameters,doubleControlParameters,
 intOutputInfo,doubleOutputInfo,
 ma50bdJob,
-ma50bdIq,
+/*ma50bdIq,*/
 ma50bdFact,
 ma50bdIrnf,
 ma50bdIptrl,
@@ -4731,11 +4734,11 @@ bump(*maxNumberElements);
 /* code to replace stack with sparse inversion*/
 printf("not using stack\n");
 constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
-x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
+x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
 intControlParameters, doubleControlParameters,
-intOutputInfo, doubleOutputInfo);
+intOutputInfo/*, doubleOutputInfo*/);
 
 multMax=  (*pathLength)* *maxNumberElements+forQ;/* try 10 for multmax*/
 newNxtGuess(&n,&multMax,
