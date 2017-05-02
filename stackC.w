@@ -1239,7 +1239,7 @@ ifirst = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
 lenc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
 lastc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
 nextc = (unsigned int *)calloc(*sysDim,sizeof(unsigned int));
-info = (unsigned int *)calloc(7,sizeof(unsigned int));
+info = (int *)calloc(7,sizeof( int));
 rinfo = (double *)calloc(1,sizeof(double));
 lfact = (unsigned int *)calloc(1,sizeof(unsigned int));
 *lfact = ( *maxNumberHElements);/*pessimistic setting for filling*/
@@ -1263,7 +1263,7 @@ useMA50AD(sysDim,sysDim,&nonZeroNow,
 &nzmax,copychkfdrv,copychkfdrvj,jcn,copychkfdrvi,cntl,icntl,
 ip,np,jfirst,lenr,lastr,nextr,iw,ifirst,lenc,lastc,nextc,info,rinfo);
 wordybump(info[3]);
-pathNewtAssert(info[0]>=0);
+//pathNewtAssert(info[0]>=0);
 
 #ifdef DEBUG 
 printf("\n ma50ad info\n");
@@ -1283,7 +1283,7 @@ printf("\n ma50bd info\n");
 for(i=0;i<7;i++)printf(" %d ",info[i]);
 printf("\n ma50bd info\n");
 #endif
-pathNewtAssert(info[0]>=0);
+//pathNewtAssert(info[0]>=0);
 if(*ma50bdJob==1)*ma50bdJob=1;
 /* if it was 1 promote 
                              to 3(ie conservative alternative)*/
@@ -1296,7 +1296,7 @@ cntl,icntl,ip,copychkfdrvi,
 np,lfact,ma50bdFact,ma50bdIrnf,ma50bdIptrl,ma50bdIptru,
 w,iw,info,rinfo);
 wordybump(info[3]);
-pathNewtAssert(info[0]>=0);
+//pathNewtAssert(info[0]>=0);
 if(info[0]<-7){/* small pivot values,
 reset to 3*/
 #ifdef DEBUG 
