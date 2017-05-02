@@ -1897,7 +1897,7 @@ double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double
 double * initialX,
 double * shockVec,
 unsigned int * capT,
-unsigned int * maxNumberHElements,
+/*unsigned int * maxNumberHElements,*/
 double ** fmats,unsigned int ** fmatsj,unsigned int **fmatsi,
 double ** smats,unsigned int ** smatsj,unsigned int **smatsi)
 {
