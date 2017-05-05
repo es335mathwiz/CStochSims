@@ -407,11 +407,11 @@ std::uniform_int_distribution<int> distribution(K1,mxint);
 
 ntot=(tfIndex-t0Index+1)*replications;
 if(strcmp(seedString,"sequential")){/*need to generate random numbers*/
-phrtsd_(seedString,& seed1,& seed2);
-setall_(seed1,seed2);
+phrtsd(seedString,& seed1,& seed2);
+setall(seed1,seed2);
 
     for(i=0; i<ntot; i++) {
-     //   *(iarray+i) = distribution(generator);
+        *(iarray+i) = distribution(generator);
     }
 } else {/*generate 1...min(stochpathlength,numshocks) to fill up stochpathlength*/
 for(i=0;i<ntot;i++){
