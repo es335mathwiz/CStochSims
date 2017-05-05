@@ -395,8 +395,8 @@ void generateDraws(unsigned int t0Index,unsigned int tfIndex,unsigned int replic
 unsigned int * iarray,char * seedString)
 {
 
-long seed1;
-long seed2;
+//long seed1;
+//long seed2;
 static  long K1=1;
 unsigned int ntot,i;
 long mxint;
@@ -407,8 +407,8 @@ std::uniform_int_distribution<int> distribution(K1,mxint);
 
 ntot=(tfIndex-t0Index+1)*replications;
 if(strcmp(seedString,"sequential")){/*need to generate random numbers*/
-phrtsd(seedString,& seed1,& seed2);
-setall(seed1,seed2);
+//phrtsd_(seedString,& seed1,& seed2);
+//setall_(seed1,seed2);
 
     for(i=0; i<ntot; i++) {
         *(iarray+i) = distribution(generator);
@@ -1092,7 +1092,7 @@ result=result+((currentReplication==*((&debugPairs)+2*ii))&&(currentDate==*(&(de
 }
 return(result);
 }
-
+using namespace std;
 @<generatePathX signature@>
 {
 double * lclFixedPoint;
@@ -1261,8 +1261,8 @@ unsigned int * compXMa50bdIptru)
 @o generatePathX.c -d
 @{
 #include <stdio.h>
-#include "stackC.h"
-using namespace stackC;
+//#include "stackC.h"
+//using namespace stackC;
 //#include "stochSims.h"
 //using namespace stochSims;
 @<streamingGeneratePath signature@>
@@ -1469,11 +1469,11 @@ namespace stochSims {
 #include <cstdlib>
 #include <cstdio>
 
-namespace stochSims {
+
 
 #include "stochSims.h"
-using namespace stochSims;
 
+namespace stochSims {
 @<allocStochSims signature@>
 {
 *failedQ=(unsigned int *)calloc(stochasticPathLength*replications,sizeof(int));

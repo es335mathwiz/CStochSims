@@ -1601,6 +1601,8 @@ WriteString[outFile<>"Shocks.c",
 
 shocksTemplate=
 "
+namespace runIt {
+
 /*`dvalsInfo`*/
 void `functionName`Shocks(int t,double * vectorOfVals)
 {
@@ -1609,7 +1611,7 @@ int i;
 for(i=0;i<`shocksCols`;i++)vectorOfVals[i]=0;
 for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++)vectorOfVals[i]=theShocks[t][i];
 }
-
+}
 
 "
 
@@ -1674,7 +1676,7 @@ WriteString[outFile<>"Data.c",
 dataTemplate=
 "
 
-
+namespace runIt {
 
 /*`valsInfo`*/
 void `functionName`Data(int t,double * vectorOfVals)
@@ -1683,7 +1685,7 @@ int i;
 #include  \"`outFile`DataForInclude.h\"/*vstr;*/
 for(i=0;i<`dataCols`;i++)vectorOfVals[i]=theData[t][i];
 }
-
+}
 "
 
 writeRun[outFile_String,aList_Association]:=
@@ -1701,8 +1703,11 @@ runItTemplate=
 #include <stdlib.h>
 #include <stdio.h>
 #include \"stackC.h\"
+using namespace stackC;
 #include \"stochSims.h\"
+using namespace stochSims;
 #include \"runItOther.h\"
+using namespace runIt;
 //#include \"stochProto.h\"
 
 
@@ -2005,8 +2010,9 @@ cSupportTemplate="
 #include <math.h>
 //#include \"useSparseAMA.h\"
 #include \"stackC.h\"
-#include \"stochSims.h\"
+//#include \"stochSims.h\"
 //#include \"runItOther.h\"
+namespace runIt {
 //static double maxarg1,maxarg2;
 #include <math.h>
 
@@ -2096,6 +2102,7 @@ void `functionName`SelectZ(/*double * aMat,int * jaMat,int *iaMat*/
 `selectZMatA`
 `selectZMatIA`
 `selectZMatJA`
+}
 }
 "
 End[] (* End Private Context *)
