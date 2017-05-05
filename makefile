@@ -73,13 +73,13 @@ runrbcTryC:	runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o r
 	$(FC) -o runrbcTryC -g  runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 libstochSims.a:	myNewt.o \
-		stackC.o ranlib.o compXEtm1.o  \
+		stackC.o  compXEtm1.o  \
 	generateNextXTMinusOne.o generatePathX.o  \
-	generateNextXT.o stochSims.o generateDraws.o ranlib.o
+	generateNextXT.o stochSims.o generateDraws.o 
 	ar -cvq libstochSims.a myNewt.o \
-		stackC.o  ranlib.o compXEtm1.o \
+		stackC.o  compXEtm1.o \
 	generateNextXTMinusOne.o generatePathX.o  \
-	generateNextXT.o  stochSims.o generateDraws.o ranlib.o
+	generateNextXT.o  stochSims.o generateDraws.o 
 
 
 clean: 

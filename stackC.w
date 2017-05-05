@@ -173,6 +173,7 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @o  stackC.c -d
 @{
+namespace stackC {
 @<define constants and specify include files@>
 @<define assert bump@>
 @<nxtCDmats definition@>
@@ -258,6 +259,7 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 #include <stdlib.h>
 //void free(void * ptr);
 //void * calloc(size_t amt,size_t size);
+namespace stackC {
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
 Function uses SPARSEKIT's CSR format.
@@ -2439,7 +2441,7 @@ free(*dataVec);
 free(*zeroShockVec);
 }
 
-
+}
 @}
 \subsection{FPnewt.c}
 \label{sec:FPnewt.c}
@@ -2481,14 +2483,19 @@ __LINE__);
 
 @o myNewt.c -d 
 @{
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 //#include "stochProto.h"
 #include "useSparseAMA.h"
 #include "stackC.h"
-#include "stochSims.h"
+using namespace stackC;
 
+#include "stochSims.h"
+using namespace stochSims;
+namespace myNewt {
 /*taken from numerical recipes nrutil.h*/
 @<define assert bump@>
 static float sqrarg;
@@ -5062,7 +5069,7 @@ free(aOne);free(aZero);free(aTwo);free(fvec);free(fvecj);free(fveci);
 
 #undef NRANSI
 /* (C) Copr. 1986-92 Numerical Recipes Software '>9m_L31.. */
-
+}
 @}
 
 @d lnsrch declarations
@@ -5314,7 +5321,7 @@ maxNumberElements,
 linearConstrainMatrix, 
 ierr
 );
-)
+
 \item[{\bf  pathNewt}] pathNewt(NEQS, NLAGS, NLEADS, pathLength, 
 theSparseFunction, theSparseFunctionDerivative, paramVector, shockVector,
 fmats, fmatsj, fmatsi, 
@@ -6207,6 +6214,7 @@ C    floating-pounsigned int operations performed.
 @o stackC.h -d
 @{
 //void useMA50CD();
+}
 @}
 
 \begin{verbatim}

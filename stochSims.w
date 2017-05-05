@@ -100,10 +100,17 @@ Map[iterFunc,shockSeqList]
 @}
 @o stochSims.h -d
 @{
+namespace stochSims {
+
 //#define MAXELEMENTS 20000
 #define PATHLENGTH 10
 #define REPLICATIONS 5000
 
+
+unsigned int intControlParameters[100];
+double doubleControlParameters[100];
+unsigned int intOutputInfo[100];
+double doubleOutputInfo[100];
 
 #define widthIntControlInfo 70
 #define widthDoubleControlInfo 50
@@ -206,10 +213,6 @@ Map[iterFunc,shockSeqList]
 
 
 
-unsigned int intControlParameters[100];
-double doubleControlParameters[100];
-unsigned int intOutputInfo[100];
-double doubleOutputInfo[100];
 
 /*void free();*/
 /*void * calloc(unsigned num,unsigned int amt);*/
@@ -239,7 +242,7 @@ unsigned int * iarray,char * str);
 #include <stdlib.h>
 //void free(void * ptr);
 //void * calloc(size_t amt,size_t size);
-
+}
 @}
 
 @o mpi.h
@@ -250,6 +253,8 @@ unsigned int * iarray,char * str);
 
 @o stochSims.h -d
 @{
+namespace stochSims {
+
 /*what goes here?*/
 #include <stdio.h>
 #ifndef STOCHSIMS_H
@@ -274,6 +279,7 @@ void sendHaltMessage(int);
 void buildResultType(double*, int*, int*, int, int, MPI_Datatype*);
 void error(int, int, int, int);
 @<stochSim signature@>;
+}
 @}
 
 
@@ -363,11 +369,17 @@ routine initializes the path beyond the lagged values to the fp[model] values.
 
 @o generateDraws.c -d
 @{
+
+#include <random>
+using namespace std;
+
+
 @<define assert bump@>
 #include <stdlib.h>
 #include <string.h>
-#include "stochSims.h"
-#include <random>
+
+//#include "stochSims.h"
+namespace stochSims {
 
 void allocGenerateDraws(unsigned int t0Index,unsigned int tfIndex, unsigned int replications,unsigned int ** iarray)
 {
@@ -399,11 +411,12 @@ phrtsd_(seedString,& seed1,& seed2);
 setall_(seed1,seed2);
 
     for(i=0; i<ntot; i++) {
-        *(iarray+i) = ignuin_(K1,mxint);
+     //   *(iarray+i) = distribution(generator);
     }
 } else {/*generate 1...min(stochpathlength,numshocks) to fill up stochpathlength*/
 for(i=0;i<ntot;i++){
 iarray[i]=(i%shocksAvailable)+1;
+}
 }
 }
 }
@@ -455,14 +468,21 @@ unsigned int * compXMa50bdIptru
 )@}
 
 @o stochSims.h -d
-@{@<compXEtm1 signature@>;@}
+@{namespace stochSims {
+
+@<compXEtm1 signature@>;
+
+}
+@}
 
 @o compXEtm1.c -d
 @{
 @<define assert bump@>
 #include  "useSparseAMA.h"
 #include "stackC.h"
+using namespace stackC;
 #include "stochSims.h"
+using namespace stochSims;
 #include <stdio.h>
 @<compXEtm1 signature@>
 {
@@ -632,8 +652,11 @@ unsigned int * compXMa50bdIptru
 
 @o stochSims.h -d
 @{
+namespace stochSims {
+
 @<generateNextXTMinusOne signature@>;
 @<generateNextXT signature@>;
+}
 @}
 
 
@@ -642,8 +665,9 @@ unsigned int * compXMa50bdIptru
 #include <stdio.h>
 #include  "useSparseAMA.h"
 #include  "stackC.h"
+using namespace stackC;
 #include  "stochSims.h"
-
+using namespace stochSims;
 @<define assert bump@>
 
 @<generateNextXTMinusOne signature@>
@@ -834,7 +858,9 @@ unsigned int * compXMa50bdIptru*/
 #include <stdio.h>
 #include  "useSparseAMA.h"
 #include  "stackC.h"
+using namespace stackC;
 #include "stochSims.h"
+using namespace stochSims;
 
 @<define assert bump@>
 
@@ -1029,8 +1055,11 @@ unsigned int * compXMa50bdIptru
 
 @o stochSims.h
 @{
+namespace stochSims {
+
 @<generatePathX signature@>;
 @<currentRequestedQ signature@>;
+}
 @}
 
 @d currentRequestedQ signature
@@ -1045,7 +1074,10 @@ unsigned int currentRequestedQ(unsigned int * intControlParameters,unsigned int 
 @<define assert bump@>
 
 #include "stackC.h"
+using namespace stackC;
+
 #include "stochSims.h"
+using namespace stochSims;
 void failNextX(unsigned int * numberOfEquations,double * x)
 {
 unsigned int i;
@@ -1185,7 +1217,11 @@ free(lclFixedPoint);
 @o stochSims.h -d
 @{
 #include <stdio.h>
+namespace stochSims {
+
 @<streamingGeneratePath signature@>;
+
+}
 @}
 @d streamingGeneratePath signature
 @{
@@ -1226,7 +1262,9 @@ unsigned int * compXMa50bdIptru)
 @{
 #include <stdio.h>
 #include "stackC.h"
+using namespace stackC;
 //#include "stochSims.h"
+//using namespace stochSims;
 @<streamingGeneratePath signature@>
 {
 double * lclFixedPoint;
@@ -1419,14 +1457,22 @@ void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,u
 
 @o stochSims.h -d
 @{
+namespace stochSims {
+
 @<freeStochSims signature@>;
 @<allocStochSims signature@>;
+}
 @}
 @o stochSims.c -d
 @{
 @<define assert bump@>
+#include <cstdlib>
+#include <cstdio>
+
+namespace stochSims {
 
 #include "stochSims.h"
+using namespace stochSims;
 
 @<allocStochSims signature@>
 {
@@ -1439,6 +1485,7 @@ free(*failedQ);
 
 #include <stdio.h>
 #include "stackC.h"
+using namespace stackC;
 
 void streamingStochSim(
 FILE * streamShocksIn,FILE * streamEasyIn,FILE * streamTargetIn,
@@ -1615,7 +1662,7 @@ fclose(debFile);
 
 free(stochasticPathLength);
 }
-
+}
 @}
 
 @o distStochSims.c -d

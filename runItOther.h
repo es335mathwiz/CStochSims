@@ -5,7 +5,7 @@
 #include<string.h>
 #endif
 /* */
-
+namespace runIt {
 void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
 			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2)
 {
@@ -289,3 +289,4 @@ fprintf(file,"%d};\n",matrix[length-1]);
 }
 
 */
+}
