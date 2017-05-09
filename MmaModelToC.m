@@ -1570,6 +1570,8 @@ WriteString[outFile<>"DataForInclude.h",
 
 dataIncludeTemplate=
 "
+#ifndef DATAINCLUDETEMPLATE
+#define DATAINCLUDETEMPLATE
 
 /*Mathematica Creation Date`date`*/
 static double theData[`dataRows`][`dataCols`]=
@@ -1577,7 +1579,7 @@ static double theData[`dataRows`][`dataCols`]=
 
 
 
-
+#endif
 "
 writeShocksInclude[outFile_String,aList_Association]:=
 Module[{},
@@ -1586,13 +1588,15 @@ WriteString[outFile<>"ShocksForInclude.h",
 
 shocksIncludeTemplate=
 "
+#ifndef SHOCKSINCLUDETEMPLATE
+#define SHOCKSINCLUDETEMPLATE
 
 /*Mathematica Creation Date`date`*/
 static double theShocks[`shocksRows`][`shocksCols`]=
 `dstr`;
 
 
-
+#endif
 "
 writeShocks[outFile_String,aList_Association]:=
 Module[{},
@@ -1601,7 +1605,7 @@ WriteString[outFile<>"Shocks.c",
 
 shocksTemplate=
 "
-namespace runIt {
+namespace stochSims {
 
 /*`dvalsInfo`*/
 void `functionName`Shocks(int t,double * vectorOfVals)
@@ -1622,7 +1626,8 @@ WriteString["run"<>outFile<>"LocalDefs.h",
 
 runItLocalDefsTemplate=
 "
-
+#ifndef LOCALDEFSTEMPLATE
+#define LOCALDEFSTEMPLATE
 
 
 /*Mathematica Creation Date`date`*/
@@ -1666,6 +1671,8 @@ double * `functionName`EasyPathQ;
 double * `functionName`TargetPathQ;
 double * `functionName`PathQ;
 double * `functionName`ZeroPathQ;
+
+#endif
 "
 
 writeData[outFile_String,aList_Association]:=
@@ -1676,7 +1683,7 @@ WriteString[outFile<>"Data.c",
 dataTemplate=
 "
 
-namespace runIt {
+namespace stochSims {
 
 /*`valsInfo`*/
 void `functionName`Data(int t,double * vectorOfVals)
@@ -1706,8 +1713,8 @@ runItTemplate=
 using namespace stackC;
 #include \"stochSims.h\"
 using namespace stochSims;
-#include \"runItOther.h\"
-using namespace runIt;
+//#include \"runItOther.h\"
+using namespace stochSims;
 //#include \"stochProto.h\"
 
 
@@ -2012,7 +2019,7 @@ cSupportTemplate="
 #include \"stackC.h\"
 //#include \"stochSims.h\"
 //#include \"runItOther.h\"
-namespace runIt {
+namespace stochSims {
 //static double maxarg1,maxarg2;
 #include <math.h>
 

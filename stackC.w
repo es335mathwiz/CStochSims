@@ -173,8 +173,9 @@ Assemble the components and output to the file {\bf stackC.c}.
 
 @o  stackC.c -d
 @{
-namespace stackC {
+
 @<define constants and specify include files@>
+namespace stackC {
 @<define assert bump@>
 @<nxtCDmats definition@>
 @<oneStepBack definition@>
@@ -192,11 +193,13 @@ namespace stackC {
 
 @d define constants and specify include files
 @{
+#include <signal.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
 #include "useSparseAMA.h"
-#include "stochSims.h"
+//#include "stochSims.h"
 //#include "stochProto.h"
 #include "useSparseAMA.h"
 
@@ -255,8 +258,14 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 
 @o stackC.h -d
 @{
-#include <stdio.h>
-#include <stdlib.h>
+
+#ifndef STACKC_H
+#define STACKC_H
+
+#include <iostream>
+
+//#include <stdio.h>
+//#include <stdlib.h>
 //void free(void * ptr);
 //void * calloc(size_t amt,size_t size);
 namespace stackC {
@@ -268,7 +277,7 @@ MA50CD operates on the transpose.
 
 @d nxtCDmats definition
 @{
-#include <unistd.h>
+
 //pid_t getpid(void);
 
 void nxtCDmats(@<nxtCDmats argument list@>){
@@ -1055,7 +1064,6 @@ unsigned int * intOutputInfo/*, double * doubleOutputInfo*/@}
 
 @d chkDrv definition
 @{
-#include <math.h>
 #define NEGLIGIBLEDOUBLE 1.0e-9
 void chkDrv(unsigned int n, double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,
 double * fvec,double * delxvec)
@@ -2468,7 +2476,6 @@ __LINE__);
    if(potentialMaxValue>maxElementsEncountered) \
    maxElementsEncountered=potentialMaxValue;
 
-#include <signal.h>
 #define pathNewtAssert(expression)  \
   if(!(expression))\
 		   __pathNewtAssert (expression, __FILE__, __LINE__)
@@ -2484,6 +2491,9 @@ __LINE__);
 @o myNewt.c -d 
 @{
 
+#include <unistd.h>
+#include <math.h>
+#include <signal.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -2493,8 +2503,8 @@ __LINE__);
 #include "stackC.h"
 using namespace stackC;
 
-#include "stochSims.h"
-using namespace stochSims;
+//#include "stochSims.h"
+//using namespace stochSims;
 namespace myNewt {
 /*taken from numerical recipes nrutil.h*/
 @<define assert bump@>
@@ -2541,7 +2551,7 @@ FREERETURN
 @}
 @d FPnewt defines
 @{
-#include <math.h>
+//#include <math.h>
 #define NRANSI
 
 
@@ -4967,7 +4977,7 @@ unsigned int * intOutputInfo, double * doubleOutputInfo*/
 @}
 @o stackC.h -d
 @{
-#include <unistd.h>
+//#include <unistd.h>
 //pid_t getpid(void);
 
 
@@ -4975,7 +4985,7 @@ void lnsrch(@<lnsrch argument list@>);
 @}
 @o myNewt.c -d
 @{
-#include <math.h>
+//#include <math.h>
 #define NRANSI
 
 
@@ -6215,6 +6225,7 @@ C    floating-pounsigned int operations performed.
 @{
 //void useMA50CD();
 }
+#endif
 @}
 
 \begin{verbatim}
