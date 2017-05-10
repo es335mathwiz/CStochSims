@@ -111,112 +111,136 @@ namespace stochSims {
 #define REPLICATIONS 5000
 
 
-unsigned int intControlParameters[100];
-double doubleControlParameters[100];
-unsigned int intOutputInfo[100];
-double doubleOutputInfo[100];
+//unsigned int intControlParameters[100];
+//double doubleControlParameters[100];
+//unsigned int intOutputInfo[100];
+//double doubleOutputInfo[100];
 
 #define widthIntControlInfo 70
 #define widthDoubleControlInfo 50
 #define widthIntOutputInfo 20
 #define widthDoubleOutputInfo 10
-#define useStackQ intControlParameters[0]
-#define useLnsrchQ intControlParameters[1]
-#define numberOfDebugPairs intControlParameters[2]
-#define useIdentityQ intControlParameters[3]
-#define maxitsInput intControlParameters[4]
-#define maxNumberStackElements intControlParameters[5]
-#define maxNumberAimElements intControlParameters[6]
-#define numberAlphas intControlParameters[7]
-#define numberBetas intControlParameters[8]
-#define useFirstDiffQ intControlParameters[9]
-#define ma50PivotSearch intControlParameters[10]
-#define useQQ intControlParameters[11]
-#define terminalConstraintSelection intControlParameters[12]
 #define useFixedPoint  0
 #define useCrawlingDataPoint  1
 #define useWaggingTail  2
 #define useFixedDataPoint  3
 #define useTailSolutionPlus  4
-#define numberVarsToMonitor intControlParameters[13]
-#define monitoredVars intControlParameters[14]
-/*also reserve next 9 for monotored Vars*/
-#define type3Q intControlParameters[24]
-#define debugQ intControlParameters[25]
-#define numberVarsToShock intControlParameters[26]
-#define shockedVars intControlParameters[27]
-/*also reserve next 9 for shocked Vars*/
-#define tMinusOneQ intControlParameters[37]
-#define debugPairs intControlParameters[38]
-/*also reserve next 10 for debug pairs*/
-
-#define homotopyXGuess intControlParameters[48]
-#define homotopyEasy intControlParameters[49]
-#define useBigX 0
 #define useBigEasy 1
-#define usePreviousHomotopyQ intControlParameters[50]
-#define useShockFileQ intControlParameters[51]
-#define shockFileOffset intControlParameters[52]
-#define dataFileOffset intControlParameters[53]
-#define streamingQ intControlParameters[54]
-#define ICshockVecLength  intControlParameters[55]
-#define ICnumberOfEquation intControlParameters[56]
-#define ICnumberOfLags intControlParameters[57]
-#define ICnumberOfLeads intControlParameters[58]
-#define ICnumberOfParameters intControlParameters[59]
-#define ICnumberOfDataValues intControlParameters[60]
-#define ICnumberOfShocks intControlParameters[61]
-#define ICnumberExog intControlParameters[62]
-#define ignoreFailQ intControlParameters[63]
 
 
-#define tolxInput doubleControlParameters[0]
-#define tolfInput doubleControlParameters[1]
-#define shrinkFactorInput doubleControlParameters[2]
-#define expandFactorInput doubleControlParameters[3]
-#define alaminInput doubleControlParameters[4]
-#define alfInput doubleControlParameters[5]
-#define ma50DropTol doubleControlParameters[6]
-#define homotopyAlpha (doubleControlParameters+10)
+struct controlInfo
+{
+unsigned int useStackQ;
+unsigned int useLnsrchQ;
+unsigned int numberOfDebugPairs;
+unsigned int useIdentityQ;
+unsigned int maxitsInput;
+unsigned int maxNumberStackElements;
+unsigned int maxNumberAimElements;
+unsigned int numberAlphas;
+unsigned int numberBetas;
+unsigned int useFirstDiffQ;
+unsigned int ma50PivotSearch;
+unsigned int useQQ;
+unsigned int terminalConstr;
+unsigned int numberVarsToMonitor;
+unsigned int monitoredVars[10];
+/*also reserve next 9 for monotored Vars*/
+unsigned int type3Q;
+unsigned int debugQ;
+unsigned int numberVarsToShock;
+unsigned int shockedVars[9];
+/*also reserve next 9 for shocked Vars*/
+unsigned int tMinusOneQ;
+unsigned int debugPairs[10];
+/*also reserve next 10 for debug pairs*/
+unsigned int homotopyXGuess[10];
+unsigned int homotopyEasy;
+unsigned int useBigX=0;
+unsigned int useShockFileQ;
+unsigned int shockFileOffset;
+unsigned int dataFileOffset;
+unsigned int streamingQ;
+unsigned int ICshockVecLength ;
+unsigned int ICnumberOfEquation;
+unsigned int ICnumberOfLags;
+unsigned int ICnumberOfLeads;
+unsigned int ICnumberOfParameters;
+unsigned int ICnumberOfDataValues;
+unsigned int ICnumberOfShocks;
+unsigned int ICnumberExog;
+unsigned int ignoreFailQ;
+double tolxInput ;
+double tolfInput ;
+double shrinkFactorInput ;
+double expandFactorInput ;
+double alaminInput ;
+double alfInput ;
+double ma50DropTol ;
+double homotopyAlpha[10];
 /*also reserve next 9 for homotopyAlpha*/
-#define homotopyBeta (doubleControlParameters+20)
+double homotopyBeta[20];
 /*also reserve next 9 for homotopyBeta*/
-#define ma50Balance doubleControlParameters[30]
-#define ma50DropEntry doubleControlParameters[31]
-#define ma50DropCol doubleControlParameters[32]
-#define shockScalar doubleControlParameters[33]
+double ma50Balance ;
+double ma50DropEntry ;
+double ma50DropCol ;
+double shockScalar ;
+};
+struct outputInfo {
+unsigned int failedQ;
+unsigned int newtonSteps;
+unsigned int fEvals;
+unsigned int fDrvEvals;
+unsigned int shrinkSteps;
+unsigned int expandSteps;
+unsigned int lnsrchStepsfailedQ;
+unsigned int homotopies;
+unsigned int homotopyFailures;
+unsigned int currentReplication;
+unsigned int currentDate;
+double tolF;
+double failedX;
+unsigned int usePreviousHomotopyQ;
+};
 
+void addOneToFailedQ(outputInfo & inInfo){}
+void subOneFromFailedQ(outputInfo & inInfo){}
+void resetFailedQ(outputInfo & inInfo){}
 
+void addOneToNewtonSteps(outputInfo & inInfo){}
+void resetNewtonSteps(outputInfo & inInfo){}
 
-#define addOneToFailedQ (intOutputInfo[0])++
-#define subOneFromFailedQ (intOutputInfo[0])--
-#define resetFailedQ (intOutputInfo[0]=0)
-#define addOneToNewtonSteps (intOutputInfo[1])++
-#define resetNewtonSteps (intOutputInfo[1]=0)
-#define addOneToFEvals (intOutputInfo[2])++
-#define resetFEvals (intOutputInfo[2]=0)
-#define addOneToFDrvEvals (intOutputInfo[3])++
-#define resetFDrvEvals (intOutputInfo[3]=0)
-#define addOneToShrinkSteps (intOutputInfo[4])++
-#define resetShrinkSteps (intOutputInfo[4]=0)
-#define addOneToExpandSteps (intOutputInfo[5])++
-#define resetExpandSteps (intOutputInfo[5]=0)
-#define addOneToLnsrchSteps (intOutputInfo[6])++
-#define resetLnsrchSteps (intOutputInfo[6]=0)
-#define addOneToHomotopies (intOutputInfo[7])++
-#define resetHomotopies (intOutputInfo[7]=0)
-#define addOneToHomotopyFailures (intOutputInfo[8])++
-#define resetHomotopyFailures (intOutputInfo[8]=0)
-#define currentReplication (intOutputInfo[9])
-#define currentDate (intOutputInfo[10])
+void addOneToFEvals(outputInfo & inInfo){}
+void resetFEvals(outputInfo & inInfo){}
 
-#define assignRealizedTolf doubleOutputInfo[0]
-#define resetRealizedTolf (doubleOutputInfo[0]=0)
-#define assignRealizedTolx doubleOutputInfo[1]
-#define resetRealizedTolx (doubleOutputInfo[1]=0)
+void addOneToFDrvEvals(outputInfo & inInfo){}
+void resetFDrvEvals(outputInfo & inInfo){}
 
+void addOneToShrinkSteps(outputInfo & inInfo){}
+void resetShrinkSteps(outputInfo & inInfo){}
 
+void addOneToExpandSteps(outputInfo & inInfo){}
+void resetExpandSteps(outputInfo & inInfo){}
 
+void addOneToLnsrchSteps(outputInfo & inInfo){}
+void resetLnsrchSteps(outputInfo & inInfo){}
+
+void addOneToHomotopies(outputInfo & inInfo){}
+void resetHomotopies(outputInfo & inInfo){}
+
+void addOneToHomotopyFailures(outputInfo & inInfo){}
+void resetHomotopyFailures(outputInfo & inInfo){}
+
+void currentReplication(outputInfo & inInfo){}
+void currentDate(outputInfo & inInfo){}
+
+void assignRealizedTolf(outputInfo & inInfo){}
+void resetRealizedTolf(outputInfo & inInfo){}
+
+void assignRealizedTolx(outputInfo & inInfo){}
+void resetRealizedTolx(outputInfo & inInfo){}
+
+void usePreviousHomotopyQ(outputInfo & inInfo){}
 
 /*void free();*/
 /*void * calloc(unsigned num,unsigned int amt);*/
@@ -482,7 +506,7 @@ unsigned int * compXMa50bdIptru
 #include  "useSparseAMA.h"
 #include "stackC.h"
 using namespace stackC;
-#include "stochSims.h"
+//#include "stochSims.h"
 using namespace stochSims;
 #include <stdio.h>
 @<compXEtm1 signature@>
@@ -667,7 +691,7 @@ namespace stochSims {
 #include  "useSparseAMA.h"
 #include  "stackC.h"
 using namespace stackC;
-#include  "stochSims.h"
+//#include  "stochSims.h"
 using namespace stochSims;
 @<define assert bump@>
 
@@ -860,7 +884,7 @@ unsigned int * compXMa50bdIptru*/
 #include  "useSparseAMA.h"
 #include  "stackC.h"
 using namespace stackC;
-#include "stochSims.h"
+//#include "stochSims.h"
 using namespace stochSims;
 
 @<define assert bump@>
@@ -1077,7 +1101,7 @@ unsigned int currentRequestedQ(unsigned int * intControlParameters,unsigned int 
 #include "stackC.h"
 using namespace stackC;
 
-#include "stochSims.h"
+//#include "stochSims.h"
 using namespace stochSims;
 void failNextX(unsigned int * numberOfEquations,double * x)
 {
@@ -1431,8 +1455,8 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 //unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *failedQ,
+controlInfo & theControlInfo, outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1472,7 +1496,9 @@ char  * flnm;
 
 @o stochSims.h -d
 @{
+namespace stochSims {
 @<processCommandLine signature@>;
+}
 @}
 
 @d processCommandLine signature
@@ -1480,7 +1506,7 @@ char  * flnm;
 void processCommandLine(int argc, const char * argv[],const char ** namesArray,unsigned int modelNEQS,const char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
 double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
 unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-unsigned int * intControlParameters,double* doubleControlParameters,char * flnm)
+controlInfo & theControlInfo,char * flnm)
 @}
 
 @o stochSims.c -d
@@ -1495,7 +1521,7 @@ unsigned int * intControlParameters,double* doubleControlParameters,char * flnm)
 #endif
 /* */
 #include <cstdlib>
-#include "stochSims.h"
+//#include "stochSims.h"
 
 namespace stochSims {
 void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
@@ -1798,7 +1824,7 @@ namespace stochSims {
 using namespace stackC;
 
 
-#include "stochSims.h"
+//#include "stochSims.h"
 
 namespace stochSims {
 @<allocStochSims signature@>
@@ -1992,7 +2018,7 @@ free(stochasticPathLength);
 @o distStochSims.c -d
 @{
 @<define assert bump@>
-#include "stochSims.h"
+//#include "stochSims.h"
 //#include "distStochSims.h"
 
 

@@ -268,6 +268,8 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 //#include <stdlib.h>
 //void free(void * ptr);
 //void * calloc(size_t amt,size_t size);
+#include "stochSims.h"
+using namespace stochSims;
 namespace stackC {
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
@@ -1037,7 +1039,7 @@ double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double
 double * initialX,
 /*double * shockVec,*/
 double * updateDirection/*,
-unsigned int * intControlParameters,double * doubleControlParameters*/
+controlInfo & theControlInfo*/
  @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
@@ -1059,7 +1061,7 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 double * shockVec,
 double * fvec,
 double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,unsigned int ihomotopy,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo/*, double * doubleOutputInfo*/@}
 
 @d chkDrv definition
@@ -1187,7 +1189,7 @@ double * ma50bdFact,
 unsigned int * ma50bdIrnf,
 unsigned int * ma50bdIptrl,
 unsigned int * ma50bdIptru,
-unsigned int * intControlParameters,double * doubleControlParameters
+controlInfo & theControlInfo
 @}
 
 @d nxtGuess definition
@@ -2587,8 +2589,8 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check,
-unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo)@}
+controlInfo & theControlInfo,
+outputInfo & theOutputInfo)@}
 
 @o stackC.h -d
 @{
@@ -2604,7 +2606,7 @@ unsigned int * intOutputInfo, double * doubleOutputInfo)@}
 		 double * shockVec,double * f, double stpmax, unsigned int *check, 
          void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*,double*,double*),double *x,
             unsigned int ihomotopy,double * linPt,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo);*/
 	void lubksb(double **a, unsigned int n, unsigned int *indx, double b[]);
 	void ludcmp(double **a, unsigned int n, unsigned int *indx, double *d);
@@ -2687,7 +2689,7 @@ maxNumberElements,/*x,*/p);
         xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x,ihomotopy,
 linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 /*intControlParameters,*/doubleControlParameters/*,
-intOutputInfo, doubleOutputInfo*/);
+outputInfo*/);
 
 
 		fold=f;
@@ -2756,7 +2758,7 @@ unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int
 double * fixedPoint,double * intercept,double * linearizationPoint,
 /*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double x[],
-unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int *check, double * lastDel,controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
 /*unsigned int * ma50bdIq,*/
@@ -2842,7 +2844,7 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo)
 @}
 @o stackC.h -d
@@ -2859,7 +2861,7 @@ unsigned int * intOutputInfo, double * doubleOutputInfo)
 		 double * shockVec,double * f, double stpmax, unsigned int *check, 
          void (*func)(double*,double*,double*,double*,unsigned int*,unsigned int*,double*,double*),double *x,
             unsigned int ihomotopy,double * linPt,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo);*/
 	void lubksb(double **a, unsigned int n, unsigned int *indx, double b[]);
 	void ludcmp(double **a, unsigned int n, unsigned int *indx, double *d);
@@ -2942,7 +2944,7 @@ maxNumberElements,/*x,*/p);
         xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x,ihomotopy,
 linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 /*intControlParameters,*/doubleControlParameters/*,
-intOutputInfo, doubleOutputInfo*/);
+outputInfo*/);
 
 
 		fold=f;
@@ -3010,7 +3012,7 @@ double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double x[],
-unsigned int *check, double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int *check, double * lastDel,controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
 unsigned int * ma50bdIq,
@@ -3044,7 +3046,7 @@ unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int
 double * fixedPoint,double * intercept,double * linearizationPoint,
 /*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double easyX[],double targetX[],unsigned int * exogQ,double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
+unsigned int *check,controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
 /*unsigned int * ma50bdIq,*/
@@ -3127,7 +3129,7 @@ smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,intercept,linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 trialX,
-check,lastDel,intControlParameters,doubleControlParameters,
+check,lastDel,controlInfo,
 intOutputInfo,doubleOutputInfo,
 ma50bdJob,
 /*ma50bdIq,*/
@@ -3679,7 +3681,7 @@ unsigned int * maxNumberElements,
 double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
 double * rootr, double * rooti,
 unsigned int * ierr,unsigned int ihomotopy/*,*/
-/*unsigned int * intControlParameters,double * doubleControlParameters,*/
+/*controlInfo & theControlInfo,*/
 /*unsigned int * intOutputInfo, double * doubleOutputInfo*/
 )
 @}
@@ -3842,7 +3844,7 @@ double * varthetaZstar, unsigned int * varthetaZstarj, unsigned int * varthetaZs
 double * impact, unsigned int * impactj, unsigned int * impacti,
 double * varthetaC, unsigned int * varthetaCj, unsigned int * varthetaCi,
 unsigned int * ierr,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
 \subsection{computeF}
@@ -4745,7 +4747,7 @@ nxtGuess(numberOfEquations,lags,leads,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,fixedPoint,intercept,x,/*shockVec,*/xdel/*,
-intControlParameters,doubleControlParameters*/);
+controlInfo*/);
 bump(*maxNumberElements);
 } else {
 /* code to replace stack with sparse inversion*/
@@ -4754,7 +4756,7 @@ constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
-intControlParameters, doubleControlParameters,
+controlParameters,
 intOutputInfo/*, doubleOutputInfo*/);
 
 multMax=  (*pathLength)* *maxNumberElements+forQ;/* try 10 for multmax*/
@@ -4766,7 +4768,7 @@ ma50bdFact,
 ma50bdIrnf,
 ma50bdIptrl,
 ma50bdIptru,
-intControlParameters,doubleControlParameters
+controlInfo
 );
 bump((((multMax-forQ)/(*pathLength))));
 }
@@ -4785,8 +4787,8 @@ constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,unsigned intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
-intControlParameters, doubleControlParameters,
-intOutputInfo, doubleOutputInfo);
+controlInfo,
+outputInfo);
 }
 chkDrv(*numberOfEquations*(*lags+*leads+*pathLength),
 chkfdrv,chkfdrvj,chkfdrvi,compfvec,xdel);
@@ -4847,7 +4849,7 @@ if(useLnsrchQ){
 @<compute gradient for lnsrch@>
 		lnsrch(n,*numberOfEquations,*pathLength,
         xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x,ihomotopy,linearizationPoint,/*exogRows,exogCols,exogenizeQ,intControlParameters,*/doubleControlParameters/*,
-intOutputInfo, doubleOutputInfo*/);
+outputInfo*/);
 } else {for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
 }
         } else {
@@ -4864,8 +4866,8 @@ constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,unsigned intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
-intControlParameters, doubleControlParameters,
-intOutputInfo, doubleOutputInfo);
+controlInfo,
+outputInfo);
 */
 }
         sparseMatTimesVec(&n,chkfdrv,chkfdrvj,chkfdrvi,compfvec,
@@ -4944,7 +4946,7 @@ unsigned int  multMax;
 		 double * f, double stpmax, unsigned int *check, 
 void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),double * x,
             unsigned int ihomotopy,double * linPt,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-unsigned int * intControlParameters,double * doubleControlParameters,
+controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo);
 */
 
