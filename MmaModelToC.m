@@ -547,7 +547,7 @@ part="/*Mathematica Creation Date `date`*/
 `coeffDefines`
 void `functionName`(double *stateVector,double *parameters,
 double * shockVec,
-double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
+double * aMat,unsigned int * jaMat,unsigned int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {
 parameters[0]=parameters[0];
@@ -574,7 +574,7 @@ mmaToCTemplate="/*Mathematica Creation Date `date`*/
 `coeffDefines`
 void `functionName`(double *stateVector,double *parameters,
 double * shockVec,
-double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
+double * aMat,unsigned int * jaMat,unsigned int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {
 parameters[0]=parameters[0];
@@ -845,7 +845,7 @@ mmaToCDrvTemplate="
 
 void `functionName`Derivative(double *stateVector,double *parameters,
 double * shockVec,
-double * aMat,int * jaMat,int *iaMat,double * homotopyAlpha,double * linearizationPoint
+double * aMat,unsigned int * jaMat,unsigned int *iaMat,double * homotopyAlpha,double * linearizationPoint
 )
 {int i;
 parameters[0]=parameters[0];
@@ -883,8 +883,8 @@ if(*homotopyAlpha>0.0) {
 for(i=0;i<`bLength`;i++){cMat[i]=cMat[i]*(*homotopyAlpha);};
 }
 maxNumberHElements=`bLength`;
-aplb_(&hrows,&hcols,&aOne,bMat,jbMat,ibMat,cMat,jcMat,icMat,
-aMat,jaMat,iaMat,&maxNumberHElements,okay,&ierr);
+aplb_(&hrows,&hcols,&aOne,bMat,(int *)jbMat,(int *)ibMat,cMat,(int *)jcMat,(int *)icMat,
+aMat,(int *)jaMat,(int *)iaMat,&maxNumberHElements,okay,&ierr);
 }
 }
 "
@@ -999,6 +999,9 @@ mpiRunTemplate="
 #include \"distStochSims.h\"
 int main(int argc,const char * argv[])
 {
+unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
+    char  * flnm;
+
 #include \"runItInvariantLocalDefs.h\"
 #include \"run`outFile`LocalDefs.h\"
 #include \"runItInvariantMpiDefs.h\"
@@ -1057,17 +1060,16 @@ for(i=0;i<numberOfShocks;i++){`functionName`Shocks(i,
 	`functionName`ShockVals+(i*numberOfEquations));}
 
 
-unsigned int  intControlParameters[1]={0};
-double  doubleControlParameters[1]={0};
 
-unsigned int  intOutputInfo[1]={0};
-double  doubleOutputInfo[1]={0};
+stochSims::controlInfo theControlInfo;
+stochSims::outputInfo theOutputInfo;
+
 
 processCommandLine(argc,argv,namesArray,*numberOfEquations,
 paramNamesArray,numberOfParameters,parameters,
 	`functionName`DataVals,numberOfDataValues,
 	pathLength,replications,t0,stochasticPathLength,
-intControlParameters,doubleControlParameters,flnm);
+theControlInfo,flnm);
 
 
 /*open output file*/
@@ -1091,13 +1093,13 @@ allocMa50(numberOfEquations,lags,leads,1,MAXELEMENTS,
 		  &cmpma50bdIq,
 		  &cmpma50bdJob);
 /*space for FP and for newton step workspace*/
-allocFPNewt(numberOfEquations,lags,leads,
+stackC::allocFPNewt(numberOfEquations,lags,leads,
 	pathLength,MAXELEMENTS,
 &`functionName`FP,
 &`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,&smats,&smatsj,&smatsi);
 /*space for path*/
-allocPathNewt(*numberOfEquations,lags,leads,
+stackC::allocPathNewt(*numberOfEquations,lags,leads,
 	pathLength,replications,stochasticPathLength,
 &`functionName`PathQ,&`functionName`ZeroPathQ);
 /*space for stochSims sucess record*/
@@ -1131,14 +1133,15 @@ for(i=0;i<lags+1+leads;i++){
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
 
 printf(\"initiating FP solution computation\n\");
-FPnewt(&numberOfEquations,&lags,&leads,
+stackC::FPnewt(&numberOfEquations,&lags,&leads,
 `functionName`,`functionName`Derivative,parameters,
 `functionName`FP,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,
-failedQ,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo);
+failedQ,
+hasticPathLength,
+theControlInfo,theOutputInfo);
 printf(\"computed FP solution\n\");
 */
 /*time used so far?*/
@@ -1153,7 +1156,7 @@ printf(\"after fixed point computation\n totalTime=%f,userSystemTime=%f,systemTi
 printf(\"generating perm vec\n\");
 allocGenerateDraws(1,stochasticPathLength,replications,
 &`functionName`PermVec);
- generateDraws(1,(stochasticPathLength),replications,numberOfShocks,`functionName`PermVec);
+stochSims::generateDraws(1,(stochasticPathLength),replications,numberOfShocks,`functionName`PermVec);
 printf(\"done generating perm vec\n\");
 
 /*time used so far?*/
@@ -1172,7 +1175,7 @@ unsigned int exogCols[1]={0};*/
 
 /*compute asymptotic Q constraint*/
 if(!useIdentityQ){
-altComputeAsymptoticQMatrix(
+stackC::altComputeAsymptoticQMatrix(
 &numberOfEquations,&lags,&leads,
 `functionName`,`functionName`Derivative,parameters,
 `functionName`FP,/*exogRows,exogCols,exogenizeQ,pathLength,*/
@@ -1180,10 +1183,7 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &spaMaxNumberElements,
 AMqMatrix,AMqMatrixj,AMqMatrixi,&auxInit,&qRows,rootr,rooti,
-failedQ,0,
- intControlParameters, doubleControlParameters,
- intOutputInfo,  doubleOutputInfo
-);
+failedQ,0,theControlInfo);
 /*
 `functionName`Upsilon(parameters,
 upsilonMatrix,upsilonMatrixj,upsilonMatrixi
@@ -1224,7 +1224,7 @@ systemTime=%f\n\",spaMaxNumberElements,*totalTime,*userSystemTime,*(userSystemTi
 
 if(qRows <numberOfEquations*leads){
 printf(\"qmatrix has %d rows, need %d so using identity matrix terminal condition\n\",qRows,numberOfEquations*leads);
-altComputeAsymptoticIMatrix(
+stackC::altComputeAsymptoticIMatrix(
 &numberOfEquations,&lags,&leads,
 AMqMatrix,AMqMatrixj,AMqMatrixi,
 failedQ
@@ -1408,8 +1408,9 @@ smats,smatsj,smatsi,
 &maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
 `functionName`FP,`functionName`Intercept,`functionName`FP,
 `functionName`ZeroPathQ,
-failedQ,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+failedQ,
+hasticPathLength,
+theControlInfo,theOutputInfo,
 ma50bdJob,
 ma50bdIq,
 ma50bdFact,
@@ -1441,8 +1442,9 @@ smats,smatsj,smatsi,
 &maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
 `functionName`ZeroPathQ,`functionName`Intercept,`functionName`FP,
 `functionName`PathQ,
-failedQ,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+failedQ,
+hasticPathLength,
+theControlInfo,theOutputInfo,
 ma50bdJob,
 ma50bdIq,
 ma50bdFact,
@@ -1605,7 +1607,7 @@ WriteString[outFile<>"Shocks.c",
 
 shocksTemplate=
 "
-namespace stochSims {
+
 
 /*`dvalsInfo`*/
 void `functionName`Shocks(int t,double * vectorOfVals)
@@ -1615,7 +1617,7 @@ int i;
 for(i=0;i<`shocksCols`;i++)vectorOfVals[i]=0;
 for(i=0;i<`modelNumberOfEquations`-`numbExog`;i++)vectorOfVals[i]=theShocks[t][i];
 }
-}
+
 
 "
 
@@ -1647,7 +1649,7 @@ unsigned int * jalhs,
 unsigned int * ialhs,
 double * alphas,double * linPt);
 void `functionName`PeriodicPointGuesser
-(double * parameters,int period,
+(double * parameters,unsigned int period,
 	double guessVector[(`lags`+`leads`+1)*`modelNumberOfEquations`]);
 void `functionName`ExogH(double * pvec,
 double * alhs,
@@ -1683,7 +1685,7 @@ WriteString[outFile<>"Data.c",
 dataTemplate=
 "
 
-namespace stochSims {
+
 
 /*`valsInfo`*/
 void `functionName`Data(int t,double * vectorOfVals)
@@ -1692,7 +1694,7 @@ int i;
 #include  \"`outFile`DataForInclude.h\"/*vstr;*/
 for(i=0;i<`dataCols`;i++)vectorOfVals[i]=theData[t][i];
 }
-}
+
 "
 
 writeRun[outFile_String,aList_Association]:=
@@ -1710,11 +1712,11 @@ runItTemplate=
 #include <stdlib.h>
 #include <stdio.h>
 #include \"stackC.h\"
-using namespace stackC;
-#include \"stochSims.h\"
-using namespace stochSims;
+//using namespace stackC;
+//#include \"stochSims.h\"
+//using namespace stochSims;
 //#include \"runItOther.h\"
-using namespace stochSims;
+//using namespace stochSims;
 //#include \"stochProto.h\"
 
 
@@ -1735,6 +1737,8 @@ unsigned int i;
 int main(int argc,const char * argv[])
 {
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
+unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
+char  * flnm;
 
 `functionName`DataVals=(double *)calloc(NEQS*numDATA,sizeof(double));
 for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(NEQS)));}
@@ -1744,17 +1748,15 @@ for(i=0;i<numSHOCKS;i++){`functionName`Shocks(i,`functionName`ShockVals+(i*(NEQS
 
 
 
-unsigned int  intControlParameters[1]={0};
-double  doubleControlParameters[1]={0};
 
-unsigned int  intOutputInfo[1]={0};
-double  doubleOutputInfo[1]={0};
+stochSims::controlInfo theControlInfo;
+stochSims::outputInfo theOutputInfo;
 
 processCommandLine(argc,argv,namesArray,NEQS,
 paramNamesArray,numParameters,parameters,
 	`functionName`DataVals,numDATA,numSHOCKS,
 	pathLength,replications,t0,stochasticPathLength,
-intControlParameters,doubleControlParameters,flnm);
+theControlInfo,flnm);
 
 
 
@@ -1769,7 +1771,7 @@ unsigned int * `functionName`FailedQ;
 unsigned int maxNumberElements=100;
 double ** fmats, ** smats;
 unsigned int ** fmatsj, ** smatsj,** fmatsi, **smatsi;
-allocFPNewt(NEQS,NLAGS,NLEADS,*pathLength,maxNumberElements,
+stackC::allocFPNewt(NEQS,NLAGS,NLEADS,*pathLength,maxNumberElements,
 &`functionName`FP,&`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
@@ -1789,7 +1791,7 @@ unsigned int * AMqMatrixj;
 double * rootr;
 double * rooti;
 
-allocAltComputeAsymptoticQ(NEQS,NLAGS,NLEADS,
+stackC::allocAltComputeAsymptoticQ(NEQS,NLAGS,NLEADS,
 maxNumberElements,&AMqMatrix,&AMqMatrixj,&AMqMatrixi,
 &rootr,&rooti);
 
@@ -1799,7 +1801,7 @@ double*`functionName`EasyPath;
 double*`functionName`TargetPath;
 
 
-allocPathNewt(NEQS,NLAGS,NLEADS,
+stackC::allocPathNewt(NEQS,NLAGS,NLEADS,
 *pathLength,*replications,*stochasticPathLength,
 &`functionName`Path,
 &`functionName`ZeroPath,
@@ -1807,7 +1809,7 @@ allocPathNewt(NEQS,NLAGS,NLEADS,
 &`functionName`TargetPath
 );
 unsigned int j;
-allocStochSim(*stochasticPathLength,*replications,&`functionName`FailedQ);
+stochSims::allocStochSim(*stochasticPathLength,*replications,&`functionName`FailedQ);
 /*initialize  whole path to data values at t0*/
 for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
   for(j=0;j<NEQS;j++){
@@ -1824,18 +1826,18 @@ for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
 char aStr[]=\"huh\";
 
 printf(\"generating perm vec\\n\");
- generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec,aStr);
+stochSims::generateDraws(1,(*stochasticPathLength),(*replications),numSHOCKS,`functionName`PermVec,aStr);
 printf(\"done generating perm vec\\n\");
 
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
-FPnewt(&NEQS,&NLAGS,&NLEADS,
+stackC::FPnewt(&NEQS,&NLAGS,&NLEADS,
 `functionName`,`functionName`Derivative,parameters,
 `functionName`FP,`functionName`Intercept,/*exogRows,exogCols,exogenizeQ,*/
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,
-`functionName`FailedQ,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo);
+`functionName`FailedQ,
+theControlInfo,theOutputInfo);
 
 double shockVecStandIn[1]={0};
 unsigned int auxInit[1]={0};
@@ -1846,7 +1848,7 @@ unsigned int ihomotopy[1]={0};
 
 
 
-altComputeAsymptoticQMatrix(
+stackC::altComputeAsymptoticQMatrix(
 &NEQS,&NLAGS,&NLEADS,
 /*`functionName`,*/`functionName`Derivative,parameters,
 shockVecStandIn,`functionName`FP,/*exogRows,exogCols,exogenizeQ,*//*pathLength,
@@ -1855,9 +1857,8 @@ smats,smatsj,smatsi,
 &maxNumberElements,
 AMqMatrix,AMqMatrixj,AMqMatrixi,auxInit,qRows,
 rootr,rooti,
-ierr,*ihomotopy/*,
-intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo*/
+ierr,*ihomotopy,
+theControlInfo
 );
 
 unsigned int  pathNewtMa50bdJob[1]={0};
@@ -1901,8 +1902,7 @@ smats,smatsj,smatsi,
 easyX,targetX,exogQ,
 `functionName`PathQ,
 `functionName`FailedQ,
-intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1940,22 +1940,22 @@ fPrintMathDbl(outFile,(NEQS*(numSHOCKS)),`functionName`ShockVals,\"shocksArray\"
 */
 
      fclose(outFile);
-freeFPNewt(NLAGS,*pathLength,
+stackC::freeFPNewt(NLAGS,*pathLength,
 &`functionName`FP,&`functionName`Intercept,
 &fmats,&fmatsj,&fmatsi,
 &smats,&smatsj,&smatsi);
 
-freeAltComputeAsymptoticQ(
+stackC::freeAltComputeAsymptoticQ(
 &AMqMatrix,&AMqMatrixj,&AMqMatrixi,
 &rootr,&rooti);
 
 
-freePathNewt(&`functionName`Path);
-freePathNewt(&`functionName`ZeroPath);
-freePathNewt(&`functionName`EasyPath);
-freePathNewt(&`functionName`TargetPath);
+stackC::freePathNewt(&`functionName`Path);
+stackC::freePathNewt(&`functionName`ZeroPath);
+stackC::freePathNewt(&`functionName`EasyPath);
+stackC::freePathNewt(&`functionName`TargetPath);
 
-freeStochSim(&`functionName`FailedQ);
+stochSims::freeStochSim(&`functionName`FailedQ);
 
 return(0);
 }
@@ -2016,36 +2016,12 @@ cSupportTemplate="
 #include \"`lagLeadLoc`\"
 #include <math.h>
 //#include \"useSparseAMA.h\"
-#include \"stackC.h\"
+//#include \"stackC.h\"
 //#include \"stochSims.h\"
 //#include \"runItOther.h\"
-namespace stochSims {
 //static double maxarg1,maxarg2;
 #include <math.h>
 
-double FMAX(double a,double b)
-{
-  return(a > b ? a : b);
-}
-double FMIN(double a,double b)
-{
-  return(a < b ? a : b);
-}
-double FABS(double a)
-{
-  return(a > 0 ? a: -a);
-}
-
-double doRightSmaller(double a,double b)
-{
-  return(a < b ? 0 : 1);
-}
-double doSign(double a)
-{
-  /*  return(fabs(a) >0.01?(a > 0 ? 1 : -1):2*a) ;*/
-  return(a > 0 ? 1 : -1) ;
-
-}
 #define modelShock(n) (0)  
 
 
@@ -2056,7 +2032,7 @@ double doSign(double a)
 
 
 void `functionName`PeriodicPointGuesser
-(double * parameters,int period,
+(double * parameters,unsigned int period,
 	double guessVector[`modelColumns`][`modelNumberOfEquations`])
 {
 //int i,j;
@@ -2084,7 +2060,7 @@ unsigned int * numberOfDataValues,unsigned  int * numberOfShocks,unsigned int * 
 *numberExogenous=`numbExog`;
 }
 void `functionName`Upsilon(double *parameters,
-double * aMat,int * jaMat,int *iaMat
+double * aMat,unsigned int * jaMat,unsigned int *iaMat
 )
 {
 parameters[0]=parameters[0];
@@ -2093,7 +2069,7 @@ parameters[0]=parameters[0];
 `upsilonMatJA`
 }
 void `functionName`ExogH(double *parameters,double *stateVector,
-double * aMat,int * jaMat,int *iaMat
+double * aMat,unsigned int * jaMat,unsigned int *iaMat
 )
 {
 parameters[0]=parameters[0];
@@ -2103,14 +2079,14 @@ stateVector[0]=stateVector[0];
 `exogHMatIA`
 `exogHMatJA`
 }
-void `functionName`SelectZ(/*double * aMat,int * jaMat,int *iaMat*/
+void `functionName`SelectZ(/*double * aMat,unsigned int * jaMat,unsigned  int *iaMat*/
 )
 {
 `selectZMatA`
 `selectZMatIA`
 `selectZMatJA`
 }
-}
+
 "
 End[] (* End Private Context *)
 
