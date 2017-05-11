@@ -124,9 +124,12 @@ namespace stochSims {
 #define useCrawlingDataPoint  1
 #define useWaggingTail  2
 #define useFixedDataPoint  3
-#define useTailSolutionPlus  4
-#define useBigEasy 1
 
+#define useTailSolutionPlus  4
+#define useBigX 0
+#define useBigEasy 1
+#define DEFAULT_TOLF 1.0e-8;
+#define DEFAULT_TOLX 1.0e-8;
 
 struct controlInfo
 {
@@ -134,7 +137,7 @@ unsigned int useStackQ;
 unsigned int useLnsrchQ;
 unsigned int numberOfDebugPairs;
 unsigned int useIdentityQ;
-unsigned int maxitsInput;
+unsigned int maxits;
 unsigned int maxNumberStackElements;
 unsigned int maxNumberAimElements;
 unsigned int numberAlphas;
@@ -142,7 +145,7 @@ unsigned int numberBetas;
 unsigned int useFirstDiffQ;
 unsigned int ma50PivotSearch;
 unsigned int useQQ;
-unsigned int terminalConstr;
+unsigned int terminalConstraintSelection;
 unsigned int numberVarsToMonitor;
 unsigned int monitoredVars[10];
 /*also reserve next 9 for monotored Vars*/
@@ -156,7 +159,6 @@ unsigned int debugPairs[10];
 /*also reserve next 10 for debug pairs*/
 unsigned int homotopyXGuess[10];
 unsigned int homotopyEasy;
-unsigned int useBigX=0;
 unsigned int useShockFileQ;
 unsigned int shockFileOffset;
 unsigned int dataFileOffset;
@@ -170,21 +172,21 @@ unsigned int ICnumberOfDataValues;
 unsigned int ICnumberOfShocks;
 unsigned int ICnumberExog;
 unsigned int ignoreFailQ;
-double tolxInput ;
-double tolfInput ;
-double shrinkFactorInput ;
-double expandFactorInput ;
-double alaminInput ;
-double alfInput ;
-double ma50DropTol ;
+double tolX;
+double tolF;
+double shrinkFactorInput;
+double expandFactorInput;
+double alaminInput;
+double alfInput;
+double ma50DropTol;
 double homotopyAlpha[10];
 /*also reserve next 9 for homotopyAlpha*/
 double homotopyBeta[20];
 /*also reserve next 9 for homotopyBeta*/
-double ma50Balance ;
-double ma50DropEntry ;
-double ma50DropCol ;
-double shockScalar ;
+double ma50Balance;
+double ma50DropEntry;
+double ma50DropCol;
+double shockScalar;
 };
 struct outputInfo {
 unsigned int failedQ;
@@ -193,74 +195,71 @@ unsigned int fEvals;
 unsigned int fDrvEvals;
 unsigned int shrinkSteps;
 unsigned int expandSteps;
-unsigned int lnsrchStepsfailedQ;
+unsigned int lnsrchSteps;
 unsigned int homotopies;
 unsigned int homotopyFailures;
-unsigned int currentReplication;
-unsigned int currentDate;
-double tolF;
+unsigned int replication;
+unsigned int date;
 double failedX;
-unsigned int usePreviousHomotopyQ;
+unsigned int previousHomotopyQ;
 };
 
-void addOneToFailedQ(outputInfo & inInfo){}
-void subOneFromFailedQ(outputInfo & inInfo){}
-void resetFailedQ(outputInfo & inInfo){}
+void addOneToFailedQ(outputInfo & outInfo){outInfo.failedQ++;}
+void subOneFromFailedQ(outputInfo & outInfo){outInfo.failedQ--;}
+void resetFailedQ(outputInfo & outInfo){outInfo.failedQ=0;}
 
-void addOneToNewtonSteps(outputInfo & inInfo){}
-void resetNewtonSteps(outputInfo & inInfo){}
+void addOneToNewtonSteps(outputInfo & outInfo){outInfo.newtonSteps++;}
+void resetNewtonSteps(outputInfo & outInfo){outInfo.newtonSteps=0;}
 
-void addOneToFEvals(outputInfo & inInfo){}
-void resetFEvals(outputInfo & inInfo){}
+void addOneToFEvals(outputInfo & outInfo){outInfo.fEvals++;}
+void resetFEvals(outputInfo & outInfo){outInfo.fEvals=0;}
 
-void addOneToFDrvEvals(outputInfo & inInfo){}
-void resetFDrvEvals(outputInfo & inInfo){}
+void addOneToFDrvEvals(outputInfo & outInfo){outInfo.fDrvEvals++;}
+void resetFDrvEvals(outputInfo & outInfo){outInfo.fDrvEvals=0;}
 
-void addOneToShrinkSteps(outputInfo & inInfo){}
-void resetShrinkSteps(outputInfo & inInfo){}
+void addOneToShrinkSteps(outputInfo & outInfo){outInfo.shrinkSteps++;}
+void resetShrinkSteps(outputInfo & outInfo){outInfo.shrinkSteps=0;}
 
-void addOneToExpandSteps(outputInfo & inInfo){}
-void resetExpandSteps(outputInfo & inInfo){}
+void addOneToExpandSteps(outputInfo & outInfo){outInfo.expandSteps++;}
+void resetExpandSteps(outputInfo & outInfo){outInfo.expandSteps=0;}
 
-void addOneToLnsrchSteps(outputInfo & inInfo){}
-void resetLnsrchSteps(outputInfo & inInfo){}
+void addOneToLnsrchSteps(outputInfo & outInfo){outInfo.lnsrchSteps++;}
+void resetLnsrchSteps(outputInfo & outInfo){outInfo.lnsrchSteps++;}
 
-void addOneToHomotopies(outputInfo & inInfo){}
-void resetHomotopies(outputInfo & inInfo){}
+void addOneToHomotopies(outputInfo & outInfo){outInfo.homotopies++;}
+void resetHomotopies(outputInfo & outInfo){outInfo.homotopies=0;}
 
-void addOneToHomotopyFailures(outputInfo & inInfo){}
-void resetHomotopyFailures(outputInfo & inInfo){}
+void addOneToHomotopyFailures(outputInfo & outInfo){outInfo.homotopyFailures++;}
+void resetHomotopyFailures(outputInfo & outInfo){outInfo.homotopyFailures=0;}
 
-void currentReplication(outputInfo & inInfo){}
-void currentDate(outputInfo & inInfo){}
+double currentReplication(outputInfo & outInfo)
+{return(outInfo.replication);}
+void setCurrentReplication(outputInfo & outInfo,unsigned int val)
+{outInfo.replication=val;}
+unsigned int currentDate(outputInfo & outInfo)
+{return(outInfo.date);}
+void setCurrentDate(outputInfo & outInfo,unsigned int val)
+{outInfo.date=val;}
 
-void assignRealizedTolf(outputInfo & inInfo){}
-void resetRealizedTolf(outputInfo & inInfo){}
 
-void assignRealizedTolx(outputInfo & inInfo){}
-void resetRealizedTolx(outputInfo & inInfo){}
+void assignRealizedTolF(controlInfo & inpInfo,double val)
+{inpInfo.tolF=val;}
+void resetRealizedTolF(controlInfo & inpInfo)
+{inpInfo.tolF=DEFAULT_TOLF;}
 
-void usePreviousHomotopyQ(outputInfo & inInfo){}
+
+void assignRealizedTolX(controlInfo & inpInfo,double val)
+{inpInfo.tolX=val;}
+void resetRealizedTolX(controlInfo & inpInfo)
+{inpInfo.tolX=DEFAULT_TOLX;}
+
+
+unsigned int usePreviousHomotopyQ(outputInfo & outInfo)
+{return(outInfo.previousHomotopyQ);}
 
 /*void free();*/
 /*void * calloc(unsigned num,unsigned int amt);*/
-/*void pathNewt(unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),void (* fdjac)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),double * params,double * shockVec,
-double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
-double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
-double * fixedPath,double * intercept,double * linearizationPoint,
-unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
-double x[],
-unsigned int *check,double * lastDel,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
-unsigned int * pathNewtMa50bdJob,
-unsigned int * pathNewtMa50bdIq,
-double * pathNewtMa50bdFact,
-unsigned int * pathNewtMa50bdIrnf,
-unsigned int * pathNewtMa50bdIptrl,
-unsigned int * pathNewtMa50bdIptru
-);*/
+
 long ignuin_(long low,long high);
 void phrtsd_(char* phrase,long* seed1,long* seed2);
 void setall_(long iseed1,long iseed2);
@@ -482,8 +481,8 @@ double * linearizationPoint,
 /*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *check,
+controlInfo & theControlInfo,outputInfo & theOutputInfo,
 unsigned int * compXMa50bdJob,
 /*unsigned int * compXMa50bdIq,*/
 double * compXMa50bdFact,
@@ -549,7 +548,7 @@ for(i=0;i<*numberOfEquations*(*lags+1+ *leads);i++){
   safex[i]=x[i];}
 
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
@@ -568,8 +567,8 @@ smats, smatsj, smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 fixedPath,intercept, linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 x,
-check,lastDel,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+check,lastDel,
+theControlInfo,theOutputInfo,
 compXMa50bdJob,
 /*compXMa50bdIq,*/
 compXMa50bdFact,
@@ -578,7 +577,7 @@ compXMa50bdIptrl,
 compXMa50bdIptru
 );
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
@@ -603,8 +602,7 @@ maxNumberElements,qMat,qMatj,qMati,
 fixedPath,intercept, linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 easyX,targetX,exogQ,
 x,
-check,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+check,theControlInfo,theOutputInfo,
 compXMa50bdJob,
 /*compXMa50bdIq,*/
 compXMa50bdFact,
@@ -622,7 +620,7 @@ for(i=0;i<*numberOfEquations*(*lags+1+ *leads);i++){
 }
 
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + 1),
@@ -658,9 +656,8 @@ double * fixedPoint,double * intercept,
 double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
-double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+double x[],unsigned int *check,
+controlInfo & theControlInfo,outputInfo& theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -716,7 +713,7 @@ for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
 
 for(i=0;i<*numberOfEquations;i++)shockVec[i]=0;
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -733,10 +730,8 @@ vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
 maxNumberElements,qMat,qMatj,qMati,
-fixedPoint,intercept, linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
-x,
-check,lastDel,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+fixedPoint,intercept, linearizationPoint,x,
+check,lastDel,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 /*pathNewtMa50bdIq,*/
 pathNewtMa50bdFact,
@@ -746,7 +741,7 @@ pathNewtMa50bdIptru
 );
 
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -770,8 +765,7 @@ maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,intercept, linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 easyX,targetX,exogQ,
 x,
-check,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+check,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 /*pathNewtMa50bdIq,*/
 pathNewtMa50bdFact,
@@ -789,7 +783,7 @@ for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
 }
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsSpecified;
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -799,16 +793,16 @@ fclose(debFile);
 }
 for(ii=0;ii<*numberOfEquations*(*lags+*leads+1);ii++){
 zeroShockX[ii]=x[ii];}
-if(numberVarsToShock==0){/* if 0 shock them all*/
+if(theControlInfo.numberVarsToShock==0){/* if 0 shock them all*/
 for(ii=0;ii<*numberOfEquations;ii++){
 shockVec[ii]=
- (shockScalar)*shockTable[ii+(*numberOfEquations*(*shockIndex-1))];}}
-     else {for(ii=0;ii<numberVarsToShock;ii++){
-         shockVec[*(&shockedVars+ii)]=
-         (shockScalar)*shockTable[*(&shockedVars+ii)+
+ (theControlInfo.shockScalar)*shockTable[ii+(*numberOfEquations*(*shockIndex-1))];}}
+     else {for(ii=0;ii<theControlInfo.numberVarsToShock;ii++){
+         shockVec[(theControlInfo.shockedVars[ii])]=
+         (theControlInfo.shockScalar)*shockTable[(theControlInfo.shockedVars[ii])+
          (*numberOfEquations*(*shockIndex-1))];
 printf("shocking %d with %e\n",
-*(&shockedVars+ii),shockVec[*(&shockedVars+ii)]);
+(theControlInfo.shockedVars[ii]),shockVec[(theControlInfo.shockedVars[ii])]);
 }}
 compXEtm1(numberOfEquations,lags,leads,
 vecfunc,fdjac,params,shockVec,
@@ -816,8 +810,7 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,linearizationPoint,/*exogRows,exogCols,exogenizeQ,*/
 zeroShockX,zeroShockX,exogQ,
-x,check,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+x,check,theControlInfo,theOutputInfo,
 compXMa50bdJob,
 /*compXMa50bdIq,*/
 compXMa50bdFact,
@@ -825,7 +818,7 @@ compXMa50bdIrnf,
 compXMa50bdIptrl,
 compXMa50bdIptru
 );
-if(type3Q){
+if(theControlInfo.type3Q){
 for(ii=0;ii<*numberOfEquations;ii++){
 diffFromZeroShock[ii]=x[ii+*numberOfEquations* *lags] - safex[ii+*numberOfEquations* *lags];
 }
@@ -833,9 +826,9 @@ printf("nonzero differences from zero shock result\n");
 cPrintMatrixNonZero(1,*numberOfEquations,diffFromZeroShock,1e-8);
 }
 
-for(ii=0;ii<numberVarsToMonitor;ii++){
-printf("value for var number %d is %e\n",*((&monitoredVars)+ii),
-x[*((&monitoredVars)+ii)+*numberOfEquations* *lags]);}
+for(ii=0;ii<theControlInfo.numberVarsToMonitor;ii++){
+printf("value for var number %d is %e\n",(theControlInfo.monitoredVars[ii]),
+x[(theControlInfo.monitoredVars[ii])+*numberOfEquations* *lags]);}
 
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsEncountered;
@@ -862,8 +855,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],/*double targetX[],*/unsigned int * exogQ,
 double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *check,controlInfo & theControlInfo,outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -913,7 +905,7 @@ for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
 printf("using T expectations, duh\n");
 diffFromZeroShock= (double *) calloc(*numberOfEquations,sizeof(double));
 maxElementsSpecified=*maxNumberElements;
-switch(homotopyEasy){
+switch(theControlInfo.homotopyEasy){
 case useBigEasy:
 for(i=0;i<*numberOfEquations*(*lags+*leads+*pathLength);i++){
 lclTargetX[i]=x[i];
@@ -925,20 +917,20 @@ for(i=0;i<*numberOfEquations*(*lags+*leads+*pathLength);i++){
 lclTargetX[i]=x[i];
 lclEasyX[i]=x[i];
 }}
-if(numberVarsToShock==0){
+if(theControlInfo.numberVarsToShock==0){
 for(ii=0;ii<*numberOfEquations;ii++){
 shockVec[ii]=
- (shockScalar)*shockTable[ii+(*numberOfEquations*(*shockIndex-1))];}}
-     else {for(ii=0;ii<numberVarsToShock;ii++){
-         shockVec[*(&shockedVars+ii)]=
-         (shockScalar)*shockTable[*(&shockedVars+ii)+
+ (theControlInfo.shockScalar)*shockTable[ii+(*numberOfEquations*(*shockIndex-1))];}}
+     else {for(ii=0;ii<theControlInfo.numberVarsToShock;ii++){
+         shockVec[(theControlInfo.shockedVars[ii])]=
+         (theControlInfo.shockScalar)*shockTable[(theControlInfo.shockedVars[ii])+
          (*numberOfEquations*(*shockIndex-1))];
 printf("shocking %d with %e\n",
-*(&shockedVars+ii),shockVec[*(&shockedVars+ii)]);
+(theControlInfo.shockedVars[ii]),shockVec[(theControlInfo.shockedVars[ii])]);
 }}
 
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -957,8 +949,7 @@ smats, smatsj, smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,intercept, linearizationPoint,//exogRows,exogCols,exogenizeQ,
 x,
-check,lastDel,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+check,lastDel,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -967,7 +958,7 @@ pathNewtMa50bdIptrl,
 pathNewtMa50bdIptru
 );
 
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -995,8 +986,7 @@ maxNumberElements,qMat,qMatj,qMati,
 fixedPoint,intercept, linearizationPoint,//exogRows,exogCols,exogenizeQ,
 lclEasyX,lclTargetX,exogQ,
 x,
-check,intControlParameters,doubleControlParameters,
-intOutputInfo, doubleOutputInfo,
+check,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 /*pathNewtMa50bdIq,*/
 pathNewtMa50bdFact,
@@ -1014,7 +1004,7 @@ for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
 }
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsSpecified;
-if(debugQ&&(currentRequestedQ(intControlParameters,intOutputInfo))){
+if(theControlInfo.debugQ&&(currentRequestedQ(theControlInfo,theOutputInfo))){
 printf("writing  to codeGenDebFile\n");
 debFile=fopen("codeGenDebFile","a");
 fPrintMathDbl(debFile,*numberOfEquations* (*lags + *leads + *pathLength),
@@ -1022,7 +1012,7 @@ x,"genxtm1");
 fprintf(debFile,"\n(**)");
 fclose(debFile);
 }
-if(type3Q){
+if(theControlInfo.type3Q){
 for(ii=0;ii<*numberOfEquations;ii++){
 diffFromZeroShock[ii]=x[ii+*numberOfEquations* *lags] - safex[ii+*numberOfEquations* *lags];
 }
@@ -1030,9 +1020,9 @@ printf("nonzero differences from zero shock result\n");
 cPrintMatrixNonZero(1,*numberOfEquations,diffFromZeroShock,1e-8);
 }
 
-for(ii=0;ii<numberVarsToMonitor;ii++){
-printf("value for var number %d is %e\n",*((&monitoredVars)+ii),
-x[*((&monitoredVars)+ii)+*numberOfEquations* *lags]);}
+for(ii=0;ii<theControlInfo.numberVarsToMonitor;ii++){
+printf("value for var number %d is %e\n",(theControlInfo.monitoredVars[ii]),
+x[(theControlInfo.monitoredVars[ii])+*numberOfEquations* *lags]);}
 
 bump(*maxNumberElements);
 *maxNumberElements=maxElementsEncountered;
@@ -1060,8 +1050,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *check,controlInfo&theControlInfo,outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1089,7 +1078,8 @@ namespace stochSims {
 
 @d currentRequestedQ signature
 @{
-unsigned int currentRequestedQ(unsigned int * intControlParameters,unsigned int * intOutputInfo)
+bool currentRequestedQ(controlInfo& theControlInfo,
+outputInfo& theOutputInfo)
 @}
 
 @o generatePathX.c -d
@@ -1111,9 +1101,9 @@ for(i=0;i<*numberOfEquations;i++){x[i]=-999999.999999;}
 
 @<currentRequestedQ signature@>
 {
-  unsigned int result=0;unsigned int ii;
-for(ii=0;ii<numberOfDebugPairs;ii++){
-result=result+((currentReplication==*((&debugPairs)+2*ii))&&(currentDate==*(&(debugPairs)+2*ii+1)));
+ bool result=false;unsigned int ii;
+for(ii=0;ii<theControlInfo.numberOfDebugPairs;ii++){
+result=result||((currentReplication(theOutputInfo)==(theControlInfo.debugPairs[2*ii]))&&(currentDate(theOutputInfo)==(theControlInfo.debugPairs[2*ii+1])));
 }
 return(result);
 }
@@ -1137,7 +1127,7 @@ unsigned int i;unsigned int j;unsigned int ii;
 
 for(i=0;i<*numberOfShocks;i++){
 printf("for given draw, computing for date=%d\n",i);
-currentDate=i;
+setCurrentDate(theOutputInfo,i);
 if(check[i]!=0){
 /* probably better to use failedQ and pass final path try back
 so comment this out
@@ -1146,7 +1136,7 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 } else {
 
 
-  switch (terminalConstraintSelection)
+  switch (theControlInfo.terminalConstraintSelection)
   {
   case useCrawlingDataPoint:
  for(ii=0;ii<*numberOfEquations*(*lags+*leads+1);ii++){
@@ -1163,7 +1153,7 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
   }
 
 
-if(tMinusOneQ){
+if(theControlInfo.tMinusOneQ){
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
 /*numberExog,
@@ -1175,8 +1165,7 @@ smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
 easyX+(*numberOfEquations*i),targetX+(*numberOfEquations*i),exogQ,
-x+(*numberOfEquations*i),check+i,intControlParameters,doubleControlParameters,
-intOutputInfo,doubleOutputInfo,
+x+(*numberOfEquations*i),check+i,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1202,8 +1191,7 @@ smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
 easyX+(*numberOfEquations*i),/*targetX+(*numberOfEquations*i),*/exogQ,
-x+(*numberOfEquations*i),check+i,intControlParameters,doubleControlParameters,
-intOutputInfo,doubleOutputInfo,
+x+(*numberOfEquations*i),check+i,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1267,8 +1255,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *check,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *check,controlInfo &theControlInfo,outputInfo&theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1308,9 +1295,9 @@ unsigned int aOne=1;
 
 
 for(i=0;i<*numberOfShocks;i++){
-getShocks(1,ICshockVecLength,*numberOfEquations,shockTable,streamShocksIn,0,1);
+getShocks(1,theControlInfo.ICshockVecLength,*numberOfEquations,shockTable,streamShocksIn,0,1);
 printf("for given draw, computing for date=%d\n",i);
-currentDate=i;
+setCurrentDate(theOutputInfo,i);
 if(check[0]!=0){
 /* probably better to use failedQ and pass final path try back
 so comment this out
@@ -1319,7 +1306,7 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 } else {
 
 
-  switch (terminalConstraintSelection)
+  switch (theControlInfo.terminalConstraintSelection)
   {
   case useCrawlingDataPoint:
  for(ii=0;ii<*numberOfEquations*(*lags+*leads+1);ii++){
@@ -1336,7 +1323,7 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
   }
 
 
-if(tMinusOneQ){
+if(theControlInfo.tMinusOneQ){
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
 /*numberExog,
@@ -1348,8 +1335,7 @@ smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
 easyX,targetX,exogQ,
-x,check,intControlParameters,doubleControlParameters,
-intOutputInfo,doubleOutputInfo,
+x,check,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1376,8 +1362,7 @@ maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,
 //exogRows,exogCols,exogenizeQ,
 easyX,/*targetX,*/exogQ,
-x,check,intControlParameters,doubleControlParameters,
-intOutputInfo,doubleOutputInfo,
+x,check,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1487,7 +1472,7 @@ namespace stochSims {
 
 
 unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
-//unsigned int * intControlParameters;double* doubleControlParameters;
+
 
 char  * flnm;
 }
@@ -1521,7 +1506,7 @@ controlInfo & theControlInfo,char * flnm)
 #endif
 /* */
 #include <cstdlib>
-//#include "stochSims.h"
+#include "stackC.h"
 
 namespace stochSims {
 void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
@@ -1555,25 +1540,25 @@ flnm=(char *)calloc(500,sizeof(char));
   float aFloat;unsigned int i;unsigned int anInt;
  unsigned int pl;unsigned int t1;unsigned int t2; double val1; double val2; unsigned int vbl;
 
-useLnsrchQ=FALSE;
-useStackQ=FALSE;
-useIdentityQ=FALSE;
-useFirstDiffQ=FALSE;
- alaminInput=1e-10;
- alfInput=1e-4;
- expandFactorInput=1.3;
- shrinkFactorInput=0.7;
- tolfInput=1e-10;
-  tolxInput=1e-10;
- maxitsInput=100;
+theControlInfo.useLnsrchQ=FALSE;
+theControlInfo.useStackQ=FALSE;
+theControlInfo.useIdentityQ=FALSE;
+theControlInfo.useFirstDiffQ=FALSE;
+theControlInfo.alaminInput=1e-10;
+theControlInfo.alfInput=1e-4;
+theControlInfo.expandFactorInput=1.3;
+theControlInfo.shrinkFactorInput=0.7;
+theControlInfo.tolF=1e-10;
+theControlInfo.tolX=1e-10;
+theControlInfo.maxits=100;
 *replications=1;
 *stochasticPathLength=1;
 *pathLength=1;
 *t0=0;
-numberAlphas=1;
-homotopyAlpha[0]=1.0;
-numberBetas=1;
-homotopyBeta[0]=1.0;
+theControlInfo.numberAlphas=1;
+theControlInfo.homotopyAlpha[0]=1.0;
+theControlInfo.numberBetas=1;
+theControlInfo.homotopyBeta[0]=1.0;
 while(argc>1&&argv[1][0] == '-')
 {
 printf("processing command line args\n");
@@ -1671,77 +1656,77 @@ printf("i don't know the variable %s: ignoring this variable value pair\n",argv[
          argc--;argv++;
          break;
    case 'N':
-         (maxitsInput)=atoi(argv[2]);
-     printf("got %d for maxits\n",(maxitsInput));
-     if((maxitsInput)<1)
+         (theControlInfo.maxits)=atoi(argv[2]);
+     printf("got %d for theControlInfo.maxits\n",(theControlInfo.maxits));
+     if((theControlInfo.maxits)<1)
          {
-       (maxitsInput)=1;
-       printf("setting maxits to 1\n");
+       (theControlInfo.maxits)=1;
+       printf("setting theControlInfo.maxits to 1\n");
        }
          argc--;argv++;
          break;
    case 'F':
          sscanf(argv[2],"%f",&aFloat);
-		 tolfInput=(double)aFloat;
-     printf("got %e for tolfInput\n",tolfInput);
+		 theControlInfo.tolF=(double)aFloat;
+     printf("got %e for tolf\n",theControlInfo.tolF);
          argc--;argv++;
          break;
    case 'X':
          sscanf(argv[2],"%f",&aFloat);
-		 tolxInput=(double)aFloat;
-     printf("got %e for tolxInput\n",tolxInput);
+		 theControlInfo.tolX=(double)aFloat;
+     printf("got %e for tolxInput\n",theControlInfo.tolX);
          argc--;argv++;
          break;
    case 'H':
          sscanf(argv[2],"%u",&anInt);
-		 numberAlphas=anInt;
-		 if(anInt>10){numberAlphas=10; printf("only using first 10\n");}
+		 theControlInfo.numberAlphas=anInt;
+		 if(anInt>10){theControlInfo.numberAlphas=10; printf("only using first 10\n");}
          argc--;argv++;
 		 for(i=0;i<anInt;i++){
          sscanf(argv[2],"%f",&aFloat);
-		 if(i<10){homotopyAlpha[i]=(double)aFloat;}
+		 if(i<10){theControlInfo.homotopyAlpha[i]=(double)aFloat;}
      printf("got %e for homotopyAlpha[%d]\n",aFloat,i);
 	 argc--;argv++;}
          break;
    case 'D':
          sscanf(argv[2],"%u",&anInt);
-		 numberBetas=anInt;
-		 if(anInt>10){numberBetas=10; printf("only using first 10\n");}
+		 theControlInfo.numberBetas=anInt;
+		 if(anInt>10){theControlInfo.numberBetas=10; printf("only using first 10\n");}
          argc--;argv++;
 		 for(i=0;i<anInt;i++){
          sscanf(argv[2],"%f",&aFloat);
-		 if(i<10){homotopyBeta[i]=(double)aFloat;}
+		 if(i<10){theControlInfo.homotopyBeta[i]=(double)aFloat;}
      printf("got %e for homotopyBeta[%d]\n",aFloat,i);
 	 argc--;argv++;}
          break;
    case 'K':
          sscanf(argv[2],"%f",&aFloat);
-		 shrinkFactorInput=(double)aFloat;
-     printf("got %e for shrinkFactorInput\n",shrinkFactorInput);
+		 theControlInfo.shrinkFactorInput=(double)aFloat;
+     printf("got %e for shrinkFactorInput\n",theControlInfo.shrinkFactorInput);
          argc--;argv++;
          break;
    case 'E':
          sscanf(argv[2],"%f",&aFloat);
-		 expandFactorInput=(double)aFloat;
-     printf("got %e for expandFactorInput\n",expandFactorInput);
+		 theControlInfo.expandFactorInput=(double)aFloat;
+     printf("got %e for expandFactorInput\n",theControlInfo.expandFactorInput);
          argc--;argv++;
          break;
    case 'L':
-         useLnsrchQ=TRUE;
+         theControlInfo.useLnsrchQ=TRUE;
      printf("got flag for using lnsrch algorithm\n");
          break;
    case 'S':
-         useStackQ=TRUE;
+         theControlInfo.useStackQ=TRUE;
      printf("got flag for using stack algorithm\n");
          break;
    case 'I':
-         useIdentityQ=TRUE;
-         useFirstDiffQ=FALSE;
+         theControlInfo.useIdentityQ=TRUE;
+         theControlInfo.useFirstDiffQ=FALSE;
      printf("got flag for using identity matrix\n");
          break;
    case 'J':
-         useFirstDiffQ=TRUE;
-         useIdentityQ=FALSE;
+         theControlInfo.useFirstDiffQ=TRUE;
+         theControlInfo.useIdentityQ=FALSE;
      printf("got flag for using first difference matrix\n");
          break;
    case 'h':
@@ -1856,8 +1841,7 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 //unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *failedQ,unsigned int * intControlParameters,double * doubleControlParameters,
-unsigned int * intOutputInfo, double * doubleOutputInfo,
+unsigned int *failedQ,controlInfo & theControlInfo, outputInfo& theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1885,8 +1869,8 @@ getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
 targetX,streamTargetIn,0,*lags+*leads+*pathLength);
 for(i=0;i<(*lags+*leads+*pathLength)* *numberOfEquations;i++){
 x[i]=targetX[i];}
-resetHomotopies;
-if(debugQ){
+resetHomotopies(theOutputInfo);
+if(theControlInfo.debugQ){
 debFile=fopen("codeGenDebFile","a");
 fprintf(debFile,"begin stochSim\n");
 fclose(debFile);
@@ -1899,7 +1883,7 @@ stochasticPathLength=(unsigned int *)calloc(1,sizeof(int));
 maxElementsSpecified=*maxNumberElements;
 for(i=0;i<*replications;i++){
 printf("computing for draw=%d\n",i);}
-currentReplication=i;
+setCurrentReplication(theOutputInfo,i);
 
 streamingGeneratePathX(streamShocksIn,streamEasyIn,streamTargetIn,
 streamPathOut,
@@ -1916,9 +1900,7 @@ fixedPoint,intercept,linearizationPoint,
 //exogRows,exogCols,exogenizeQ,
 easyX,targetX,exogQ,
 x,failedQ,
-intControlParameters,doubleControlParameters,
-intOutputInfo,
-doubleOutputInfo,
+theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -1936,7 +1918,7 @@ bump(*maxNumberElements);
 *maxNumberElements=maxElementsSpecified;
 
 *maxNumberElements=maxElementsEncountered;
-if(debugQ){
+if(theControlInfo.debugQ){
 debFile=fopen("codeGenDebFile","a");
 fprintf(debFile,"end stochSim\n");
 fclose(debFile);
@@ -1955,8 +1937,8 @@ unsigned int maxElementsSpecified;
 unsigned int i/*,j*/;
 FILE * debFile;
 
-resetHomotopies;
-if(debugQ){
+resetHomotopies(theOutputInfo);
+if(theControlInfo.debugQ){
 debFile=fopen("codeGenDebFile","a");
 fprintf(debFile,"begin stochSim\n");
 fclose(debFile);
@@ -1969,7 +1951,7 @@ for(i=0;i<*stochasticPathLength;i++)failedQ[i]=0;
 maxElementsSpecified=*maxNumberElements;
 for(i=0;i<*replications;i++){
 printf("computing for draw=%d\n",i);
-currentReplication=i;
+setCurrentReplication(theOutputInfo,i);
 
 generatePathX(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
@@ -1984,9 +1966,7 @@ fixedPoint,intercept,linearizationPoint,
 //exogRows,exogCols,exogenizeQ,
 easyX,targetX,exogQ,
 x+(*numberOfEquations*(*lags+*stochasticPathLength)*i),failedQ+(i* *stochasticPathLength),
-intControlParameters,doubleControlParameters,
-intOutputInfo+(i* widthIntOutputInfo),
-doubleOutputInfo+(i* widthDoubleOutputInfo),
+theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
 //pathNewtMa50bdIq,
 pathNewtMa50bdFact,
@@ -2004,7 +1984,7 @@ bump(*maxNumberElements);
 *maxNumberElements=maxElementsSpecified;
 };
 *maxNumberElements=maxElementsEncountered;
-if(debugQ){
+if(theControlInfo.debugQ){
 debFile=fopen("codeGenDebFile","a");
 fprintf(debFile,"end stochSim\n");
 fclose(debFile);
