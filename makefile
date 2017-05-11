@@ -7,8 +7,8 @@ SPAMADIR=../sparseAMA
 ifeq ($(UNAME),Linux)
 #compilers
 CC = g++
-FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
-FCFLAGS = -c -g -std=gnu++11 -D_GNU_SOURCE -Wextra -Wpedantic -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src
+FCFLAGS = -c -O2 -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include/ -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src  -lstdc++
+FCFLAGS = -c -g -std=gnu++11 -D_GNU_SOURCE -Wextra -Wpedantic -Wall -I $(SPAMADIR)/src/main/include   -I /msu/res5/software/myUsr/include -I/msu/res5/software/myUsr/include/ -I /msu/res1/Software/matio-1.5.1/src  -lstdc++
 #lapack
 LAPACKLIBS=   -L /msu/res5/software/ARPACK96forCluster -larpack_linux -L/msu/res5/software/lapackGithubForCluster -llapack -lrefblas
 CUNITLIBS= -L/msu/res5/software/myUsr/lib/ -l cunit
@@ -19,10 +19,10 @@ endif
 ifeq ($(UNAME),Darwin)
 #compilers
 CC = g++-6
-FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
--I /usr/local/Cellar/libmatio/1.5.10/include
+FCFLAGS = -c -O2 -I$(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/ \
+-I /usr/local/Cellar/libmatio/1.5.10/include  -lstdc++
 FCFLAGS = -c  -std=gnu++11 -D_GNU_SOURCE -Wextra -Wpedantic -Wall -g -I $(SPAMADIR)/src/main/include   -I /Users/garyanderson/myUsr/include/ -I/Users/garyanderson/myUsr/include/\
--I /usr/local/Cellar/libmatio/1.5.10/include
+-I /usr/local/Cellar/libmatio/1.5.10/include   -lstdc++
 #lapack
 LAPACKLIBS=  -L /Users/garyanderson/ARPACK96/  -larpack_MACOS -L /Users/garyanderson/lapack-release/ -llapack -lrefblas
 CUNITLIBS= -L /Users/garyanderson/myUsr/lib -l cunit
@@ -70,7 +70,7 @@ stochSimsUnitTests:	stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o r
 	$(FC) -o stochSimsUnitTests -g  stochSimsUnitTests.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
 
 runrbcTryC:	runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o libstochSims.a
-	$(FC) -o runrbcTryC -g  runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS)
+	$(FC) -o runrbcTryC -g  runrbcTryC.o  rbcTryC.o rbcTryCDrv.o rbcTryCData.o rbcTryCShocks.o rbcTryCSupport.o  $(STOCHSIMSLIB) $(SPARSEAMALIB) $(LAPACKLIBS)  $(CUNITLIBS) $(MATIOLIBS) -lstdc++
 
 libstochSims.a:	myNewt.o \
 		stackC.o  compXEtm1.o  \
