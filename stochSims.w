@@ -782,7 +782,7 @@ using namespace std;
 
 @<define assert bump@>
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 
 
 //#include "stochSims.h"
@@ -1883,7 +1883,7 @@ stochSims::controlInfo & theControlInfo,char * flnm)
 #include<strings.h>
 #endif
 #ifdef __linux__
-#include<string>
+#include<string.h>
 
 #endif
 /* */
