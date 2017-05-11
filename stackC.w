@@ -269,7 +269,7 @@ HARWELL documentation suggests setting SPARSEFACTOR to 3.
 //void free(void * ptr);
 //void * calloc(size_t amt,size_t size);
 #include "stochSims.h"
-using namespace stochSims;
+//using namespace stochSims;
 namespace stackC {
 void nxtCDmats(@<nxtCDmats argument list@>);
 @}
@@ -1039,7 +1039,7 @@ double * termConstr,unsigned int * termConstrj,unsigned int * termConstri,double
 double * initialX,
 /*double * shockVec,*/
 double * updateDirection/*,
-controlInfo & theControlInfo*/
+stochSims::controlInfo & theControlInfo*/
  @| termConstr fp initialX shockVec
 theFunc theDrvFunc capT 
 @}
@@ -1060,7 +1060,7 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 double * shockVec,
 double * fvec,
 double * fdrv,unsigned int * fdrvj,unsigned int * fdrvi,unsigned int ihomotopy,
-controlInfo & theControlInfo,outputInfo & theOutputInfo
+stochSims::controlInfo & theControlInfo,stochSims::outputInfo & theOutputInfo
 @}
 
 @d chkDrv definition
@@ -1188,8 +1188,8 @@ double * ma50bdFact,
 unsigned int * ma50bdIrnf,
 unsigned int * ma50bdIptrl,
 unsigned int * ma50bdIptru,
-controlInfo & theControlInfo/*,
-outputInfo & theOutputInfo*/
+stochSims::controlInfo & theControlInfo/*,
+stochSims::outputInfo & theOutputInfo*/
 @}
 
 @d nxtGuess definition
@@ -2503,7 +2503,7 @@ __LINE__);
 //#include "stochProto.h"
 #include "useSparseAMA.h"
 #include "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 
 //#include "stochSims.h"
 //using namespace stochSims;
@@ -2589,8 +2589,8 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check,
-controlInfo & theControlInfo,
-outputInfo & theOutputInfo)@}
+stochSims::controlInfo & theControlInfo,
+stochSims::outputInfo & theOutputInfo)@}
 
 @o stackC.h -d
 @{
@@ -2670,7 +2670,7 @@ resetLnsrchSteps(theOutputInfo);
 dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],theControlInfo.homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 		for (i=0;i<n;i++) xold[i]=x[i];
 		/*modification begin*/
-nxtFPGuess(numberOfEquations,lags,leads,
+stackC::nxtFPGuess(numberOfEquations,lags,leads,
 fmats[0],fmatsj[0],fmatsi[0],
 smats[0],smatsj[0],smatsi[0],
 maxNumberElements,/*x,*/p);
@@ -2678,7 +2678,7 @@ maxNumberElements,/*x,*/p);
 
 
 
-		lnsrch(n,*numberOfEquations,1,
+		stackC::lnsrch(n,*numberOfEquations,1,
         xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x,ihomotopy,
 linearizationPoint,theControlInfo,theOutputInfo);
 
@@ -2749,8 +2749,8 @@ unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int
 double * fixedPoint,double * intercept,double * linearizationPoint,
 /*unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,*/
 double x[],
-unsigned int *check, double * lastDel,controlInfo & theControlInfo,
-outputInfo & theOutputInfo,
+unsigned int *check, double * lastDel,stochSims::controlInfo & theControlInfo,
+stochSims::outputInfo & theOutputInfo,
 unsigned int * ma50bdJob,
 /*unsigned int * ma50bdIq,*/
 double * ma50bdFact,
@@ -2835,7 +2835,7 @@ double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,
 unsigned int *check,
-controlInfo & theControlInfo,
+stochSims::controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo)
 @}
 @o stackC.h -d
@@ -2915,7 +2915,7 @@ resetLnsrchSteps(theOutputInfo);;
 @{
 dfunc(x,params,shockVec,smats[0],smatsj[0],smatsi[0],theControlInfo.homotopyAlpha+ihomotopy,linearizationPoint/*,exogRows,exogCols,exogenizeQ*/);
 		for (i=0;i<n;i++) xold[i]=x[i];
-nxtFPGuess(numberOfEquations,lags,leads,
+stackC::nxtFPGuess(numberOfEquations,lags,leads,
 fmats[0],fmatsj[0],fmatsi[0],
 smats[0],smatsj[0],smatsi[0],
 maxNumberElements,/*x,*/p);
@@ -2923,7 +2923,8 @@ maxNumberElements,/*x,*/p);
 
 
 
-		lnsrch(n,*numberOfEquations,1,
+		
+          stackC::lnsrch(n,*numberOfEquations,1,
         xold,&fold,g,p,params,shockVec,&f,stpmax,check,func,x,ihomotopy,
 linearizationPoint,theControlInfo,theOutputInfo);
 
@@ -2993,7 +2994,7 @@ double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,double * linearizationPoint,unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double x[],
-unsigned int *check, double * lastDel,controlInfo & theControlInfo,
+unsigned int *check, double * lastDel,stochSims::controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo,
 unsigned int * ma50bdJob,
 unsigned int * ma50bdIq,
@@ -3026,7 +3027,7 @@ double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,double * linearizationPoint,
 double easyX[],double targetX[],unsigned int * exogQ,double x[],
-unsigned int *check,controlInfo & theControlInfo,outputInfo & theOutputInfo,
+unsigned int *check,stochSims::controlInfo & theControlInfo,stochSims::outputInfo & theOutputInfo,
 unsigned int * ma50bdJob,
 double * ma50bdFact,
 unsigned int * ma50bdIrnf,
@@ -3459,7 +3460,7 @@ double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
 /*unsigned int * maxNumberElements,*/
 /*double * AMqMatrix,*/
 /*unsigned int * ierr,*/unsigned int ihomotopy,
-controlInfo & theControlInfo/*,outputInfo & theOutputInfo*/
+stochSims::controlInfo & theControlInfo/*,stochSims::outputInfo & theOutputInfo*/
 )
 @}
 
@@ -3657,7 +3658,7 @@ unsigned int * maxNumberElements,
 double * qMat,unsigned int * qMatj,unsigned int * qMati,unsigned int * auxInit,unsigned int * qRows,
 double * rootr, double * rooti,
 unsigned int * ierr,unsigned int ihomotopy,
-controlInfo & theControlInfo
+stochSims::controlInfo & theControlInfo
 )
 @}
 
@@ -3819,7 +3820,7 @@ double * varthetaZstar, unsigned int * varthetaZstarj, unsigned int * varthetaZs
 double * impact, unsigned int * impactj, unsigned int * impacti,
 double * varthetaC, unsigned int * varthetaCj, unsigned int * varthetaCi,
 unsigned int * ierr,
-controlInfo & theControlInfo,
+stochSims::controlInfo & theControlInfo,
 unsigned int * intOutputInfo, double * doubleOutputInfo
 @}
 \subsection{computeF}
@@ -4718,16 +4719,16 @@ printf("pathNewt:test<TOLX return,its=%d, max(abs(x[i]-xold[i])/(min(abs(x[i])),
 addOneToNewtonSteps(theOutputInfo);
 if(theControlInfo.useStackQ){
 printf("using stack\n");
-nxtGuess(numberOfEquations,lags,leads,pathLength,
+stackC::nxtGuess(numberOfEquations,lags,leads,pathLength,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,fixedPoint,intercept,x,/*shockVec,*/xdel/*,
-controlInfo*/);
+stochSims::controlInfo*/);
 bump(*maxNumberElements);
 } else {
 /* code to replace stack with sparse inversion*/
 printf("not using stack\n");
-constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
+stackC::constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,intercept,linearizationPoint,
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
@@ -4735,7 +4736,7 @@ theControlInfo,theOutputInfo
 );
 
 multMax=  (*pathLength)* *maxNumberElements+forQ;/* try 10 for multmax*/
-newNxtGuess(&n,&multMax,
+stackC::newNxtGuess(&n,&multMax,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,xdel,
 ma50bdJob,
 /*ma50bdIq,*/
@@ -4762,8 +4763,8 @@ constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,unsigned intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
-controlInfo,
-outputInfo);
+stochSims::controlInfo,
+stochSims::outputInfo);
 }
 chkDrv(*numberOfEquations*(*lags+*leads+*pathLength),
 chkfdrv,chkfdrvj,chkfdrvi,compfvec,xdel);
@@ -4780,7 +4781,7 @@ addOneToFEvals(theOutputInfo);
 
 
 if(theControlInfo.expandFactorInput>0){
-for(icnt=0;!lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec, *numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
+for(icnt=0;!stackC::lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec, *numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
  *numberOfEquations * *lags )&&icnt<5;icnt++){
 addOneToExpandSteps(theOutputInfo);
 printf("expanding...");
@@ -4798,7 +4799,7 @@ addOneToFEvals(theOutputInfo);
 
 }}
 if(theControlInfo.shrinkFactorInput>0){
-for(icnt=0;!lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec,*numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
+for(icnt=0;!stackC::lclValidVectorVerbose(*pathLength* *numberOfEquations,compfvec,*numberOfEquations,x+(i* *numberOfEquations),chkfdrvj,chkfdrvi,
  *numberOfEquations * *lags)&&icnt<20;icnt++){
 addOneToShrinkSteps(theOutputInfo);
 printf("shrinking...");
@@ -4822,7 +4823,7 @@ if(icnt>20)printf("shrink failed to get rid of NaN and other non  numbers!!!!!!!
 if(*pathLength)  {
 if(theControlInfo.useLnsrchQ){
 @<compute gradient for lnsrch@>
-		lnsrch(n,*numberOfEquations,*pathLength,
+		stackC::lnsrch(n,*numberOfEquations,*pathLength,
         xoldls,&fold,g,xdel,params,shockVec,&f,stpmax,check,vecfunc,x,ihomotopy,linearizationPoint,
 theControlInfo,theOutputInfo);
 } else {for(i=*numberOfEquations* *lags;i<n;i++)x[i]=x[i]-xdel[i];
@@ -4841,8 +4842,8 @@ constructFdrv(*numberOfEquations,*lags,*leads,*pathLength,
 x,params,vecfunc,fdjac,qMat,qMatj,qMati,fixedPoint,unsigned intercept,linearizationPoint,exogRows,exogCols,exogenizeQ,
 shockVec,
 compfvec,chkfdrv,chkfdrvj,chkfdrvi,ihomotopy,
-controlInfo,
-outputInfo);
+stochSims::controlInfo,
+stochSims::outputInfo);
 */
 }
         sparseMatTimesVec(&n,chkfdrv,chkfdrvj,chkfdrvi,compfvec,
@@ -4940,7 +4941,7 @@ double xold[], double * fold, double g[], double p[],
 void (*func)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
 double * x,
             unsigned int ihomotopy,double * linPt,
-controlInfo & theControlInfo, outputInfo & theOutputInfo
+stochSims::controlInfo & theControlInfo, stochSims::outputInfo & theOutputInfo
 @}
 @o stackC.h -d
 @{
@@ -5004,7 +5005,7 @@ unsigned int printed=0;
         if(!isfinite(vec[i])) {
 if(printed<1) {
 printf("<lclValidVectorVerbose:problem with eqn i=%d in block=%d,vec[i]=%e,with numRows=%d>",i%forMod+1,i/forMod,vec[i],numRows);printed++;
-badArgs(i,x,ja,ia,skipRows,forMod);} else 
+stackC::badArgs(i,x,ja,ia,skipRows,forMod);} else 
 {printf(".");}
 }
 }

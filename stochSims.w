@@ -204,58 +204,440 @@ double failedX;
 unsigned int previousHomotopyQ;
 };
 
-void addOneToFailedQ(outputInfo & outInfo){outInfo.failedQ++;}
-void subOneFromFailedQ(outputInfo & outInfo){outInfo.failedQ--;}
-void resetFailedQ(outputInfo & outInfo){outInfo.failedQ=0;}
+@}
+@d addOneToFailedQ signature
+@{
+void addOneToFailedQ(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToFailedQ signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToFailedQ signature@>
+{outInfo.failedQ++;}
+@}
 
-void addOneToNewtonSteps(outputInfo & outInfo){outInfo.newtonSteps++;}
-void resetNewtonSteps(outputInfo & outInfo){outInfo.newtonSteps=0;}
 
-void addOneToFEvals(outputInfo & outInfo){outInfo.fEvals++;}
-void resetFEvals(outputInfo & outInfo){outInfo.fEvals=0;}
 
-void addOneToFDrvEvals(outputInfo & outInfo){outInfo.fDrvEvals++;}
-void resetFDrvEvals(outputInfo & outInfo){outInfo.fDrvEvals=0;}
 
-void addOneToShrinkSteps(outputInfo & outInfo){outInfo.shrinkSteps++;}
-void resetShrinkSteps(outputInfo & outInfo){outInfo.shrinkSteps=0;}
+@d subOneFromFailedQ signature
+@{
+void subOneFromFailedQ(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<subOneFromFailedQ signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<subOneFromFailedQ signature@>
+{outInfo.failedQ--;}
+@}
 
-void addOneToExpandSteps(outputInfo & outInfo){outInfo.expandSteps++;}
-void resetExpandSteps(outputInfo & outInfo){outInfo.expandSteps=0;}
 
-void addOneToLnsrchSteps(outputInfo & outInfo){outInfo.lnsrchSteps++;}
-void resetLnsrchSteps(outputInfo & outInfo){outInfo.lnsrchSteps++;}
 
-void addOneToHomotopies(outputInfo & outInfo){outInfo.homotopies++;}
-void resetHomotopies(outputInfo & outInfo){outInfo.homotopies=0;}
 
-void addOneToHomotopyFailures(outputInfo & outInfo){outInfo.homotopyFailures++;}
-void resetHomotopyFailures(outputInfo & outInfo){outInfo.homotopyFailures=0;}
 
+
+
+
+@d resetFailedQ signature
+@{
+void resetFailedQ(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetFailedQ signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetFailedQ signature@>
+{outInfo.failedQ=0;}
+@}
+
+
+@d addOneToNewtonSteps signature
+@{
+void addOneToNewtonSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToNewtonSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToNewtonSteps signature@>
+{outInfo.newtonSteps++;}
+@}
+
+
+@d resetNewtonSteps signature
+@{
+void resetNewtonSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetNewtonSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetNewtonSteps signature@>
+{outInfo.newtonSteps=0;}
+@}
+
+
+@d addOneToFEvals signature
+@{
+void addOneToFEvals(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToFEvals signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToFEvals signature@>
+{outInfo.fEvals++;}
+@}
+
+
+@d resetFEvals signature
+@{
+void resetFEvals(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetFEvals signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetFEvals signature@>
+{outInfo.fEvals=0;}
+@}
+
+
+@d addOneToFDrvEvals signature
+@{
+void addOneToFDrvEvals(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToFDrvEvals signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToFDrvEvals signature@>
+{outInfo.fDrvEvals++;}
+@}
+
+
+@d resetFDrvEvals signature
+@{
+void resetFDrvEvals(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetFDrvEvals signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetFDrvEvals signature@>
+{outInfo.fDrvEvals=0;}
+@}
+
+
+@d addOneToShrinkSteps signature
+@{
+void addOneToShrinkSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToShrinkSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToShrinkSteps signature@>
+{outInfo.shrinkSteps++;}
+@}
+
+
+@d resetShrinkSteps signature
+@{
+void resetShrinkSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetShrinkSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetShrinkSteps signature@>
+{outInfo.shrinkSteps=0;}
+@}
+
+
+@d addOneToExpandSteps signature
+@{
+void addOneToExpandSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToExpandSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToExpandSteps signature@>
+{outInfo.expandSteps++;}
+@}
+
+
+@d resetExpandSteps signature
+@{
+void resetExpandSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetExpandSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetExpandSteps signature@>
+{outInfo.expandSteps=0;}
+@}
+
+
+@d addOneToLnsrchSteps signature
+@{
+void addOneToLnsrchSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToLnsrchSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToLnsrchSteps signature@>
+{outInfo.lnsrchSteps++;}
+@}
+
+
+@d resetLnsrchSteps signature
+@{
+void resetLnsrchSteps(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetLnsrchSteps signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetLnsrchSteps signature@>
+{outInfo.lnsrchSteps++;}
+@}
+
+
+@d addOneToHomotopies signature
+@{
+void addOneToHomotopies(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToHomotopies signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToHomotopies signature@>
+{outInfo.homotopies++;}
+@}
+
+
+@d resetHomotopies signature
+@{
+void resetHomotopies(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures;
+@{
+@<resetHomotopies signature@>
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetHomotopies signature@>
+{outInfo.homotopies=0;}
+@}
+
+
+@d addOneToHomotopyFailures signature
+@{
+void addOneToHomotopyFailures(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<addOneToHomotopyFailures signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<addOneToHomotopyFailures signature@>
+{outInfo.homotopyFailures++;}
+@}
+
+
+@d resetHomotopyFailures signature
+@{
+void resetHomotopyFailures(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetHomotopyFailures signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetHomotopyFailures signature@>
+{outInfo.homotopyFailures=0;}
+@}
+
+
+@d currentReplication signature
+@{
 double currentReplication(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<currentReplication signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<currentReplication signature@>
 {return(outInfo.replication);}
+@}
+
+
+@d setCurrentReplication signature
+@{
 void setCurrentReplication(outputInfo & outInfo,unsigned int val)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<setCurrentReplication signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<setCurrentReplication signature@>
 {outInfo.replication=val;}
+@}
+
+
+@d currentDate signature
+@{
 unsigned int currentDate(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<currentDate signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<currentDate signature@>
 {return(outInfo.date);}
+@}
+
+
+@d setCurrentDate signature
+@{
 void setCurrentDate(outputInfo & outInfo,unsigned int val)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<setCurrentDate signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<setCurrentDate signature@>
 {outInfo.date=val;}
+@}
 
 
+@d assignRealizedTolF signature
+@{
 void assignRealizedTolF(controlInfo & inpInfo,double val)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<assignRealizedTolF signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<assignRealizedTolF signature@>
+
 {inpInfo.tolF=val;}
+@}
+
+
+@d resetRealizedTolF signature
+@{
 void resetRealizedTolF(controlInfo & inpInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetRealizedTolF signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetRealizedTolF signature@>
 {inpInfo.tolF=DEFAULT_TOLF;}
+@}
 
 
+@d assignRealizedTolX signature
+@{
 void assignRealizedTolX(controlInfo & inpInfo,double val)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<assignRealizedTolX signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<assignRealizedTolX signature@>
+
 {inpInfo.tolX=val;}
+@}
+
+
+@d resetRealizedTolX signature
+@{
 void resetRealizedTolX(controlInfo & inpInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<resetRealizedTolX signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<resetRealizedTolX signature@>
 {inpInfo.tolX=DEFAULT_TOLX;}
+@}
 
 
+@d usePreviousHomotopyQ signature
+@{
 unsigned int usePreviousHomotopyQ(outputInfo & outInfo)
+@}
+@d controlInfo and outputInfo function signatures
+@{
+@<usePreviousHomotopyQ signature@>;
+@}
+@d controlInfo and outputInfo function definitions
+@{
+@<usePreviousHomotopyQ signature@>
+
 {return(outInfo.previousHomotopyQ);}
+@}
+
+
+@o stochSims.h -d
+@{
 
 /*void free();*/
 /*void * calloc(unsigned num,unsigned int amt);*/
@@ -400,7 +782,8 @@ using namespace std;
 
 @<define assert bump@>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+
 
 //#include "stochSims.h"
 namespace stochSims {
@@ -482,7 +865,7 @@ double * linearizationPoint,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
 unsigned int *check,
-controlInfo & theControlInfo,outputInfo & theOutputInfo,
+stochSims::controlInfo & theControlInfo,stochSims::outputInfo & theOutputInfo,
 unsigned int * compXMa50bdJob,
 /*unsigned int * compXMa50bdIq,*/
 double * compXMa50bdFact,
@@ -504,9 +887,9 @@ unsigned int * compXMa50bdIptru
 @<define assert bump@>
 #include  "useSparseAMA.h"
 #include "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 //#include "stochSims.h"
-using namespace stochSims;
+//using namespace stochSims;
 #include <stdio.h>
 @<compXEtm1 signature@>
 {
@@ -560,7 +943,7 @@ fclose(debFile);
 }
 
 
-pathNewt(numberOfEquations,lags, leads,aOne,
+stackC::pathNewt(numberOfEquations,lags, leads,aOne,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -594,7 +977,7 @@ printf("compXEtm1:pathNewt nonzero shock failed. try homotopy\n");
 /* easyX = targetX actual homotopy on shockVec*/
 for(i=0;i<*numberOfEquations*(*lags+1+ *leads);i++){
   x[i]=easyX[i];}
-homotopyPathNewt(numberOfEquations,lags, leads,aOne,
+stackC::homotopyPathNewt(numberOfEquations,lags, leads,aOne,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -657,7 +1040,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],unsigned int *check,
-controlInfo & theControlInfo,outputInfo& theOutputInfo,
+stochSims::controlInfo & theControlInfo,stochSims::outputInfo& theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -687,9 +1070,9 @@ namespace stochSims {
 #include <stdio.h>
 #include  "useSparseAMA.h"
 #include  "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 //#include  "stochSims.h"
-using namespace stochSims;
+//using namespace stochSims;
 @<define assert bump@>
 
 @<generateNextXTMinusOne signature@>
@@ -725,7 +1108,7 @@ fclose(debFile);
 }
 
 
-pathNewt(numberOfEquations,lags, leads,pathLength,
+stackC::pathNewt(numberOfEquations,lags, leads,pathLength,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -757,7 +1140,7 @@ if(*check !=0){
 printf("generateNextXTMinusOne:pathNewt zero shock failed. try homotopy\n");
 for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
   x[i]=easyX[i];}
-homotopyPathNewt(numberOfEquations,lags, leads,pathLength,
+stackC::homotopyPathNewt(numberOfEquations,lags, leads,pathLength,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -855,7 +1238,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],/*double targetX[],*/unsigned int * exogQ,
 double x[],
-unsigned int *check,controlInfo & theControlInfo,outputInfo & theOutputInfo,
+unsigned int *check,stochSims::controlInfo & theControlInfo,stochSims::outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -875,9 +1258,9 @@ unsigned int * compXMa50bdIptru*/
 #include <stdio.h>
 #include  "useSparseAMA.h"
 #include  "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 //#include "stochSims.h"
-using namespace stochSims;
+//using namespace stochSims;
 
 @<define assert bump@>
 
@@ -942,7 +1325,7 @@ fclose(debFile);
 }
 
 
-pathNewt(numberOfEquations,lags, leads,pathLength,
+stackC::pathNewt(numberOfEquations,lags, leads,pathLength,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -978,7 +1361,7 @@ if(*check !=0){
 printf("generateNextXT:pathNewt  shock failed. try homotopy\n");
 for(i=0;i<*numberOfEquations*(*lags+*pathLength+ *leads);i++){
   x[i]=easyX[i];}
-homotopyPathNewt(numberOfEquations,lags, leads,pathLength,
+stackC::homotopyPathNewt(numberOfEquations,lags, leads,pathLength,
 vecfunc, fdjac,params,shockVec,
 fmats, fmatsj, fmatsi,
 smats, smatsj, smatsi,
@@ -1050,7 +1433,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *check,controlInfo&theControlInfo,outputInfo & theOutputInfo,
+unsigned int *check,stochSims::controlInfo&theControlInfo,stochSims::outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1078,8 +1461,8 @@ namespace stochSims {
 
 @d currentRequestedQ signature
 @{
-bool currentRequestedQ(controlInfo& theControlInfo,
-outputInfo& theOutputInfo)
+bool currentRequestedQ(stochSims::controlInfo& theControlInfo,
+stochSims::outputInfo& theOutputInfo)
 @}
 
 @o generatePathX.c -d
@@ -1089,10 +1472,10 @@ outputInfo& theOutputInfo)
 @<define assert bump@>
 
 #include "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 
 //#include "stochSims.h"
-using namespace stochSims;
+//using namespace stochSims;
 void failNextX(unsigned int * numberOfEquations,double * x)
 {
 unsigned int i;
@@ -1255,7 +1638,7 @@ double * linearizationPoint,
 //unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *check,controlInfo &theControlInfo,outputInfo&theOutputInfo,
+unsigned int *check,stochSims::controlInfo &theControlInfo,stochSims::outputInfo&theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1295,7 +1678,7 @@ unsigned int aOne=1;
 
 
 for(i=0;i<*numberOfShocks;i++){
-getShocks(1,theControlInfo.ICshockVecLength,*numberOfEquations,shockTable,streamShocksIn,0,1);
+stackC::getShocks(1,theControlInfo.ICshockVecLength,*numberOfEquations,shockTable,streamShocksIn,0,1);
 printf("for given draw, computing for date=%d\n",i);
 setCurrentDate(theOutputInfo,i);
 if(check[0]!=0){
@@ -1378,7 +1761,7 @@ compXMa50bdIptru
 */);bump(*maxNumberElements);
 }
 
-putData(*numberOfEquations,x+(*lags)**numberOfEquations,streamPathOut);
+stackC::putData(*numberOfEquations,x+(*lags)**numberOfEquations,streamPathOut);
 
 printf("QUICK PATCH to improve guess of next time period!!!!!!!!!!!!!!!\n");
 for(j=0;j<*numberOfEquations;j++){
@@ -1400,12 +1783,12 @@ printf("streaming shocks data and path\n");
 
 for(ii=0;ii<(*lags+*leads+*pathLength-1)* *numberOfEquations;ii++){
 easyX[ii]=easyX[ii+*numberOfEquations];}
-getData(1,*numberOfEquations,*numberOfEquations,
+stackC::getData(1,*numberOfEquations,*numberOfEquations,
 easyX+(*lags+*leads+*pathLength-1)* *numberOfEquations,streamEasyIn,0,1);
 
 for(ii=0;ii<(*lags+*leads+*pathLength-1)* *numberOfEquations;ii++){
 targetX[ii]=targetX[ii+*numberOfEquations];}
-getData(1,*numberOfEquations,*numberOfEquations,
+stackC::getData(1,*numberOfEquations,*numberOfEquations,
 targetX+(*lags+*leads+*pathLength-1)* *numberOfEquations,streamTargetIn,0,1);
 
 for(ii=0;ii<(*lags+*leads+*pathLength-1)* *numberOfEquations;ii++){
@@ -1441,7 +1824,7 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
 unsigned int *failedQ,
-controlInfo & theControlInfo, outputInfo & theOutputInfo,
+stochSims::controlInfo & theControlInfo, stochSims::outputInfo & theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1471,10 +1854,7 @@ void allocStochSim(unsigned int stochasticPathLength,unsigned int replications,u
 namespace stochSims {
 
 
-unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
 
-
-char  * flnm;
 }
 
 @}
@@ -1482,6 +1862,7 @@ char  * flnm;
 @o stochSims.h -d
 @{
 namespace stochSims {
+@<controlInfo and outputInfo function signatures@>
 @<processCommandLine signature@>;
 }
 @}
@@ -1491,7 +1872,7 @@ namespace stochSims {
 void processCommandLine(int argc, const char * argv[],const char ** namesArray,unsigned int modelNEQS,const char ** paramNamesArray,unsigned int numberOfParameters,double * parameters,
 double * dataValues,unsigned int numberDataValues,unsigned int numShockValues,
 unsigned int * pathLength,unsigned int * replications,unsigned int * t0,unsigned int * stochasticPathLength,
-controlInfo & theControlInfo,char * flnm)
+stochSims::controlInfo & theControlInfo,char * flnm)
 @}
 
 @o stochSims.c -d
@@ -1502,13 +1883,15 @@ controlInfo & theControlInfo,char * flnm)
 #include<strings.h>
 #endif
 #ifdef __linux__
-#include<string.h>
+#include<string>
+
 #endif
 /* */
 #include <cstdlib>
 #include "stackC.h"
-
 namespace stochSims {
+@<controlInfo and outputInfo function definitions@>
+
 void modData(unsigned int numberOfEquations,unsigned int numberDataValues,double * dataVals,
 			 unsigned int vbl,unsigned int t0,unsigned int tf,double val1,double val2)
 {
@@ -1806,7 +2189,7 @@ namespace stochSims {
 
 #include <stdio.h>
 #include "stackC.h"
-using namespace stackC;
+//using namespace stackC;
 
 
 //#include "stochSims.h"
@@ -1841,7 +2224,7 @@ double * fixedPoint,double * intercept,double * linearizationPoint,
 //unsigned int *exogRows,unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],
-unsigned int *failedQ,controlInfo & theControlInfo, outputInfo& theOutputInfo,
+unsigned int *failedQ,stochSims::controlInfo & theControlInfo, stochSims::outputInfo& theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
 //unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
@@ -1863,9 +2246,9 @@ unsigned int maxElementsSpecified;
 unsigned int i/*,j*/;
 FILE * debFile;
 printf("streaming shocks data and path\n");
-getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
+stackC::getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
 easyX,streamEasyIn,0,*lags+*leads+*pathLength);
-getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
+stackC::getData(*lags+*leads+*pathLength,*numberOfEquations,*numberOfEquations,
 targetX,streamTargetIn,0,*lags+*leads+*pathLength);
 for(i=0;i<(*lags+*leads+*pathLength)* *numberOfEquations;i++){
 x[i]=targetX[i];}
