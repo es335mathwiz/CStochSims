@@ -389,9 +389,9 @@ oddSumCA,oddSumCJA,oddSumCIA,nr,nc,ao,jao,iao);
 
 @d multiply c matrices by appropriate s matrix and subtract
 @{
-sparseMult(rowDim,cColumns,aOne,ao,jao,iao,
+sparseMult(rowDim,cColumns,nzmax,iw,aOne,ao,jao,iao,
 (cmatsA[timeOffset]),(cmatsJA[timeOffset]),(cmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump((cmatsIA[timeOffset])[*rowDim]-(cmatsIA[timeOffset])[0]);
 aSmallDouble=DBL_EPSILON;
@@ -426,9 +426,9 @@ bump(evenSumCIA[*rowDim]-evenSumCIA[0]);
 @d multiply d matrices by appropriate s matrix and subtract
 @{
 
-sparseMult(rowDim,aOne,aOne,ao,jao,iao,
+sparseMult(rowDim,aOne,nzmax,iw,aOne,ao,jao,iao,
 (dmatsA[timeOffset]),(dmatsJA[timeOffset]),(dmatsIA[timeOffset]),
-b,jb,ib,nzmax,iw,ierr);
+b,jb,ib,ierr);
 pathNewtAssert(*ierr == 0);
 bump(ib[*rowDim]-ib[0]);
 aSmallDouble=DBL_EPSILON;
@@ -627,7 +627,7 @@ unsigned int *firstColumn,*lastColumn,*nr,*nc;
 unsigned int *iw,*ierr,*nzmax,*nonZeroNow;unsigned int cmatsExtent;unsigned int *nzmaxLeft;
 unsigned int i;
 unsigned int j;
-unsigned int timeOffset;
+int timeOffset;
 unsigned int *jcn;
 double * cntl;
 unsigned int * icntl;
@@ -916,9 +916,9 @@ void oneStepBack(@<oneStepBack argument list@>)
 @<oneStepBack variable allocations@>
 /*cmat non zero then multiply else product is zero*/
 if(cmatsIA[0][*rowDim]-cmatsIA[0][0]) {
-  sparseMult(rowDim,aOne,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
+  sparseMult(rowDim,aOne,rowDim,iw,aOne,cmatsA[0],cmatsJA[0],cmatsIA[0],
   yvecA[0+1 ],yvecJA[0+1 ],yvecIA[0+1 ],
-  rcy,rcyj,rcyi,rowDim,iw,ierr);
+  rcy,rcyj,rcyi,ierr);
 pathNewtAssert(*ierr == 0);
 
 aSmallDouble=DBL_EPSILON;
@@ -4486,8 +4486,8 @@ pathNewtAssert(ierr == 0);
 copyMatrix(&hrows,aOne,vartheta,varthetaj,varthetai,aOne,
 impact,impactj,impacti);
 /*compute vartheta * upsilon*/
-sparseMult(&hrows,&numberExogenous,aOne,vartheta,varthetaj,varthetai,
-upsilonmat,upsilonmatj,upsilonmati,tfmat,tfmatj,tfmati,maxNumberHElements,iw,&ierr);
+sparseMult(&hrows,&numberExogenous,maxNumberHElements,iw,aOne,vartheta,varthetaj,varthetai,
+upsilonmat,upsilonmatj,upsilonmati,tfmat,tfmatj,tfmati,&ierr);
 pathNewtAssert(ierr == 0);
 *notAOne=impacti[hrows]-impacti[0]+1;
 /*post mult by selector matrix*/
@@ -4617,8 +4617,8 @@ cPrunsigned intSparse(hrows,bright,brightj,brighti);
 
 @d compute hplus times bright
 @{
-sparseMult(&hrows,&hrows,aOne,hplus,hplusj,hplusi,bright,brightj,brighti,
-                       hb,hbj,hbi,maxNumberHElements,iw,ierr);
+sparseMult(&hrows,&hrows,maxNumberHElements,iw,aOne,hplus,hplusj,hplusi,bright,brightj,brighti,
+                       hb,hbj,hbi,ierr);
 pathNewtAssert(ierr == 0);
 #ifdef DEBUG 
 printf("in computePhiInv prunsigned inting hb\n");
