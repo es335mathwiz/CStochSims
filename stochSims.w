@@ -1920,7 +1920,7 @@ dataVals[t*numberOfEquations+vbl]= (val2+val1)/2;} else {
 
 @<processCommandLine signature@>
 {
-flnm=(char *)calloc(500,sizeof(char));
+strcpy(flnm,"stochSim.out");
 
   float aFloat;unsigned int i;unsigned int anInt;
  unsigned int pl;unsigned int t1;unsigned int t2; double val1; double val2; unsigned int vbl;

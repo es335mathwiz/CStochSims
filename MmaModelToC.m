@@ -1116,9 +1116,9 @@ allocStochSim(stochasticPathLength,replications,&failedQ);
 /*initialize  whole path to data values at t0*/
 for(i=0;i<lags+pathLength+leads+stochasticPathLength;i++){
   for(j=0;j<numberOfEquations;j++){
-	`functionName`ZeroPathQ[i* (*numberOfEquations)+j]=
+	`functionName`ZeroPath[i* (*numberOfEquations)+j]=
 	  `functionName`DataVals[(i+t0)*(*numberOfEquations)+j];
-	`functionName`PathQ[i* (*numberOfEquations)+j]=
+	`functionName`Path[i* (*numberOfEquations)+j]=
 	  `functionName`DataVals[(i+t0)*(*numberOfEquations)+j];
   }}
 
@@ -1263,11 +1263,11 @@ systemTime=%f\n\",*totalTime,*userSystemTime,*(userSystemTime+1));
 /*for(i=0;i< pathLength+leads+stochasticPathLength;i++){
 	applySparseReducedForm(numberOfEquations,
 		numberOfEquations* lags,
-		`functionName`ZeroPathQ+(i *numberOfEquations),`functionName`FP,
+		`functionName`ZeroPath+(i *numberOfEquations),`functionName`FP,
 		AMbMatrix,AMbMatrixj,AMbMatrixi,
-`functionName`ZeroPathQ+((i * numberOfEquations)+(numberOfEquations*lags)));
+`functionName`ZeroPath+((i * numberOfEquations)+(numberOfEquations*lags)));
 for(j=0;j<numberOfEquations;j++){
-`functionName`ZeroPathQ[((i * numberOfEquations)+(numberOfEquations*lags))+j]=
+`functionName`ZeroPath[((i * numberOfEquations)+(numberOfEquations*lags))+j]=
 `functionName`FP[j+(numberOfEquations*lags)%
 	(numberOfEquations*(lags+leads+1))];}
 }*/
@@ -1416,7 +1416,7 @@ fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 &maxNumberElements,AMqMatrix,AMqMatrixj,AMqMatrixi,
 `functionName`FP,`functionName`Intercept,`functionName`FP,
-`functionName`ZeroPathQ,
+`functionName`ZeroPath,
 failedQ,
 hasticPathLength,
 theControlInfo,theOutputInfo,
@@ -1433,7 +1433,7 @@ fPrintMathDbl(outFile,widthIntOutputInfo,doubleOutputInfo,
 
 
 fPrintMathDbl(outFile,(numberOfEquations*(leads+pathLength+lags)),
-      `functionName`ZeroPathQ,\"`functionName`ZeroShockResults\");
+      `functionName`ZeroPath,\"`functionName`ZeroShockResults\");
 fPrintMathInt(outFile,1,
 failedQ,\"`functionName`ZeroShocksFailedQ\");
 /*time used so far?*/
@@ -1720,6 +1720,7 @@ runItTemplate=
 /*`modelCreationInfo`*/
 #include <stdlib.h>
 #include <stdio.h>
+#include <algorithm>
 #include \"stackC.h\"
 //using namespace stackC;
 //#include \"stochSims.h\"
@@ -1825,9 +1826,9 @@ stochSims::allocStochSim(*stochasticPathLength,*replications,&`functionName`Fail
 /*initialize  whole path to data values at t0*/
 for(i=0;i<NLAGS+*pathLength+NLEADS+*stochasticPathLength;i++){
   for(j=0;j<NEQS;j++){
-	`functionName`ZeroPathQ[i* (NEQS)+j]=
+	`functionName`ZeroPath[i* (NEQS)+j]=
 	  `functionName`DataVals[(i+*t0)*(NEQS)+j];
-	`functionName`PathQ[i* (NEQS)+j]=
+	`functionName`Path[i* (NEQS)+j]=
 	  `functionName`DataVals[(i+*t0)*(NEQS)+j];
   }}
 
@@ -1873,27 +1874,42 @@ ierr,*ihomotopy,
 theControlInfo
 );
 
-unsigned int  pathNewtMa50bdJob[1]={0};
+unsigned int  pathNewtMa50bdJob[100];
+std::fill_n(pathNewtMa50bdJob,100,0);
 //unsigned int  pathNewtMa50bdIq[1]={0};
-double  pathNewtMa50bdFact[1]={0};
-unsigned int  pathNewtMa50bdIrnf[1]={0};
-unsigned int  pathNewtMa50bdIptrl[1]={0};
+double  pathNewtMa50bdFact[100];
+std::fill_n(pathNewtMa50bdFact,100,0);
+unsigned int  pathNewtMa50bdIrnf[100];
+std::fill_n(pathNewtMa50bdIrnf,100,0);
+unsigned int  pathNewtMa50bdIptrl[100];
+std::fill_n(pathNewtMa50bdIptrl,100,0);
 unsigned int  pathNewtMa50bdIptru[1]={0};
-unsigned int  compXMa50bdJob[1]={0};
+unsigned int  compXMa50bdJob[100];
+std::fill_n(compXMa50bdJob,100,0);
 //unsigned int  compXMa50bdIq[1]={0};
-double  compXMa50bdFact[1]={0};
-unsigned int  compXMa50bdIrnf[1]={0};
-unsigned int  compXMa50bdIptrl[1]={0};
-unsigned int  compXMa50bdIptru[1]={0};
-unsigned int  exogQ[1]={0};
+double  compXMa50bdFact[100];
+std::fill_n(compXMa50bdFact,100,0);
+unsigned int  compXMa50bdIrnf[100];
+std::fill_n(compXMa50bdIrnf,100,0);
+unsigned int  compXMa50bdIptrl[100];
+std::fill_n(compXMa50bdIptrl,100,0);
+unsigned int  compXMa50bdIptru[100];
+std::fill_n(compXMa50bdIptru,100,0);
+unsigned int  exogQ[100];
+std::fill_n(exogQ,100,0);
 //unsigned int  exogCol[1]={0};
 //unsigned int  exogRow[1]={0};
 /*unsigned int  numExog[1]={0};*/
-double  targetX[1]={0};
-double  easyX[1]={0};
-double  linearizationPoint[1]={0};
-unsigned int  tf[1]={0};
-double  intercept[1]={0};
+double  targetX[100];
+std::fill_n(targetX,100,0);
+double  easyX[100];
+std::fill_n(easyX,100,0);
+double  linearizationPoint[100];
+std::fill_n(linearizationPoint,100,0);
+unsigned int  tf[100];
+std::fill_n(tf,100,0);
+double  intercept[100];
+std::fill_n(intercept,100,0);
 /*double  upsilonmat[1]={0};
 unsigned int  upsilonmatj[1]={0};
 unsigned int  upsilonmati[1]={0};*/
@@ -1912,7 +1928,7 @@ smats,smatsj,smatsi,
 `functionName`FP,intercept,linearizationPoint,
 //exogRow,exogCol,exogenizeQ,
 easyX,targetX,exogQ,
-`functionName`PathQ,
+`functionName`Path,
 `functionName`FailedQ,
 theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
