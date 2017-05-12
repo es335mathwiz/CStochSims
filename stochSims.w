@@ -104,7 +104,7 @@ Map[iterFunc,shockSeqList]
 #define STOCHSIMS_H
 
 
-namespace stochSims {
+namespace stochSims{ 
 
 //#define MAXELEMENTS 20000
 #define PATHLENGTH 10
@@ -885,12 +885,16 @@ unsigned int * compXMa50bdIptru
 @o compXEtm1.c -d
 @{
 @<define assert bump@>
+extern "C" {
 #include  "useSparseAMA.h"
+}
 #include "stackC.h"
 //using namespace stackC;
 //#include "stochSims.h"
 //using namespace stochSims;
 #include <stdio.h>
+namespace stochSims{ 
+
 @<compXEtm1 signature@>
 {
 
@@ -1021,34 +1025,34 @@ free(qMat);
 free(qMatj);
 free(qMati);
 }
+}
 @}
 
 @d generateNextXTMinusOne signature
 @{
 void generateNextXTMinusOne(
-unsigned int * numberOfEquations,unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
-void (* vecfunc)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),void (* fdjac)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),double * params,
-/*unsigned int * numberExog,
-double * upsilonmat,unsigned int * upsilonmatj,unsigned int * upsilonmati,void (* exdfunc)(),*/
-unsigned int * shockIndex,
-double * shockTable,
+unsigned int * numberOfEquations,
+unsigned int * lags, unsigned int * leads,unsigned int * pathLength,
+void (* vecfunc)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+void (* fdjac)(double*, double*, double*,double*,unsigned int*,unsigned int*,double *,double*),
+double * params,
+unsigned int * shockIndex,double * shockTable,
 double ** fmats, unsigned int ** fmatsj, unsigned int ** fmatsi,
 double ** smats, unsigned int ** smatsj, unsigned int ** smatsi,
-unsigned int * maxNumberElements,double * qMat,unsigned int * qMatj,unsigned int * qMati,
+unsigned int * maxNumberElements,
+double * qMat,unsigned int * qMatj,unsigned int * qMati,
 double * fixedPoint,double * intercept,
 double * linearizationPoint,
-//unsigned int * exogRows, unsigned int * exogCols, unsigned int * exogenizeQ,
 double easyX[],double targetX[],unsigned int * exogQ,
 double x[],unsigned int *check,
-stochSims::controlInfo & theControlInfo,stochSims::outputInfo& theOutputInfo,
+stochSims::controlInfo & theControlInfo,
+stochSims::outputInfo& theOutputInfo,
 unsigned int * pathNewtMa50bdJob,
-//unsigned int * pathNewtMa50bdIq,
 double * pathNewtMa50bdFact,
 unsigned int * pathNewtMa50bdIrnf,
 unsigned int * pathNewtMa50bdIptrl,
 unsigned int * pathNewtMa50bdIptru,
 unsigned int *compXMa50bdJob,
-//unsigned int * compXMa50bdIq,
 double * compXMa50bdFact,
 unsigned int * compXMa50bdIrnf,
 unsigned int * compXMa50bdIptrl,
@@ -1068,13 +1072,15 @@ namespace stochSims {
 @o generateNextXTMinusOne.c -d
 @{
 #include <stdio.h>
+extern "C" {
 #include  "useSparseAMA.h"
+}
 #include  "stackC.h"
 //using namespace stackC;
 //#include  "stochSims.h"
 //using namespace stochSims;
 @<define assert bump@>
-
+namespace stochSims {
 @<generateNextXTMinusOne signature@>
 {
 FILE * debFile;
@@ -1219,7 +1225,7 @@ free(shockVec);free(zeroShockX);free(diffFromZeroShock);free(lastDel);free(safex
 }
 
 
-
+}
 @}
 @d generateNextXT signature
 @{
@@ -1256,7 +1262,9 @@ unsigned int * compXMa50bdIptru*/
 @o generateNextXT.c -d
 @{
 #include <stdio.h>
+extern "C" {
 #include  "useSparseAMA.h"
+}
 #include  "stackC.h"
 //using namespace stackC;
 //#include "stochSims.h"
@@ -1268,6 +1276,7 @@ unsigned int * compXMa50bdIptru*/
 
 
 #include <stdio.h>
+namespace stochSims {
 
 @<generateNextXT signature@>
 {
@@ -1413,7 +1422,7 @@ free(shockVec);free(lclTargetX);free(lclEasyX);free(diffFromZeroShock);free(last
 }
 
 
-
+}
 @}
 @d generatePathX signature
 @{
@@ -1476,6 +1485,7 @@ stochSims::outputInfo& theOutputInfo)
 
 //#include "stochSims.h"
 //using namespace stochSims;
+namespace stochSims {
 void failNextX(unsigned int * numberOfEquations,double * x)
 {
 unsigned int i;
@@ -1539,24 +1549,20 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 if(theControlInfo.tMinusOneQ){
 generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-/*numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 shockIndices+i,
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
-lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
+lclFixedPoint,intercept,linearizationPoint,
 easyX+(*numberOfEquations*i),targetX+(*numberOfEquations*i),exogQ,
 x+(*numberOfEquations*i),check+i,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
-//pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
 pathNewtMa50bdIptru,
 compXMa50bdJob,
-//compXMa50bdIq,
 compXMa50bdFact,
 compXMa50bdIrnf,
 compXMa50bdIptrl,
@@ -1565,29 +1571,19 @@ compXMa50bdIptru
 } else {
 generateNextXT(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-/*numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 shockIndices+i,
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
-lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
-easyX+(*numberOfEquations*i),/*targetX+(*numberOfEquations*i),*/exogQ,
+lclFixedPoint,intercept,linearizationPoint,
+easyX+(*numberOfEquations*i),exogQ,
 x+(*numberOfEquations*i),check+i,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
-//pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
-pathNewtMa50bdIptru/*,
-compXMa50bdJob,
-compXMa50bdIq,
-compXMa50bdFact,
-compXMa50bdIrnf,
-compXMa50bdIptrl,
-compXMa50bdIptru
-*/);bump(*maxNumberElements);
+pathNewtMa50bdIptru);bump(*maxNumberElements);
 }
 printf("QUICK PATCH to improve guess of next time period!!!!!!!!!!!!!!!\n");
 for(j=0;j<*numberOfEquations;j++){
@@ -1608,7 +1604,7 @@ if(check[i]!=0)for(j=i;j<*numberOfShocks;j++){check[j]=1;}
 *maxNumberElements=maxElementsEncountered;
 free(lclFixedPoint);
 }
-
+}
 @}
 @o stochSims.h -d
 @{
@@ -1660,6 +1656,7 @@ unsigned int * compXMa50bdIptru)
 //using namespace stackC;
 //#include "stochSims.h"
 //using namespace stochSims;
+namespace stochSims {
 @<streamingGeneratePath signature@>
 {
 double * lclFixedPoint;
@@ -1675,18 +1672,36 @@ unsigned int aOne=1;
  for(i=0;i<*numberOfEquations*(*lags+*pathLength+*leads);i++){
  x[i]=targetX[i];}
 
+for(i=0;i<*numberOfShocks;i++)@<for loop@>
+}
+}
+@}
 
-
-for(i=0;i<*numberOfShocks;i++){
+@d for loop
+@{
+{
 stackC::getShocks(1,theControlInfo.ICshockVecLength,*numberOfEquations,shockTable,streamShocksIn,0,1);
 printf("for given draw, computing for date=%d\n",i);
 setCurrentDate(theOutputInfo,i);
-if(check[0]!=0){
+if(check[0]!=0)@<if then clause@> else @<else clause@>
+
+*maxNumberElements=maxElementsEncountered;
+free(lclFixedPoint);
+}
+@}
+@d if then clause
+@{
+{
 /* probably better to use failedQ and pass final path try back
 so comment this out
 failNextX(numberOfEquations,x+(*numberOfEquations*i));
 */
-} else {
+}
+@}
+
+@d else clause
+@{
+{
 
 
   switch (theControlInfo.terminalConstraintSelection)
@@ -1707,26 +1722,28 @@ failNextX(numberOfEquations,x+(*numberOfEquations*i));
 
 
 if(theControlInfo.tMinusOneQ){
-generateNextXTMinusOne(numberOfEquations,lags,leads,pathLength,
-vecfunc,fdjac,params,
-/*numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
-&aOne,
-shockTable,
+generateNextXTMinusOne(
+numberOfEquations,
+lags,leads,pathLength,
+vecfunc,fdjac,
+params,
+&aOne,shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
-maxNumberElements,qMat,qMatj,qMati,
-lclFixedPoint,intercept,linearizationPoint,//exogRows,exogCols,exogenizeQ,
+maxNumberElements,
+qMat,qMatj,qMati,
+lclFixedPoint,intercept,
+linearizationPoint,
 easyX,targetX,exogQ,
-x,check,theControlInfo,theOutputInfo,
+x,check,
+theControlInfo,
+theOutputInfo,
 pathNewtMa50bdJob,
-//pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
 pathNewtMa50bdIptru,
 compXMa50bdJob,
-//compXMa50bdIq,
 compXMa50bdFact,
 compXMa50bdIrnf,
 compXMa50bdIptrl,
@@ -1735,30 +1752,19 @@ compXMa50bdIptru
 } else {
 generateNextXT(numberOfEquations,lags,leads,pathLength,
 vecfunc,fdjac,params,
-/*numberExog,
-upsilonmat,upsilonmatj,upsilonmati,exdfunc,*/
 &aOne,
 shockTable,
 fmats,fmatsj,fmatsi,
 smats,smatsj,smatsi,
 maxNumberElements,qMat,qMatj,qMati,
 lclFixedPoint,intercept,linearizationPoint,
-//exogRows,exogCols,exogenizeQ,
-easyX,/*targetX,*/exogQ,
+easyX,exogQ,
 x,check,theControlInfo,theOutputInfo,
 pathNewtMa50bdJob,
-//pathNewtMa50bdIq,
 pathNewtMa50bdFact,
 pathNewtMa50bdIrnf,
 pathNewtMa50bdIptrl,
-pathNewtMa50bdIptru/*(,
-compXMa50bdJob,
-//compXMa50bdIq,
-compXMa50bdFact,
-compXMa50bdIrnf,
-compXMa50bdIptrl,
-compXMa50bdIptru
-*/);bump(*maxNumberElements);
+pathNewtMa50bdIptru);bump(*maxNumberElements);
 }
 
 stackC::putData(*numberOfEquations,x+(*lags)**numberOfEquations,streamPathOut);
@@ -1796,13 +1802,9 @@ x[ii]=x[ii+*numberOfEquations];}
 for(ii=0;ii<*numberOfEquations;ii++){
 x[ii+(*lags+*leads+*pathLength-1)**numberOfEquations]=
 targetX[ii+(*lags+*leads+*pathLength-1)**numberOfEquations];}
-
-
-}
-*maxNumberElements=maxElementsEncountered;
-free(lclFixedPoint);
-}
 @}
+
+
 @d stochSim signature
 @{
 void stochSim(

@@ -198,10 +198,12 @@ namespace stackC {
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
+extern "C" {
 #include "useSparseAMA.h"
+}
 #include "stackC.h"
 //#include "stochProto.h"
-#include "useSparseAMA.h"
+
 
 @|stdio.h math.h
 @}
@@ -2501,13 +2503,15 @@ __LINE__);
 #include <string.h>
 #include <stdlib.h>
 //#include "stochProto.h"
+extern "C" {
 #include "useSparseAMA.h"
+}
 #include "stackC.h"
 //using namespace stackC;
 
 //#include "stochSims.h"
 //using namespace stochSims;
-namespace myNewt {
+namespace stackC {
 /*taken from numerical recipes nrutil.h*/
 @<define assert bump@>
 static float sqrarg;

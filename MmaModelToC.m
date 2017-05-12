@@ -541,7 +541,9 @@ part="/*Mathematica Creation Date `date`*/
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+extern \"C\" {
 #include \"useSparseAMA.h\"
+}
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -568,7 +570,9 @@ mmaToCTemplate="/*Mathematica Creation Date `date`*/
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+extern \"C\" {
 #include \"useSparseAMA.h\"
+}
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -694,7 +698,7 @@ runItInv=FileNameJoin[{mmaMcFilesDir,"runItInvariantLocalDefs.h"}];
 runItOth=FileNameJoin[{mmaMcFilesDir,"runItOther.h"}];
 spaceForTempVars=spaceForTemp[modelEquations];
 periodPointGuesserAssignments=
-myCAssign[guessVector[timeOffset],modelFpGuess[modelEquations],
+myCAssign[guessVector,Flatten[Table[modelFpGuess[modelEquations],{lags+leads+1}]],
 AssignToArray->{guessVector}];
 upsilonMatrix=
 If[modelUpsilonEqns[modelEquations]=={},denseToSparseMat[{{1}}],
@@ -831,7 +835,9 @@ mmaToCDrvTemplate="
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+extern \"C\" {
 #include \"useSparseAMA.h\"
+}
 `stateVectorDefines`
 #define modelShock(n) (shockVec[n])
 `coeffDefines`
@@ -999,8 +1005,11 @@ mpiRunTemplate="
 #include \"distStochSims.h\"
 int main(int argc,const char * argv[])
 {
-unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
-    char  * flnm;
+unsigned int  pathLength[1]={1};
+unsigned int  replications[1]={1};
+unsigned int  t0[1]={`lags`};
+unsigned int  stochasticPathLength[1]={1};
+char  flnm[3000];
 
 #include \"runItInvariantLocalDefs.h\"
 #include \"run`outFile`LocalDefs.h\"
@@ -1133,7 +1142,7 @@ for(i=0;i<lags+1+leads;i++){
 `functionName`PeriodicPointGuesser(parameters,1,`functionName`FP);
 
 printf(\"initiating FP solution computation\n\");
-stackC::FPnewt(&numberOfEquations,&lags,&leads,
+myNewt::FPnewt(&numberOfEquations,&lags,&leads,
 `functionName`,`functionName`Derivative,parameters,
 `functionName`FP,
 fmats,fmatsj,fmatsi,
@@ -1737,8 +1746,11 @@ unsigned int i;
 int main(int argc,const char * argv[])
 {
 printf(\" runIt.mc, 2016 m1gsa00 \\n\");
-unsigned int * pathLength;unsigned int * replications;unsigned int * t0;unsigned int * stochasticPathLength;
-char  * flnm;
+unsigned int  pathLength[1]={1};
+unsigned int  replications[1]={1};
+unsigned int  t0[1]={`lags`};
+unsigned int  stochasticPathLength[1]={1};
+char  flnm[3000];
 
 `functionName`DataVals=(double *)calloc(NEQS*numDATA,sizeof(double));
 for(i=0;i<numDATA;i++){`functionName`Data(i,`functionName`DataVals+(i*(NEQS)));}
@@ -2015,7 +2027,9 @@ cSupportTemplate="
 /*`modelCreationInfo`*/
 #include \"`lagLeadLoc`\"
 #include <math.h>
+//extern \"C\" {
 //#include \"useSparseAMA.h\"
+//}
 //#include \"stackC.h\"
 //#include \"stochSims.h\"
 //#include \"runItOther.h\"
@@ -2033,12 +2047,12 @@ cSupportTemplate="
 
 void `functionName`PeriodicPointGuesser
 (double * parameters,unsigned int period,
-	double guessVector[`modelColumns`][`modelNumberOfEquations`])
+	double guessVector[`modelColumns`*`modelNumberOfEquations`])
 {
 //int i,j;
 //double svalue;
 parameters[0]=parameters[0];
-int timeOffset;
+unsigned int timeOffset;
 for(timeOffset=0;
 	timeOffset<period+ `modelColumns` - 1;
 			timeOffset++)
