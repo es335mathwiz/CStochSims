@@ -5,6 +5,7 @@ BeginPackage["MmaModelToC`", { "ProtectedSymbols`", "Format`","Stack`", "Experim
 Print["preprivate"]
 
 myCAssign::usage="use ToString to eliminate OutputForm ColumnForm"
+genDefines::usage="genDefines[theEqStr_String]"
 
 
 
@@ -115,7 +116,7 @@ leads
 numberOfDataValues
 *)
 *)
-Begin["Private`"] (* Begin Private Context *) 
+Begin["`Private`"] (* Begin Private Context *) 
 
 myCAssign[lhs_:"",expr_?(!OptionQ[#]&),opts___?OptionQ]:=ToString[CAssign[lhs,expr,Flatten[{opts}]]]
 
